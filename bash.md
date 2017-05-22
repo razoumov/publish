@@ -117,6 +117,7 @@ the following commands could you use to do so?
 
 * open http://bit.ly/bashfile in your browser, it'll download the file bfiles.zip
 * unpack bfiles.zip to your Desktop; you should see ~/Desktop/data-shell
+* personal lesson notes http://bit.ly/bashmd
 
 ~~~ {.bash}
 $ cd

@@ -23,7 +23,7 @@ Mummy will appreciate the lack of humidity.
 
 Make sure (1) you have git in bash and (2) get an account with github.
 
-* personal lesson notes http://bit.ly/gitmd
+* personal lesson notes http://bit.ly/gitcontrolmd
 
 ## 1. Collaboration problem
 
