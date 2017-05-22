@@ -24,6 +24,8 @@ me                                       | students
 
 Make sure you can start bash Unix shell.
 
+* personal lesson notes http://bit.ly/bashmd
+
 ## 1. Introduction to Unix shell
 
 * note to self: type "carpentry"
@@ -117,7 +119,6 @@ the following commands could you use to do so?
 
 * open http://bit.ly/bashfile in your browser, it'll download the file bfiles.zip
 * unpack bfiles.zip to your Desktop; you should see ~/Desktop/data-shell
-* personal lesson notes http://bit.ly/bashmd
 
 ~~~ {.bash}
 $ cd
