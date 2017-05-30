@@ -24,6 +24,7 @@ me                                       | students
 
 Make sure you can start bash Unix shell.
 
+* PIMS: using https://sfu-os.syzygy.ca with github credentials
 * personal lesson notes http://bit.ly/bashmd
 
 ## 1. Introduction to Unix shell
