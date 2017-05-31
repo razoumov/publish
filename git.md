@@ -12,7 +12,8 @@
 - [7. Remotes](#7-remotes)
 - [8. EXERCISE collaborating: get into pairs](#8-exercise-collaborating-get-into-pairs)
 - [9. EXERCISE conflicts](#9-exercise-conflicts)
-- [10. Putting together a simple web page](#10-putting-together-a-simple-web-page)
+- [10. Collaborating through git pull requests](#10-collaborating-through-git-pull-requests)
+- [11. Putting together a simple web page](#11-putting-together-a-simple-web-page)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -24,6 +25,7 @@ Mummy will appreciate the lack of humidity.
 Make sure (1) you have git in bash and (2) get an account with github.
 
 * personal lesson notes http://bit.ly/gitcontrolmd
+* comic http://phdcomics.com/comics/archive/phd101212s.gif
 
 ## 1. Collaboration problem
 
@@ -192,7 +194,21 @@ $ git -a -m "resolved"
 $ git push origin master
 ~~~
 
-## 10. Putting together a simple web page
+## 10. Collaborating through git pull requests
+
+I will only briefly mention this. This is the feature of github, not git.
+
+~~~ {.bash}
+laptop
+git clone https://github.com/username/repository.git
+git checkout -b newBranchName   # create a new temporary branch
+work there
+git commit -am "describe changes"
+git push origin newBranchName
+go to the repository's web interface and make a pull request to the master brach
+~~~
+
+## 11. Putting together a simple web page
 
 We'll now write some static pages with GitHub pages and Jekyll, using Jekyll Now as a template.
 
