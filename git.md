@@ -196,7 +196,9 @@ $ git push origin master
 
 ## 10. Collaborating through git pull requests
 
-I will only briefly mention this. This is the feature of github, not git.
+I will only briefly mention this. This is the feature of github, not git. A pull request has a formal
+review interface with line comments and other advanced features, and is a better way to push changes into
+large github repositories with more than a couple of users than a direct push.
 
 ~~~ {.bash}
 laptop
