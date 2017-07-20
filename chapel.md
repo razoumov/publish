@@ -28,10 +28,10 @@ salloc ... --reservation=def-guest_cpu_5 --account=def-guest   # interactive job
 
 where the name of the reservation is unique for each day of the school:
 
---reservation=def-guest_cpu_5  
---reservation=def-guest_cpu_6  
---reservation=def-guest_cpu_7  
---reservation=def-guest_cpu_8  
+Monday: --reservation=def-guest_cpu_5  
+Tuesday: --reservation=def-guest_cpu_6  
+Wednesday: --reservation=def-guest_cpu_7  
+Thursday: --reservation=def-guest_cpu_8  
 
 # Introduction to heat equation
 
