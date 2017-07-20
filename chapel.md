@@ -51,17 +51,41 @@ many things from learnChapelInYMinutes.chpl
 
 # Task parallelism
 
-explain how parallelism and locality are orthogonal things in Chapel => four examples
+Explain how parallelism and locality are orthogonal things in Chapel => four examples.
 
-for  
-forall  
-coforall  
-reduction  
-locality.chpl  
+- *for* is a serial loop to iterate over a range (forall i in 1..100 { some statements; })
+- *coforall* creates a new task for each iteration (run in random order!), the execution of the parent
+  task will not continue until all the children sync up
+- *forall* creates only a "reasonable" number of tasks, i.e. one per available core, unless overwritten
+  by "--dataParTasksPerLocale=..." at runtime; again, the execution of the parent task will not continue
+  until all the children sync up
+
+Reduction operations in task parallelism:
+
+~~~
+var counter = 0;
+forall a in 1..100 with (+ reduce counter) { // parallel loop, one task per core
+  counter = 1;
+}
+writeln("actual number of threads = ", counter);
+~~~
+
+Run it on a single locale with (show on my laptop):
+
+~~~
+make test
+./test
+./test --dataParTasksPerLocale=10
+~~~
+
+Other concepts in locality.chpl.
+
+There is a number of built-in variables to access locality information, illustrated by the following
+code:
 
 ~~~
 writeln("there are ", numLocales, " locales");
-for loc in Locales do   // this is still a serial program
+for loc in Locales do   // this is still a serial program; Locales array contains an entry for each locale
   on loc {   // simply move the lines inside to locale loc
     writeln("locale #", here.id, "...");
     writeln("  ...is named: ", here.name);
@@ -118,6 +142,10 @@ Let's define an n^2 domain and print out
 (1) t.locale.id = the ID of the locale holding the element t of T (should be 0)  
 (2) here.id = the ID of the locale on which the code is running (should be 0)  
 (3) here.maxTaskPar = the number of cores (max parallelism with 1 task/core) (should be 3)  
+
+**Note**: We already saw some of these variables/functions: numLocales, Locales, here.id here.name,
+here.numPUs(), here.physicalMemory(), here.maxTaskPar. There is also LocaleSpace which returns a
+numerical index of locales (whereas Locales array contains an entry for each locale).
 
 ~~~
 config const n = 8;
@@ -230,13 +258,17 @@ On 4 locales we should get:
 {5..8, 1..4}  
 {5..8, 5..8}  
 
-abc http://chapel.cray.com/docs/1.12/technotes/subquery.html
-http://chapel.cray.com/docs/1.14/users-guide/locality/localeTypeAndVariables.html
+The following checks if the index set owned by a locale can be represented by a single domain:
 
+~~~
+for loc in Locales {
+  on loc {
+    writeln(A.hasSingleLocalSubdomain());
+  }
+}
+~~~
 
-
-
-
+In our case the answer should be yes.
 
 Let's count the number of threads by adding the following to our code:
 
@@ -447,8 +479,8 @@ Now total energy should be conserved, as nothing leaves the domain.
 Let's write the final solution to disk. There are several caveats:
 
 * works only with ASCII
-* it can also write a binary but it fails to be read anywhere (not the endians problem!)
-* would love to write NetCDF and HDF5: probably can do this by calling C/C++ functions from Chapel
+* Chapel can also write binary data but nothing can read it (checked: not the endians problem!)
+* would love to write NetCDF and HDF5, probably can do this by calling C/C++ functions from Chapel
 
 We'll add the following to our code to write ASCII:
 
