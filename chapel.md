@@ -2,6 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [Setup](#setup)
 - [Introduction to heat equation](#introduction-to-heat-equation)
 - [Chapel base language](#chapel-base-language)
 - [Task parallelism](#task-parallelism)
@@ -14,14 +15,23 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-<!-- You'll need to submit the relevant reservation for that day using (for instance) -->
+# Setup
 
-<!-- sbatch --reservation=def-guest_cpu_5 --account=def-guest -->
+You can find a copy of these notes at http://bit.ly/chapelnotes.
 
-<!-- There is a different reservation for each day of the school (def-guest_cpu_[5-8], since the reservations -->
-<!-- halt overnight. I would advise you to consult with Juan regarding the best way to obtain an interactive -->
-<!-- shell on the reservation using either salloc or sbatch, as I have very little experience in user-side -->
-<!-- operations of the scheduler. -->
+For submitting jobs on Graham we'll be using
+
+~~~
+sbatch ... --reservation=def-guest_cpu_5 --account=def-guest   # batch jobs
+salloc ... --reservation=def-guest_cpu_5 --account=def-guest   # interactive jobs
+~~~
+
+where the name of the reservation is unique for each day of the school:
+
+--reservation=def-guest_cpu_5  
+--reservation=def-guest_cpu_6  
+--reservation=def-guest_cpu_7  
+--reservation=def-guest_cpu_8  
 
 # Introduction to heat equation
 
