@@ -154,6 +154,28 @@ for loc in Locales do   // this is still a serial program; Locales array
 >> writef("%i  %.12n  %.6n\n", n, sum, abs(sum-pi));
 >> ~~~
 
+Here is another version of the task-parallel diffusion solver (without time
+stepping) on a single locale:
+
+~~~
+const n = 100, stride = 20;
+var T: [0..n+1, 0..n+1] real;
+var Tnew: [1..n,1..n] real;
+var x, y: real;
+for (i,j) in {1..n,1..n} { // serial iteration
+  x = ((i:real)-0.5)/n;
+  y = ((j:real)-0.5)/n;
+  T[i,j] = exp(-((x-0.5)**2 + (y-0.5)**2)/0.01); // narrow gaussian peak
+}
+coforall (i,j) in {1..n,1..n} by (stride,stride) { // 5x5 decomposition into 20x20 blocks => 25 tasks
+  for k in i..i+stride-1 { // serial loop inside each block
+    for l in j..j+stride-1 do {
+      Tnew[i,j] = (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]) / 4;
+    }
+  }
+}
+~~~
+
 # Data parallelism
 
 ## Domains and single-locale data parallelism
@@ -406,13 +428,15 @@ forall (i,j) in T.domain[1..n,1..n] {
 writeln(T);
 ~~~
 
-**Question**: why do we have  
-forall (i,j) in T.domain[1..n,1..n] {  
-and not  
-forall (i,j) in mesh
-
-**Answer**: the first one will run on multiple locales in parallel, whereas the second will run in
-parallel on multiple threads on locale 0 only, since "mesh" is defined on locale 0.
+> ## Question
+> Why do we have  
+> forall (i,j) in T.domain[1..n,1..n] {  
+> and not  
+> forall (i,j) in mesh
+>> ## Answer
+>> The first one will run on multiple locales in parallel, whereas the
+>> second will run in parallel on multiple threads on locale 0 only, since
+>> "mesh" is defined on locale 0.
 
 The code above will produce something like this:
 
@@ -461,7 +485,7 @@ Now we implement the parallel solver, by adding the following to our code (*cont
 purpose!*):
 
 ~~~
-var Tnew: [mesh] real;
+var Tnew: [largerMesh] real;
 for step in 1..5 { // time-stepping
   forall (i,j) in mesh do
     Tnew[i,j] = (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]) / 4;
@@ -476,8 +500,30 @@ for step in 1..5 { // time-stepping
 >>   forall (i,j) in Tnew.domain[1..n,1..n] do  
 >> instead of  
 >>   forall (i,j) in mesh do  
->> as the last one will run in parallel via threads only on locale 0, whereas the former will run on
->> multiple locales in parallel.
+>> as the last one will likely run in parallel via threads only on locale 0,
+>> whereas the former will run on multiple locales in parallel.
+
+Here is the final version of the entire code:
+
+~~~
+use BlockDist;
+config const n = 8;
+const mesh: domain(2) = {1..n,1..n};
+const largerMesh: domain(2) dmapped Block(boundingBox=mesh) = {0..n+1,0..n+1};
+var T, Tnew: [largerMesh] real;
+forall (i,j) in T.domain[1..n,1..n] {
+  var x = ((i:real)-0.5)/(n:real);
+  var y = ((j:real)-0.5)/(n:real);
+  T[i,j] = exp(-((x-0.5)**2 + (y-0.5)**2) / 0.01);
+}
+for step in 1..5 {
+  forall (i,j) in Tnew.domain[1..n,1..n] {
+    Tnew[i,j] = (T[i-1,j]+T[i+1,j]+T[i,j-1]+T[i,j+1])/4.0;
+  }
+  T = Tnew;
+  writeln((step,T[n/2,n/2],T[1,1]));
+}
+~~~
 
 This is the entire parallel solver! Note that we implemented an open boundary: T in "ghost zones" is
 always 0. Let's add some printout and also compute the total energy on the mesh, by adding the following
