@@ -81,7 +81,8 @@ Explain how parallelism and locality are orthogonal things in Chapel => four exa
   by "--dataParTasksPerLocale=..." at runtime; again, the execution of the parent task will not continue
   until all the children sync up
 
-Reduction operations in task parallelism:
+Reduction operation in Chapel can be specified by a variable declared outside a loop and can be used with
+'forall' task parallelism:
 
 ~~~
 var counter = 0;
@@ -91,8 +92,8 @@ forall a in 1..100 with (+ reduce counter) { // parallel loop, one task per core
 writeln("actual number of threads = ", counter);
 ~~~
 
-On a standalone computer (or dedicated server) such as your laptop, you would run a single-locale Chapel
-code with something like this:
+On a standalone computer (or a dedicated server) such as your laptop with single-locale Chapel installed,
+you would run a Chapel code with something like this:
 
 ~~~
 make test
@@ -114,6 +115,8 @@ make test           # chpl test.chpl -o test
 ./test
 ./test --dataParTasksPerLocale=10
 ~~~
+
+Try changing 'forall' to 'coforall' in the code above -- how does the reported number of threads change?
 
 Other concepts in locality.chpl.
 
