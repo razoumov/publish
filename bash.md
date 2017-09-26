@@ -24,15 +24,17 @@ me                                       | students
 
 Make sure you can start bash Unix shell.
 
-* PIMS: using https://sfu-os.syzygy.ca with github credentials
-* personal lesson notes http://bit.ly/bashmd
+* might use some form of https://sfu-os.syzygy.ca with github credentials
+* personal lesson notes (this file) http://bit.ly/bashmd
 
 ## 1. Introduction to Unix shell
 
 * note to self: type "carpentry"
-* explain file systems: part of OS managing files and directories
 * explain shell prompt (bash)
+  * text-based interface to the OS (unlike a GUI)
+  * a shell around the kernel (coconut analogy), along with utilities and applications
 * why learn Unix shell?
+* explain file systems: part of OS managing files and directories
 
 ~~~ {.bash}
 $ whoami   # explain what happens when you type a command

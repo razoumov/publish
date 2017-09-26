@@ -29,17 +29,18 @@
 
 official lesson http://swcarpentry.github.io/python-novice-gapminder
 
-me                                       | students
----------------------------------------- | ----------------------------------------
-(1) log in to socrative.com as a teacher | (1) log in to socrative.com as a student
-(2) start a quiz, select 'python quiz'   | (2) enter provided room name
-(3) select 'teacher paced'               |
-(4) disable student names                |
-(5) start                                |
+me                                            | students
+--------------------------------------------- | ----------------------------------------
+(1) log in to socrative.com as a teacher      | (1) log in to socrative.com as a student
+(2) start a quiz, select 'python quiz 1 or 2' | (2) enter provided room name
+(3) select 'teacher paced'                    |
+(4) disable student names                     |
+(5) start                                     |
 
 * note to self: type "carpentry"
-* open http://bit.ly/pytfiles in your browser, it'll download the file pfiles.zip
+* open http://bit.ly/pythfiles in your browser, it'll download the file pfiles.zip
 * unpack pfiles.zip to your Desktop; you should see ~/Desktop/data-python
+* personal lesson notes (this file) http://bit.ly/pythonmd
 
 # Part 1
 
@@ -47,7 +48,7 @@ me                                       | students
 
 Python pros:
 * elegant scripting language
-* powerful, compact constracts for many tasks
+* powerful, compact constructs for many tasks
 * very popular across all fields
 * huge number of external libraries
 
@@ -114,7 +115,7 @@ print(element[0])   # single character
 print(element[0:3])   # a substring
 ~~~
 
-***Quiz 1.2:*** challenge
+***Quiz 1.2:*** getting the second digit of a number (not a string!)
 
 * python is case-sensitive
 * use meaningful variable names
@@ -708,6 +709,7 @@ help(plt.plot)   # very useful!
 ~~~
 
 We can also plot directly from a Pandas data frame; underneath it still uses matplotlib.pyplot:
+
 ~~~ {.python}
 import pandas
 data = pandas.read_csv('data/gapminder_gdp_oceania.csv', index_col='country')
