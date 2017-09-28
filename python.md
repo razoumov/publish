@@ -38,8 +38,6 @@ me                                            | students
 (5) start                                     |
 
 * note to self: type "carpentry"
-* open http://bit.ly/pythfiles in your browser, it'll download the file pfiles.zip
-* unpack pfiles.zip to your Desktop; you should see ~/Desktop/data-python
 * personal lesson notes (this file) http://bit.ly/pythonmd
 
 # Part 1
@@ -527,8 +525,11 @@ print m.pi
 
 ### Reading Tabular Data into Data Frames
 
-* Pandas is a widely-used Python library for working with tabular data, borrows heavily from R's data
-  frames
+* open http://bit.ly/pythfiles in your browser, it'll download the file pfiles.zip
+* unpack pfiles.zip to your Desktop; you should see ~/Desktop/data-python
+
+Pandas is a widely-used Python library for working with tabular data, borrows heavily from R's data
+frames.
 
 We will be reading data from the directory into which you unpack it. Note your current directory and
 proceed accordingly. To change and list directories in Jupyter Notebook, you can use bash commands with %
@@ -541,7 +542,7 @@ prefix:
 
 ~~~ {.python}
 import pandas
-data = pandas.read_csv('data/gapminder_gdp_oceania.csv')
+data = pandas.read_csv('data-python/gapminder_gdp_oceania.csv')
 print(data)
 data   # this prints out the table in Jupyter Notebook!
 ~~~
@@ -559,7 +560,7 @@ Rows are observations, and columns are the observed variables. You can add new o
 Currently the rows are indexed by number. Let's index by country:
 
 ~~~ {.python}
-data = pandas.read_csv('data/gapminder_gdp_oceania.csv', index_col='country')
+data = pandas.read_csv('data-python/gapminder_gdp_oceania.csv', index_col='country')
 data
 data.shape     # now 12 columns
 data.info()    # it's a data frame! show row/column names, precision, memory usage
@@ -568,11 +569,13 @@ print(data.T)   # this will transpose the data frame; curously this is a variabl
 data.describe()   # will print some statistics of numerical columns (very useful for 1000s of rows!)
 ~~~
 
+Quick question: how to list all country names? (try data.T.columns)
+
 ***Quiz 2.5:*** explore Americas
 
 ***Answer:***
 ~~~ {.python}
-americas = pandas.read_csv('data/gapminder_gdp_americas.csv', index_col='country')
+americas = pandas.read_csv('data-python/gapminder_gdp_americas.csv', index_col='country')
 americas.info()
 ~~~
 
@@ -598,59 +601,69 @@ microbes = pandas.read_csv('../fieldData/microbes.csv')
 help(pandas.read_csv)    # this works, displays the help page
 help(pandas.to_csv)   # produces an error, there is no to_csv ...
 help(data.to_csv)      # Ok, this works :)
-data.to_csv('data/processed.csv')
+data.to_csv('data-python/processed.csv')
 ~~~
 
 ### Pandas Data Frames
 
 ~~~ {.python}
-data = pandas.read_csv('data/gapminder_gdp_europe.csv', index_col='country')
+data = pandas.read_csv('data-python/gapminder_gdp_europe.csv', index_col='country')
 data.head()
 ~~~
 
-~~~ {.python}
-data.ix[0,0]   # the very first element
-data.ix['Albania','gdpPercap_1952']    # exactly the same
-~~~
+Printing one element:
 
 ~~~ {.python}
-data.ix['Albania',:]   # usual Python's slicing notation - show all columns in that row
-data.ix['Albania']     # exactly the same
-data.ix['Albania',]    # exactly the same
+data.iloc[0,0]   # the very first element by position
+data.loc['Albania','gdpPercap_1952']    # exactly the same; the very first element by label
 ~~~
 
+Printing a row:
+
 ~~~ {.python}
-data.ix[:,'gdpPercap_1952']   # show all rows in that column
+data.loc['Albania',:]   # usual Python's slicing notation - show all columns in that row
+data.loc['Albania']     # exactly the same
+data.loc['Albania',]    # exactly the same
+~~~
+
+Printing a column:
+
+~~~ {.python}
+data.loc[:,'gdpPercap_1952']   # show all rows in that column
 data['gdpPercap_1952']   # exactly the same; single index refers to columns
 data.gdpPercap_1952      # exactly the same; most compact notation to access columns
 ~~~
 
+Printing a range:
+
 ~~~ {.python}
-data.ix['Italy':'Poland','gdpPercap_1952':'gdpPercap_1967']   # select multiple rows/columns
-data.ix['Albania',0:3]
+data.loc['Italy':'Poland','gdpPercap_1952':'gdpPercap_1967']   # select multiple rows/columns
+data.iloc[0,0:3]
 ~~~
 
 Result of slicing can be used in further operations:
 ~~~ {.python}
-data.ix['Italy':'Poland','gdpPercap_1952':'gdpPercap_1967'].max()   # max for each column
-data.ix['Italy':'Poland','gdpPercap_1952':'gdpPercap_1967'].min()
+data.loc['Italy':'Poland','gdpPercap_1952':'gdpPercap_1967'].max()   # max for each column
+data.loc['Italy':'Poland','gdpPercap_1952':'gdpPercap_1967'].min()   # min for each column
 ~~~
 
 Use comparisons to select data based on value:
 ~~~ {.python}
-subset = data.ix['Italy':'Poland', 'gdpPercap_1962':'gdpPercap_1972']
+subset = data.loc['Italy':'Poland', 'gdpPercap_1962':'gdpPercap_1972']
 print(subset)
 print(subset > 1e4)
 ~~~
 
 Use a Boolean mask to print values or NaN:
+
 ~~~ {.python}
-mask = subset > 10000
+mask = subset > 1e4
 print(mask)
-print(subset[mask])
+print(subset[mask])   # will print numerical values only if the corresponding elements in mask are True
 ~~~
 
 NaN's are ignored by statistical operations which is handy:
+
 ~~~ {.python}
 subset[mask].describe()
 subset[mask].max()
@@ -660,7 +673,7 @@ subset[mask].max()
 
 ***Answer:***
 ~~~ {.python}
-(1) df.ix['Serbia','gdpPercap_2007']
+(1) df.loc['Serbia','gdpPercap_2007']
 (2) df.gdpPercap_2007['Serbia']
 ~~~
 
@@ -712,8 +725,8 @@ We can also plot directly from a Pandas data frame; underneath it still uses mat
 
 ~~~ {.python}
 import pandas
-data = pandas.read_csv('data/gapminder_gdp_oceania.csv', index_col='country')
-data.ix['Australia'].plot()
+data = pandas.read_csv('data-python/gapminder_gdp_oceania.csv', index_col='country')
+data.loc['Australia'].plot()   # plot a single row
 plt.xticks(rotation=20)
 ~~~
 
@@ -729,19 +742,20 @@ data.T.plot(kind='bar')   # bar for each data point
 help(data.plot)   # learn all the options
 ~~~
 
-Can also convert data frame to lists.
+Can also convert data frame to lists:
+
 ~~~ {.python}
-years=[]
+years = []
 for col in data.columns:
     years.append(col[-4:])   # extract last 4 digits from column's names
 print(years)
-gdpA = data.ix['Australia'].tolist()
+gdpA = data.loc['Australia'].tolist()
 plt.plot(years, gdpA, 'bo')   # plot as blue dots
-plt.plot(years, gdpA, 'bo', label='Asutralia')   # plot as blue dots
+plt.plot(years, gdpA, 'bo', label='Australia')   # plot as blue dots
 ~~~
 
 ~~~ {.python}
-gdpNZ = data.ix['New Zealand'].tolist()
+gdpNZ = data.loc['New Zealand'].tolist()
 plt.plot(years, gdpNZ, 'g-', label='New Zealand')
 plt.legend(loc='upper left')
 plt.xlabel('Year')
@@ -749,6 +763,7 @@ plt.ylabel('GDP per capita ($)')
 ~~~
 
 Can do a scatter plot of Australia vs New Zealand:
+
 ~~~ {.python}
 plt.scatter(gdpA,gdpNZ)
 plt.xlabel('Australia')
@@ -757,14 +772,16 @@ plt.ylabel('New Zealand')
 
 Let's create a plot showing the correlation between GDP and life expectancy for 2007, normalizing marker
 size by population:
+
 ~~~ {.python}
-data = pandas.read_csv('data/gapminder_all.csv')
+data = pandas.read_csv('data-python/gapminder_all.csv')
 data.columns   # see the columns
 plt.figure(figsize=(10,8))
 plt.scatter(data.gdpPercap_2007,data.lifeExp_2007,s=data.pop_2007/1e6)   # first attempt
 ~~~
 
 Let's change to log scale for the x-axis and make circle area proportional to the population:
+
 ~~~ {.python}
 plt.figure(figsize=(10,8))
 from numpy import log10, sqrt   # these versions of log10/sqrt can operate on lists
@@ -776,10 +793,10 @@ plt.ylabel('life expectancy')
 
 ### Looping Over Data Sets
 
-Let's say we want to read several files in data/. We can use **for** to loop through their list:
+Let's say we want to read several files in data-python/. We can use **for** to loop through their list:
 
 ~~~ {.python}
-for filename in ['data/gapminder_gdp_africa.csv', 'data/gapminder_gdp_asia.csv']:
+for filename in ['data-python/gapminder_gdp_africa.csv', 'data-python/gapminder_gdp_asia.csv']:
     data = pandas.read_csv(filename, index_col='country')
     print(filename, data.min())   # print min for each column
 ~~~
@@ -788,14 +805,14 @@ If we have many (10s or 100s) files, we want to specify them with a pattern:
 
 ~~~ {.python}
 from glob import glob
-print('all csv files in data directory:', glob('data/*.csv'))   # returns a list
-print('all text files in data directory:', glob('data/*.txt'))   # empty list
-list = glob('data/*.csv')
+print('all csv files in data directory:', glob('data-python/*.csv'))   # returns a list
+print('all text files in data directory:', glob('data-python/*.txt'))   # empty list
+list = glob('data-python/*.csv')
 len(list)
 ~~~
 
 ~~~ {.python}
-for filename in glob('data/*.csv'):
+for filename in glob('data-python/*.csv'):
     data = pandas.read_csv(filename)
     print(filename, data.gdpPercap_1952.min())
 ~~~
@@ -809,7 +826,7 @@ The right answer is A.
 ***Answer:***
 ~~~ {.python}
 fewest = 1e6
-for filename in glob('data/*.csv'):
+for filename in glob('data-python/*.csv'):
     fewest = min(fewest, pandas.read_csv(filename).shape[0])
 print('smallest file has', fewest, 'records')
 ~~~
@@ -821,7 +838,7 @@ print('smallest file has', fewest, 'records')
 %matplotlib inline
 import matplotlib.pyplot as plt
 plt.figure(figsize=(10,8))
-for filename in glob('data/gapminder_gdp_*.csv'):
+for filename in glob('data-python/gapminder_gdp_*.csv'):
     data = pandas.read_csv(filename)
     years=[]
     cols = data.columns
@@ -829,7 +846,7 @@ for filename in glob('data/gapminder_gdp_*.csv'):
     c3 = c2[c2!='country']   # get rid of country element if present
     for col in c3:
         years.append(col[-4:])   # extract last 4 digits from column's names
-    average = data.ix[:,'gdpPercap_1952':'gdpPercap_2007'].mean().tolist()
+    average = data.loc[:,'gdpPercap_1952':'gdpPercap_2007'].mean().tolist()
     plt.plot(years, average, label=filename[19:], linewidth=3)
 plt.legend(loc='upper left')
 ~~~
