@@ -6,11 +6,10 @@ Let's open our visualization from the ParaView state file:
 
 ~~~{.bash}
 cd ~/visualizeThis
-/bin/rm -rf {spin,approach,final}.mp4 frame00*.png
 paraview --state=bladesWithLines.pvsm
 ~~~
 
-Now let's open ParaView's Python shell:
+Now let's take a look at some commands inside ParaView's Python shell:
 
 ~~~{.python}
 help(GetActiveCamera)
@@ -105,7 +104,7 @@ for i in range(nframes):
 
 We can merge the frames into a Quicktime-compatible MP4 movie at 10 fps:
 
-~~~{.bash}}
+~~~{.bash}
 ffmpeg -r 10 -i frame%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" spin.mp4
 open spin.mp4
 ~~~
@@ -149,8 +148,115 @@ for i in range(nframes):
 Let's make the final movie:
 
 ~~~{.bash}
-ffmpeg -r 10 -i frame%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" final.mp4
-open final.mp4
+ffmpeg -r 10 -i frame%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" slide.mp4
+open slide.mp4
 ~~~
 
 # Camera animation in VisIt
+
+Let's open our visualization in VisIt:
+
+~~~{.bash}
+cd ~/visualizeThis
+visit -s positiveNegativePressure.py
+~~~
+
+This is the same script posted online but without saving the image to disk.
+
+While the script is running, let's open Controls - Command... and paste the code:
+
+~~~{.python}
+c0 = GetView3D()   # save the view in this control point
+print c0
+~~~~
+
+This will print out all attributes of the current view. We can also print them one-by-one:
+
+~~~{.python}
+print c0.imageZoom
+print c0.focus
+print c0.centerOfRotation
+~~~~
+
+Let's reset the view:
+
+~~~{.python}
+from math import *
+c1 = View3DAttributes()   # create a new view
+phi = 0     # azimuthal angle 0 <= phi <= 2*pi
+theta = 0   # vertical angle -pi/2 <= theta <= pi/2
+c1.viewNormal = (cos(theta)*cos(phi),cos(theta)*sin(phi),sin(theta))
+c1.focus, c1.viewUp = (0, 0, 0), (0, 0, 1)
+c1.viewAngle, c1.parallelScale, c1.imageZoom = 30, 17.3205, 1
+c1.nearPlane, c1.farPlane, c1.perspective = -34.641, 34.641, 1
+c1.imageZoom = 3
+c1.centerOfRotationSet = 1
+SetView3D(c1)
+~~~
+
+Let's remove the axes and the bounding box:
+
+~~~{.python}
+a = AnnotationAttributes()
+a.userInfoFlag = 0
+a.axes3D.visible = 0
+a.axes3D.bboxFlag = 0
+SetAnnotationAttributes(a)
+~~~
+
+Set up the format and directory for saving frames:
+
+~~~{.python}
+s = SaveWindowAttributes()
+s.format, s.family, s.outputToCurrentDirectory = s.PNG, 0, 0
+s.outputDirectory = "/Users/razoumov/visualizeThis"
+SetSaveWindowAttributes(s)
+~~~
+
+Let's elevate the camera slightly and then spin around the vertical axis:
+
+~~~{.python}
+nframes = 20
+theta = pi/10.   # elevate the camera by 18 degrees
+for i in range(nframes):
+    phi = float(i)/float(nframes-1)*2.*pi/10.   # rotate from 0 to 36 degrees
+    c1.viewNormal = (cos(theta)*cos(phi), cos(theta)*sin(phi), sin(theta))
+    SetView3D(c1)
+    s.fileName = 'step%04d'%(i)+'.png'
+    SetSaveWindowAttributes(s)
+    name = SaveWindow()
+~~~
+	
+Merge these into a movie at 5 fps:
+
+~~~{.bash}
+ffmpeg -r 5 -i step%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" spin.mp4
+open spin.mp4
+~~~
+
+Let's fly into the visualization. We'll do that by moving the focal point away from us:
+
+~~~{.python}
+nframes = 20
+focalStart = 0.
+focalEnd = -35.
+theta, phi = 0., 0.
+c1.viewNormal = (cos(theta)*cos(phi),cos(theta)*sin(phi),sin(theta))
+for i in range(nframes):
+    x = focalStart + float(i)/float(nframes-1)*(focalEnd-focalStart)
+    c1.focus = (x, 0., 0.)
+    SetView3D(c1)
+    s.fileName = 'step%04d'%(i)+'.png'
+    SetSaveWindowAttributes(s)
+    name = SaveWindow()
+~~~
+
+~~~{.bash}
+ffmpeg -r 5 -i step%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" approach.mp4
+open approach.mp4
+~~~
+
+If you want to go into more advanced techniques, please check out our visualization workshop materials
+for VisIt at http://bit.ly/2lYqypE. There we describe, e.g., how you can set up multiple control points
+and interpolate smoothly between them, so that you combine several of these transitions in a single
+animation.
