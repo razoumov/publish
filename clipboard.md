@@ -1,5 +1,12 @@
 You can find a copy of these notes at http://bit.ly/chAnimation.
 
+In this session we'll be talking about camera animation for a 3D static scene, both in ParaView and
+VisIt. Camera animation is an effective method to produce an engaging animation even when you have a
+single time-step, so that you cannot evolve your visualization in time.
+
+In both ParaView and VisIt you can produce animations from the GUI, however, scripting will give you much
+more control over what you can do inside your animation.
+
 # Camera animation in ParaView
 
 Let's open our visualization from the ParaView state file:
@@ -129,8 +136,8 @@ ffmpeg -r 10 -i frame%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/
 open approach.mp4
 ~~~
 
-For the final animation, let's reset the camera, move the focal point and the center of rotation 80% of
-the way towards the turbine blades, and then spin around the blades:
+For the final ParaView animation, let's reset the camera, move the focal point and the center of rotation
+80% of the way towards the turbine blades, and then spin around the blades:
 
 ~~~{.python}
 ResetCamera()
@@ -148,8 +155,8 @@ for i in range(nframes):
 Let's make the final movie:
 
 ~~~{.bash}
-ffmpeg -r 10 -i frame%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" slide.mp4
-open slide.mp4
+ffmpeg -r 10 -i frame%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" close.mp4
+open close.mp4
 ~~~
 
 # Camera animation in VisIt
@@ -177,6 +184,12 @@ print c0.imageZoom
 print c0.focus
 print c0.centerOfRotation
 ~~~~
+
+In VisIt there is no analogue of ParaView's `GetActiveCamera().Azimuth` function -- instead you need to
+set up several attributes simultaneously, depending on what you want to do. Even though c0.imageZoom =
+c0.centerOfRotation, if we want to do rotation now, we'll have to figure out the angles (theta, phi) from
+projections and then adjust several variables, and in such a way that the settings are compatible with
+each other. We'll take a different route -- we'll reset the view first.
 
 Let's reset the view:
 
@@ -256,7 +269,7 @@ ffmpeg -r 5 -i step%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/2)
 open approach.mp4
 ~~~
 
-If you want to go into more advanced techniques, please check out our visualization workshop materials
-for VisIt at http://bit.ly/2lYqypE. There we describe, e.g., how you can set up multiple control points
-and interpolate smoothly between them, so that you combine several of these transitions in a single
+If you want to go into more advanced techniques, please check out our VisIt workshop materials at
+http://bit.ly/2lYqypE. There we describe, e.g., how you can set up multiple control points and
+interpolate smoothly between them, so that you combine several of these transitions in a single
 animation.
