@@ -1,8 +1,8 @@
 You can find a copy of these notes at http://bit.ly/chAnimation.
 
-In this session we'll be talking about camera animation for a 3D static scene, both in ParaView and
-VisIt. Camera animation is an effective method to produce an engaging animation even when you have a
-single time-step, so that you cannot evolve your visualization in time.
+In this session we will be talking about camera animation for a 3D static scene, both in ParaView and
+VisIt. Camera animation is an effective method to produce an engaging animation even when you do not have
+any time evolution.
 
 In both ParaView and VisIt you can produce animations from the GUI, however, scripting will give you much
 more control over what you can do inside your animation.
