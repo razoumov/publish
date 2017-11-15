@@ -105,7 +105,7 @@ steps saving each frame as a PNG image:
 nframes = 50
 for i in range(nframes):
     print v1.CameraPosition
-    camera.Azimuth(360./nframes)
+    camera.Azimuth(360./nframes)   # rotate by 7.2 degrees
     SaveScreenshot('/Users/razoumov/visualizeThis/frame%04d'%(i)+'.png')
 ~~~
 
@@ -120,7 +120,7 @@ Let's reset the camera and try to fly 1/3 of the way towards the focal point:
 
 ~~~{.python}
 ResetCamera()
-initialCameraPosition = v1.CameraPosition[:]   # force a real copy, not a pointer a = b
+initialCameraPosition = v1.CameraPosition[:]   # force a real copy, not a pointer
 nframes = 50
 for i in range(nframes):
     coef = float(i+0.5)/float(3*nframes)  # runs from 0 to 1/3
@@ -136,15 +136,20 @@ ffmpeg -r 10 -i frame%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/
 open approach.mp4
 ~~~
 
-For the final ParaView animation, let's reset the camera, move the focal point and the center of rotation
-80% of the way towards the turbine blades, and then spin around the blades:
+For the final ParaView animation, let's reset the camera and move the focal point and the center of
+rotation 80% of the way towards the turbine blades:
 
 ~~~{.python}
 ResetCamera()
-v1.CameraFocalPoint[1] = v1.CameraFocalPoint[1] - 10   # as the blades are centered towards positive y
+v1.CameraFocalPoint[1] -= 10   # as the blades are centered towards positive y
 v1.CenterOfRotation = v1.CameraFocalPoint[:]
 v1.CameraPosition = [(0.2*a + 0.8*b) for a, b in zip(v1.CameraPosition,v1.CameraFocalPoint)]
 Render()
+~~~
+
+Now let's spin around the blades:
+
+~~~{.python}
 camera = GetActiveCamera()
 nframes = 50
 for i in range(nframes):
@@ -180,7 +185,6 @@ print c0
 This will print out all attributes of the current view. We can also print them one-by-one:
 
 ~~~{.python}
-print c0.imageZoom
 print c0.focus
 print c0.centerOfRotation
 ~~~~
