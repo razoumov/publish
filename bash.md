@@ -233,6 +233,9 @@ numbers/letters. For example:
 
 ~~~ {.bash}
 $ echo {1..10}   # this is called brace expansion
+$ echo {1,2,5}    # very useful for loops or for including into large paths with multiple items, e.g.
+$ cd ~/Desktop/data-shell/creatures
+$ ls -l ../molecules/{ethane,methane,pentane}.pdb
 $ echo {a..z}    # can also use letters
 $ echo {a..z}{1..10}   # this will produce 260 items
 $ echo {a..z}{a..z}    # this will produce 676 items
@@ -273,8 +276,8 @@ $ bash middle.sh propane.pdb
 **Quiz 10:** script.sh in molecules Users/nelle/molecules.
 
 **Exercise:** write a script that takes any number of filenames, e.g., "scriptName.sh cubane.pdb
-propane.pdb", and does "ls -l" and "wc -l" on each file separating output from different files by an
-empty line.
+propane.pdb", for each file prints the number of lines and its first five lines, and separates the output
+from different files by an empty line.
 
 ## Advanced topic: if statements
 
@@ -325,8 +328,8 @@ Some examples of conditions (**make sure to have spaces around each bracket!**):
 
 ## Advanced topic: variables
 
-We already saw variables that were specific to the script ($1, $@, ...). Variables can be used outside of
-the scripts:
+We already saw variables that were specific to scripts ($1, $@, ...). Variables can be used outside of
+scripts:
 
 ~~~ {.bash}
 $ myvar=3     # no spaces permitted around the equality sign!
@@ -405,7 +408,7 @@ randomly-named directory and prints that directory to the screen:
 combine() {
   if [ $# -eq 0 ]; then
     echo "No arguments specified. Usage: combine file1 [file2 ...]"
-    return 1
+    return 1        # return a non-zero error code
   fi
   dir=$RANDOM$RANDOM
   mkdir $dir
@@ -418,9 +421,9 @@ combine() {
 them.
 
 **Exercise:** write a function archive() that takes a directory as an argument, packs it into a gzipped
-tar archive and deletes the original directory.
+tar archive (often called *tarball*) and deletes the original directory.
 
-**Exercise:** write the reverse function unarchive() that replaces a gzipped tar with a directory.
+**Exercise:** write the reverse function unarchive() that replaces a gzipped tarball with a directory.
 
 ## Advanced topic: aliases
 
@@ -444,14 +447,13 @@ $ more haiku.txt
 
 First let's search for text in files:
 ~~~ {.bash}
-$ grep not haiku.txt   # let's find all lines that contain the word 'not'
-$ grep day haiku.txt   # now search for word 'day'
-$ grep -w day haiku.txt   # search for a separate word 'day' (not 'today', etc.)
-$ grep -w "is not" haiku.txt   # matching a phrase
+$ grep not haiku.txt     # let's find all lines that contain the word 'not'
+$ grep day haiku.txt     # now search for word 'day'
+$ grep -w day haiku.txt        # search for a separate word 'day' (not 'today', etc.)
 $ grep -w today haiku.txt   # search for 'today'
 $ grep -w Today haiku.txt   # search for 'Today'
-$ grep -i -w today haiku.txt   # both upper and lower case 'today'
-$ grep -n -i -w today haiku.txt   # -n prints out numbers the matching lines
+$ grep -i -w today haiku.txt       # both upper and lower case 'today'
+$ grep -n -i -w today haiku.txt    # -n prints out numbers the matching lines
 $ grep -n -i -w -v the haiku.txt   # -v searches for lines that do not contain 'the'
 $ man grep
 ~~~
@@ -470,11 +472,11 @@ cd ~/Desktop/data-shell/writing
 $ find . -type d     # search for directories inside current directory
 $ find . -type f     # search for files inside current directory
 $ find . -maxdepth 1 -type f     # depth 1 is the current directory
-$ find . -mindepth 2 -type f
-$ find . -name haiku.txt   # finds one file
-$ ls data   # shows one.txt two.txt
-$ find . -name *.txt   # still finds one file -- why? answer: expands *.txt to haiku.txt
-$ find . -name '*.txt'   # finds all three files -- good!
+$ find . -mindepth 2 -type f     # current directory and one level down
+$ find . -name haiku.txt      # finds specific file
+$ ls data       # shows one.txt two.txt
+$ find . -name *.txt      # still finds one file -- why? answer: expands *.txt to haiku.txt
+$ find . -name '*.txt'    # finds all three files -- good!
 ~~~
 
 Let's wrap the last command into $() (called *command substitution*), as if it was a variable:
@@ -489,7 +491,7 @@ $ grep elegant $(find . -name '*.txt')   # will look for 'elegant' inside all *.
 **Quiz 12:** combining grep and find.
 
 **Exercise:** write a function 'countFiles()' that counts the number of files in each directory that you
-pass to it.
+pass to it and prints it after the directory name.
 
 ## Advanced topic: running a command on the results of *find*
 

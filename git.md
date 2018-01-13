@@ -17,8 +17,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-Cold and dry, but everything is my favourite color. The two moons may be a problem for Wolfman. But the
-Mummy will appreciate the lack of humidity.
+to-do list: Dollars to Cents, Gallons to Liters, Hours to Minutes, Feet to Inches, Degrees to Radians
 
 ## 0. Prerequisites
 
@@ -41,6 +40,7 @@ Types of repositories in git:
 ## 2. Setup
 
 ~~~ {.bash}
+$ git config --list
 $ git config --global user.name "Alex Razoumov"
 $ git config --global user.email "alex.razoumov@westgrid.ca"
 $ git config --global color.ui "auto"
@@ -196,7 +196,7 @@ $ git push origin master
 
 ## 10. Collaborating through git pull requests
 
-I will only briefly mention this. This is the feature of github, not git. A pull request has a formal
+I will only briefly mention this. This is the feature of github, not git. A *pull request* has a formal
 review interface with line comments and other advanced features, and is a better way to push changes into
 large github repositories with more than a couple of users than a direct push.
 
@@ -207,8 +207,11 @@ git checkout -b newBranchName   # create a new temporary branch
 work there
 git commit -am "describe changes"
 git push origin newBranchName
-go to the repository's web interface and make a pull request to the master brach
+go to the repository's web interface and make a "new pull request" to the master brach
 ~~~
+
+Alternatively, you can fork a existing repository (to which you want to commit) online, clone it locally,
+work on it, push to your fork, and then create a pull request on the original.
 
 ## 11. Putting together a simple web page
 
@@ -249,3 +252,4 @@ repository.
 **Exercise 2:** write few words about yourself in ../about.md in upload them to your website.
 
 <!-- intro to pull requests https://github.com/crazapplejuice/flags/blob/master/CONTRIBUTING.md -->
+<!-- nice git lessons with code collaboration https://biologyguy.github.io/git-novice -->
