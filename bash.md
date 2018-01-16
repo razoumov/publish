@@ -37,11 +37,12 @@ Make sure you can start bash Unix shell.
 
 * note to self: type "carpentry"
 * explain shell prompt (bash)
-  * text-based interface to the OS (unlike a GUI): command interpreter + powerful programming language
-  * a shell around the kernel (coconut analogy), along with utilities and applications
-  * can glue together tools, utilities, compiled binaries, system calls and other scripts
+  * text-based interface to the OS (unlike a GUI): (1) command interpreter and mechanism to launch tools
+    / utilities / compiled binaries / system calls / other scripts and (2) a way to connect standard I/O
+    of these tools through pipes to form more complex commands
   * follows the classic UNIX philosophy of breaking complex projects into simpler subtasks and chaining
-	together components and utilities
+    together components and utilities
+  * a shell around the kernel (coconut analogy), along with utilities and applications
   * bash is one of many Unix shell implementations
 * why learn Unix shell: very powerful, great for automating workflows, necessary on bigger Unix systems
 

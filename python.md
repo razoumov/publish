@@ -892,7 +892,7 @@ How do you create a data frame from scratch? Many ways; the easiest by defining 
 ~~~ {.python}
 col1 = [1,2,3]
 col2 = [4,5,6]
-pd.DataFrame({'a': col1, 'b': col2})
+pd.DataFrame({'a': col1, 'b': col2})       # data frame from a dictionary
 ~~~
 
 Let's index the rows by hand:
@@ -938,7 +938,7 @@ data.T.plot()   # now one line for each country
 plt.ylabel('GDP per capita')
 plt.xticks(rotation=20)
 plt.style.use('ggplot')   # use ggplot style
-data.T.plot(kind='bar')   # bar for each data point
+data.T.plot(kind='bar')   # bar for each data point; also try 'hist', 'area'
 help(data.plot)   # learn all the options
 ~~~
 
