@@ -67,10 +67,10 @@ Depending on the code, it might utilize one / several / all cores on the current
 implies that you are allowed to utilize all cores. This might not be the case on an HPC cluster, where a
 login node is shared by many people at the same time, and where it might not be a good idea to occupy all
 cores on a login node with CPU-intensive tasks. Therefore, we'll be running test Chapel codes inside
-submitted jobs on compute nodes. We'll start by submitting an interactive job:
+submitted jobs on compute nodes. We'll start by submitting a single-core interactive job:
 
 ~~~ {.bash}
-$ salloc --time=0:30:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-razoumov-ac
+$ salloc --time=0:30:0 --mem-per-cpu=1000 --account=def-razoumov-ac
 ~~~
 
 and then inside that job compile and run the test code
@@ -91,11 +91,11 @@ plate as a grid of points, and to evaluate the temperature on each point at each
 the following **_finite difference equation_**:
 
 ```
-T[i,j] = 0.25 (Tp[i-1,j] + Tp[i+1,j] + Tp[i,j-1] + Tp[i,j+1])
+Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1])
 ```
 
-- T = temperature at the current iteration
-- Tp = temperature calculated at the past iteration (or the initial conditions at the first iteration)
+- Tnew = new temperature computed at the current iteration
+- T = temperature calculated at the past iteration (or the initial conditions at the first iteration)
 - the indices (i,j) indicate the grid point located at the i-th row and the j-th column
 
 So, our objective is to:
@@ -175,7 +175,7 @@ var Tnew: [0..rows+1,0..cols+1] real;   // newly computed temperatures
 are 2D arrays (matrices) with (`rows + 2`) rows and (`cols + 2`) columns of real numbers, all initialized
 as 0.0. The ranges `0..rows+1` and `0..cols+1` used here, not only define the size and shape of the
 array, they stand for the indices with which we could access particular elements of the array using the
-`[ , ]` notation. For example, `T[0,0]` is the real variable located at the frist row and first column of
+`[ , ]` notation. For example, `T[0,0]` is the real variable located at the first row and first column of
 the array `T`, while `T[3,7]` is the one at the 4th row and 8th column; `T[2,3..15]` access columns 4th
 to 16th of the 3th row of `T`, and `T[0..3,4]` corresponds to the first 4 rows on the 5th column of
 `T`. Similarly, with
@@ -335,7 +335,7 @@ As we can see, the temperature in the middle of the plate (position 50,50) is sl
 >> To see the evolution of the temperature at the top right corner of the plate, we just need to modify
 >> `x` and `y`. This corner correspond to the first row (`x=1`) and the last column (`y=cols`) of the
 >> plate.
->> ~~~
+>> ~~~ {.bash}
 >> $ chpl baseSolver.chpl -o baseSolver
 >> $ ./baseSolver
 >> ~~~
@@ -368,7 +368,7 @@ As we can see, the temperature in the middle of the plate (position 50,50) is sl
 >> Note that 80 degrees is written as a real
 >> number 80.0. The division of integers in Chapel returns an integer, then, as `rows` and `cols` are
 >> integers, we must have 80 as real so that the cocient is not truncated.
->> ~~~
+>> ~~~ {.bash}
 >> $ chpl baseSolver.chpl -o baseSolver
 >> $ ./baseSolver
 >> ~~~
@@ -402,7 +402,7 @@ As we can see, the temperature in the middle of the plate (position 50,50) is sl
 >> ~~~
 >> Clearly there is no need to keep the difference at every single position in the array, we just need to
 >> update `delta` if we find a greater one.
->> ~~~
+>> ~~~ {.bash}
 >> $ chpl baseSolver.chpl -o baseSolver
 >> $ ./baseSolver
 >> ~~~
@@ -477,7 +477,7 @@ The greatest difference in temperatures between the last two iterations was: 0.0
 >
 >> ## Solution
 >> For example, lets use a 650 x 650 grid and observe the evolution of the temperature at the position (200,300) for 10000 iterations or until the difference of temperature between iterations is less than 0.002; also, let's print the temperature every 1000 iterations.
->> ~~~
+>> ~~~ {.bash}
 >> $ chpl --fast baseSolver.chpl -o baseSolver
 >> $ ./baseSolver --rows=650 --cols=650 --iout=200 --jout=300 --niter=10000 --tolerance=0.002 --nout=1000
 >> ~~~
@@ -507,8 +507,6 @@ effect
 ~~~ {.bash}
 $ time ./baseSolver --rows=650 --cols=650 --x=200 --y=300 --niter=10000 --tolerance=0.002 --n=1000
 ~~~
-{:.input}
-
 ~~~
 Working with a matrix 650x650 to 10000 iterations or dT below 0.002
 Temperature at iteration 0: 25.0
@@ -526,7 +524,6 @@ real   0m9.206s
 user   0m9.122s
 sys    0m0.040s
 ~~~
-{:.output}
 
 The real time is what interest us. Our code is taking around 34 seconds from the moment it is called at
 the command line until it returns. Sometimes, however, it could be useful to take the execution time of
@@ -549,13 +546,10 @@ while (count < niter && delta >= tolerance) do {
 watch.stop();
 writeln('The simulation took ', watch.elapsed(), ' seconds');
 ~~~
-{:.source}
-
 ~~~ {.bash}
 $ chpl --fast baseSolver.chpl -o baseSolver
 $ ./baseSolver --rows=650 --cols=650 --x=200 --y=300 --niter=10000 --tolerance=0.002 --n=1000
 ~~~
-
 ~~~
 Working with a matrix 650x650 to 10000 iterations or dT below 0.002
 Temperature at iteration 0: 25.0

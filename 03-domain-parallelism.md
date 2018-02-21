@@ -25,11 +25,10 @@ If you work inside a Chapel Docker container, e.g., chapel/chapel-gasnet, the co
 simulates a multi-locale cluster, so you would compile and launch multi-locale Chapel codes directly by
 specifying the number of locales with `-nl` flag:
 
-~~~
+~~~ {.bash}
 $ chpl --fast mycode.chpl -o mybinary
 $ ./mybinary -nl 4
 ~~~
-{:.input}
 
 Inside the Docker container on multiple locales your code will not run any faster than on a single
 locale, since you are emulating a virtual cluster, and all tasks run on the same physical node. To
@@ -46,11 +45,10 @@ Chapel environment is configured properly with the launcher for the cluster's ph
 (which might not be always possible due to a number of factors), then you would simply compile the code
 and use the launcher binary `mybinary` to submit the job to the queue:
 
-~~~
-$ chpl --fast mycode.chpl -o mybinary
+~~~ {.bash}
+$ chpl mycode.chpl -o mybinary
 $ ./mybinary -nl 2
 ~~~
-{:.input}
 
 The exact parameters of the job such as the maximum runtime and the requested memory can be specified
 with Chapel environment variables. One drawback of this launching method is that Chapel will have access
@@ -60,25 +58,32 @@ scheduling jobs by-core and not by-node, since part of a node should be allocate
 The Compute Canada clusters Cedar and Graham employ two different physical interconnects, and since we
 use exactly the same multi-locale Chapel module on both clusters
 
-~~~
-$ module load gcc
-$ module load chapel-slurm-gasnetrun_ibv/1.15.0
+~~~ {.bash}
+$ module load gcc chapel-slurm-gasnetrun_ibv/1.15.0
 $ export GASNET_PHYSMEM_MAX=1G      # needed for faster job launch
 $ export GASNET_PHYSMEM_NOPROBE=1   # needed for faster job launch
 ~~~
-{:.input}
 
 we cannot configure the same single launcher for both. Therefore, we launch multi-locale Chapel codes
 using the real executable `mybinary_real`. For example, for an interactive job you would type:
 
-~~~
-$ salloc --time=0:30:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-guest
-$ chpl --fast mycode.chpl -o mybinary
+~~~ {.bash}
+$ salloc --time=0:30:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-razoumov-ac
+$ chpl mycode.chpl -o mybinary
 $ srun ./mybinary_real -nl 4   # will run on four locales with max 3 cores per locale
 ~~~
-{:.input}
 
 Production jobs would be launched with `sbatch` command and a Slurm launch script as usual.
+
+Alternatively, instead of loading the system-wide module, you can configure multi-locale Chapel in your
+own directory. Send me an email later, and I'll share the instructions. Here is how you would use it:
+
+~~~ {.bash}
+$ . /home/razoumov/startMultiLocale.sh
+$ salloc --time=0:30:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-razoumov-ac
+$ chpl mybinary.chpl -o mybinary
+$ ./mybinary -nl 4           # in this case the 'srun' launcher is already configured for OmniPath interconnect
+~~~
 
 For the rest of this class we assume that you have a working multi-locale Chapel environment, whether
 provided by a Docker container or by multi-locale Chapel on a physical HPC cluster. We will run all
@@ -91,14 +96,12 @@ Let us test our multi-locale Chapel environment by launching the following code:
 ~~~
 writeln(Locales);
 ~~~
-{:.source}
 
 This code will print the built-in global array `Locales`. Running it on four locales will produce
 
 ~~~
 LOCALE0 LOCALE1 LOCALE2 LOCALE3
 ~~~
-{:.output}
 
 We want to run some code on each locale (node). For that, we can cycle through locales:
 
@@ -107,7 +110,6 @@ for loc in Locales do   // this is still a serial program
   on loc do             // run the next line on locale `loc`
     writeln("this locale is named ", here.name);
 ~~~
-{:.output}
 
 This will produce
 
@@ -117,7 +119,6 @@ this locale is named cdr552
 this locale is named cdr556
 this locale is named cdr692
 ~~~
-{:.output}
 
 Here the built-in variable class `here` refers to the locale on which the code is running, and
 `here.name` is its hostname. We started a serial `for` loop cycling through all locales, and on each
@@ -133,7 +134,6 @@ forall loc in Locales do   // now this is a parallel loop
   on loc do
     writeln("this locale is named ", here.name);
 ~~~
-{:.source}
 
 This starts four tasks in parallel, and the order in which the print statement is executed depends on the
 runtime conditions and can change from run to run:
@@ -144,7 +144,6 @@ this locale is named cdr692
 this locale is named cdr556
 this locale is named cdr552
 ~~~
-{:.output}
 
 We can print few other attributes of each locale. Here it is actually useful to revert to the serial loop
 `for` so that the print statements appear in order:
@@ -160,8 +159,6 @@ for loc in Locales do
     writeln("  ...has ", here.maxTaskPar, " maximum parallelism");
   }
 ~~~
-{:.source}
-
 ~~~
 locale #0...
   ...is named: cdr544
@@ -184,7 +181,6 @@ locale #3...
   ...has 125.804 GB of memory
   ...has 3 maximum parallelism
 ~~~
-{:.output}
 
 Note that while Chapel correctly determines the number of cores available inside our job on each node,
 and the maximum parallelism (which is the same as the number of cores available!), it lists the total
@@ -205,7 +201,6 @@ var aToB: range = a..b; // using variables
 var twoToTenByTwo: range(stridable=true) = 2..10 by 2; // 2, 4, 6, 8, 10
 var oneToInf = 1.. ; // unbounded range
 ~~~
-{:.source}
 
 On the other hand, domains are multi-dimensional (including 1D) sets of integer indices that are always
 bounded. To stress the difference between domain ranges and domains, domain definitions always enclose
@@ -222,8 +217,8 @@ writeln();
 for (x,y) in twoDimensions { // can also cycle using explicit tuples (x,y)
   write("(", x, ", ", y, ")", ", ");
 }
+writeln();
 ~~~
-{:.source}
 
 Let us define an n^2 domain called `mesh`. It is defined by the single task in our code and is therefore
 defined in memory on the same node (locale 0) where this task is running. For each of n^2 mesh points,
@@ -243,8 +238,6 @@ forall m in mesh { // go in parallel through all n^2 mesh points
   writeln((m, m.locale.id, here.id, here.maxTaskPar));
 }
 ~~~
-{:.source}
-
 ~~~
 ((7, 1), 0, 0, 3)
 ((1, 1), 0, 0, 3)
@@ -255,7 +248,6 @@ forall m in mesh { // go in parallel through all n^2 mesh points
 ((6, 7), 0, 0, 3)
 ((6, 8), 0, 0, 3)
 ~~~
-{:.output}
 
 Now we are going to learn two very important properties of Chapel domains. First, domains can be used to
 define arrays of variables of any type on top of them. For example, let us define an n^2 array of real
@@ -269,8 +261,6 @@ forall t in T { // go in parallel through all n^2 elements of T
   writeln((t, t.locale.id));
 }
 ~~~
-{:.source}
-
 ~~~
 (0.0, 0)
 (0.0, 0)
@@ -281,7 +271,6 @@ forall t in T { // go in parallel through all n^2 elements of T
 (0.0, 0)
 (0.0, 0)
 ~~~
-{:.output}
 
 By default, all n^2 array elements are set to zero, and all of them are defined on the same locale as the
 underlying mesh. We can also cycle through all indices of T by accessing its domain:
@@ -291,8 +280,6 @@ forall idx in T.domain {
   writeln(idx, ' ', T(idx));   // idx is a tuple (i,j); also print the corresponding array element
 }
 ~~~
-{:.source}
-
 ~~~
 (7, 1) 0.0
 (1, 1) 0.0
@@ -303,7 +290,6 @@ forall idx in T.domain {
 (6, 7) 0.0
 (6, 8) 0.0
 ~~~
-{:.output}
 
 Since we use a paralell `forall` loop, the print statements appear in a random runtime order.
 
@@ -318,7 +304,6 @@ forall (a,b,c) in zip(A,B,C) do // parallel loop
   a = b + alpha*c;   // simple example of data parallelism on a single locale
 writeln(A);
 ~~~
-{:.source}
 
 The second important property of Chapel domains is that they can span multiple locales (nodes).
 
@@ -351,7 +336,6 @@ forall a in A { // go in parallel through all n^2 elements in A
 }
 writeln(A);
 ~~~~
-{:.source}
 
 The syntax `boundingBox=mesh` tells the compiler that the outer edge of our decomposition coincides
 exactly with the outer edge of our domain. Alternatively, the outer decomposition layer could include an
@@ -361,7 +345,6 @@ additional perimeter of *ghost points* if we specify
 const mesh: domain(2) = {1..n, 1..n};
 const largerMesh: domain(2) dmapped Block(boundingBox=mesh) = {0..n+1,0..n+1};
 ~~~~
-{:.source}
 
 but let us not worry about this for now.
 
@@ -377,7 +360,6 @@ Running our code on four locales with three cores per locale produces the follow
 2-cdr556-3   2-cdr556-3   2-cdr556-3   2-cdr556-3   3-cdr692-3   3-cdr692-3   3-cdr692-3   3-cdr692-3  
 2-cdr556-3   2-cdr556-3   2-cdr556-3   2-cdr556-3   3-cdr692-3   3-cdr692-3   3-cdr692-3   3-cdr692-3  
 ~~~
-{:.output}
 
 As we see, the domain `distributedMesh` (along with the string array `A` on top of it) was decomposed
 into 2x2 blocks stored on the four nodes, respectively. Equally important, for each element `a` of the
@@ -396,7 +378,6 @@ for loc in Locales {
   }
 }
 ~~~
-{:.source}
 
 On 4 locales we should get:
 
@@ -406,7 +387,6 @@ On 4 locales we should get:
 {5..8, 1..4}  
 {5..8, 5..8}  
 ~~~
-{:.output}
 
 Let us count the number of threads by adding the following to our code:
 
@@ -417,7 +397,6 @@ forall a in A with (+ reduce counter) { // go in parallel through all n^2 elemen
 }
 writeln("actual number of threads = ", counter);
 ~~~
-{:.source}
 
 If `n=8` in our code is sufficiently large, there are enough array elements per node (8*8/4 = 16 in our
 case) to fully utilize all three available cores on each node, so our output should be
@@ -425,7 +404,6 @@ case) to fully utilize all three available cores on each node, so our output sho
 ~~~
 actual number of threads = 12
 ~~~
-{:.output}
 
 Try reducing the array size `n` to see if that changes the output (fewer tasks per locale), e.g., setting
 n=3. Also try increasing the array size to n=20 and study the output. Does the output make sense?
@@ -452,8 +430,6 @@ forall a in A2 {
 }
 writeln(A2);
 ~~~
-{:.source}
-
 ~~~
 0-cdr544-3   1-cdr552-3   0-cdr544-3   1-cdr552-3   0-cdr544-3   1-cdr552-3   0-cdr544-3   1-cdr552-3  
 2-cdr556-3   3-cdr692-3   2-cdr556-3   3-cdr692-3   2-cdr556-3   3-cdr692-3   2-cdr556-3   3-cdr692-3  
@@ -464,7 +440,6 @@ writeln(A2);
 0-cdr544-3   1-cdr552-3   0-cdr544-3   1-cdr552-3   0-cdr544-3   1-cdr552-3   0-cdr544-3   1-cdr552-3  
 2-cdr556-3   3-cdr692-3   2-cdr556-3   3-cdr692-3   2-cdr556-3   3-cdr692-3   2-cdr556-3   3-cdr692-3  
 ~~~
-{:.output}
 
 As the name `CyclicDist` suggests, the domain was mapped to locales in a cyclic, round-robin pattern. We
 can also print the range of indices for each sub-domain by adding the following to our code:
@@ -476,15 +451,12 @@ for loc in Locales {
   }
 }
 ~~~
-{:.source}
-
 ~~~
 {1..7 by 2, 1..7 by 2}  
 {1..7 by 2, 2..8 by 2}  
 {2..8 by 2, 1..7 by 2}  
 {2..8 by 2, 2..8 by 2}  
 ~~~
-{:.output}
 
 In addition to BlockDist and CyclicDist, Chapel has several other predefined distributions: BlockCycDist,
 ReplicatedDist, DimensionalDist2D, ReplicatedDim, BlockCycDim -- for details please see
@@ -499,7 +471,6 @@ use BlockDist;
 config const n = 8;
 const mesh: domain(2) = {1..n, 1..n};  // local 2D n^2 domain
 ~~~
-{:.source}
 
 We will add a larger (n+2)^2 block-distributed domain `largerMesh` with a layer of *ghost points* on
 *perimeter locales*, and define a temperature array T on top of it, by adding the following to our code:
@@ -514,7 +485,6 @@ forall (i,j) in T.domain[1..n,1..n] {
 }
 writeln(T);
 ~~~
-{:.source}
 
 Here we initialized an initial Gaussian temperature peak in the middle of the mesh. As we evolve our
 solution in time, this peak should diffuse slowly over the rest of the domain.
@@ -528,7 +498,6 @@ solution in time, this peak should diffuse slowly over the rest of the domain.
 >> The first one will run on multiple locales in parallel, whereas the
 >> second will run in parallel via multiple threads on locale 0 only, since
 >> "mesh" is defined on locale 0.
->> {:.source}
 
 The code above will print the initial temperature distribution:
 
@@ -544,7 +513,6 @@ The code above will print the initial temperature distribution:
 0.0 2.36954e-17 2.79367e-13 1.44716e-10 3.29371e-09 3.29371e-09 1.44716e-10 2.79367e-13 2.36954e-17 0.0  
 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  
 ~~~
-{:.output}
 
 Let us define an array of strings `nodeID` with the same distribution over locales as T, by adding the
 following to our code:
@@ -555,7 +523,6 @@ forall m in nodeID do
   m = "%i".format(here.id);
 writeln(nodeID);
 ~~~
-{:.source}
 
 The outer perimeter in the partition below are the *ghost points*:
 
@@ -571,7 +538,6 @@ The outer perimeter in the partition below are the *ghost points*:
 2 2 2 2 2 3 3 3 3 3  
 2 2 2 2 2 3 3 3 3 3  
 ~~~
-{:.output}
 
 > ## Exercise 3
 > In addition to here.id, also print the ID of the locale holding that value. Is it the same or different
@@ -591,7 +557,6 @@ for step in 1..5 { // time-stepping
   T[mesh] = Tnew[mesh]; // uses parallel forall underneath
 }
 ~~~
-{:.source}
 
 > ## Exercise 4
 > Can anyone see a mistake in the last code?
@@ -624,7 +589,6 @@ for step in 1..5 {
   writeln((step,T[n/2,n/2],T[1,1]));
 }
 ~~~
-{:.source}
 
 This is the entire parallel solver! Note that we implemented an open boundary: T on *ghost points* is
 always 0. Let us add some printout and also compute the total energy on the mesh, by adding the following
@@ -637,7 +601,6 @@ to our code:
     total += T[i,j];
   writeln("total = ", total);
 ~~~
-{:.source}
 
 Notice how the total energy decreases in time with the open BCs, as the energy is leaving the system.
 
@@ -669,7 +632,6 @@ empty 222222   222222   222222   222223   333323   333333   333333   333333   em
 empty 222222   222222   222222   222223   333323   333333   333333   333333   empty  
 empty empty empty empty empty empty empty empty empty empty  
 ~~~
-{:.output}
 
 Note that T[i,j] is always computed on the same node where that element is stored, which makes sense.
 
@@ -685,7 +647,6 @@ adding the following to our code:
   T[1..n,0] = T[1..n,n];
   T[1..n,n+1] = T[1..n,1];
 ~~~
-{:.source}
 
 Now total energy should be conserved, as nothing leaves the domain.
 
@@ -705,7 +666,6 @@ var myWritingChannel = myFile.writer(); // create a writing channel starting at 
 myWritingChannel.write(T); // write the array
 myWritingChannel.close(); // close the channel
 ~~~
-{:.source}
 
 Run the code and check the file *output.dat*: it should contain the array T after 5 steps in ASCII.
 

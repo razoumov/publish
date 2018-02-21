@@ -4,6 +4,7 @@
 
 - [Task Parallelism with Chapel](#task-parallelism-with-chapel)
   - [Parallel programming in Chapel](#parallel-programming-in-chapel)
+  - [Runniing on Cedar](#runniing-on-cedar)
   - [Fire-and-forget tasks](#fire-and-forget-tasks)
   - [Synchronization of tasks](#synchronization-of-tasks)
   - [Parallelizing the heat transfer equation](#parallelizing-the-heat-transfer-equation)
@@ -83,10 +84,18 @@ b. on distributed memory located in other compute nodes.
 And again, Chapel could take care of all the stuff required to run our algorithm in most of the
 scenarios, but we can always add more specific detail to gain performance when targeting a particular
 scenario.
- 
+
+## Runniing on Cedar
+
+In this lesson, we'll be running on several cores on one node:
+
+~~~ {.bash}
+$ salloc --time=0:30:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-razoumov-ac
+~~~
+
 ## Fire-and-forget tasks
 
-A Chapel program always start as a single main thread. You can then start concurrent tasks with the
+A Chapel program always starts as a single main thread. You can then start concurrent tasks with the
 `begin` statement. A task spawned by the `begin` statement will run in a different thread while the main
 thread continues its normal execution. Let's start a new code `begin.chpl` with the following code:
 
@@ -110,7 +119,7 @@ begin {
 }
 writeln('This is main thread, I am done ...');
 ~~~
-~~~
+~~~ {.bash}
 $ chpl begin.chpl -o begin
 $ ./begin
 ~~~
@@ -178,7 +187,7 @@ cobegin {
 }
 writeln("This message won't appear until all tasks are done ...");
 ~~~
-~~~
+~~~ {.bash}
 $ chpl cobegin.chpl -o cobegin
 $ ./cobegin
 ~~~ 
@@ -215,7 +224,7 @@ coforall taskid in 1..numoftasks do {
 }
 writeln("This message won't appear until all tasks are done ...");
 ~~~
-~~~
+~~~ {.bash}
 $ chpl coforall.chpl -o coforall
 $ ./coforall --numoftasks=5
 ~~~ 
@@ -306,7 +315,7 @@ the particular task.
 >>   if lmax[taskid] > gmax then gmax = lmax[taskid];
 >>
 >> ~~~
->> ~~~
+>> ~~~ {.bash}
 >> $ chpl --fast exercise2.chpl -o exercise2
 >> $ ./exercise2 
 >> ~~~
@@ -322,7 +331,7 @@ the particular task.
 > ## Discussion
 > Run the code of last Exercise using different number of tasks, and different sizes of the array _x_ to
 > see how the execution time changes. For example:
-> ~~~
+> ~~~ {.bash}
 > $ time ./exercise2 --nelem=3000 --numoftasks=4
 > ~~~
 >
@@ -406,7 +415,7 @@ begin {
 }
 writeln('This is main thread, I am done ...');
 ~~~
-~~~
+~~~ {.bash}
 $ chpl sync1.chpl -o sync1
 $ ./sync1 
 ~~~
@@ -491,7 +500,7 @@ writeln("this is main task after launching new task ... I will wait until  it is
 x;   // not doing anything with a variable, not printing, just calling it
 writeln("and now it is done");
 ~~~
-~~~
+~~~ {.bash}
 $ chpl sync2.chpl -o sync2
 $ ./sync2
 ~~~
@@ -557,7 +566,7 @@ coforall id in 1..numtasks {
   writeln("task ", id, " is done ...");
 }
 ~~~
-~~~
+~~~ {.bash}
 $ chpl atomic.chpl -o atomic
 $ ./atomic
 ~~~
@@ -607,7 +616,7 @@ const rowStride = 20;
 coforall i in 1..rows by rowStride do
   writeln(i);
 ~~~
-~~~
+~~~ {.bash}
 $ chpl parallel1.chpl -o parallel1
 $ ./parallel1
 ~~~
@@ -627,7 +636,7 @@ const rowStride = 20, colStride = 20;
 coforall (i,j) in {1..rows,1..cols} by (rowStride,colStride) do
   writeln(i, ' ', j);
 ~~~
-~~~
+~~~ {.bash}
 $ chpl parallel1.chpl -o parallel1
 $ ./parallel1
 ~~~
@@ -657,7 +666,7 @@ coforall (i,j) in {1..rows,1..cols} by (rowStride,colStride) do {
   writeln('on this subgrid, k will run ', i, '..', i+rowStride-1, ' and l will run ', j, '..', j+colStride-1);
  }
 ~~~
-~~~
+~~~ {.bash}
 $ chpl parallel1.chpl -o parallel1
 $ ./parallel1
 ~~~
