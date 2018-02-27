@@ -14,6 +14,9 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+* Official lessons at https://hpc-carpentry.github.io/hpc-chapel.
+* These notes at https://github.com/razoumov/publish/blob/master/03-domain-parallelism.md
+
 # Multi-local Chapel setup
 
 So far we have been working with single-locale Chapel codes that may run on one or many cores on a single

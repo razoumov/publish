@@ -14,16 +14,31 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-Official lessons in https://hpc-carpentry.github.io/hpc-chapel.
+* Official lessons at https://hpc-carpentry.github.io/hpc-chapel.
+* These notes at https://github.com/razoumov/publish/blob/master/01-base.md.
+
+<!-- as productive as Python -->
+<!-- as fast as Fortran -->
+<!-- as portable as C -->
+<!-- as scalabale as MPI -->
+<!-- as fun as your favourite programming language -->
+
+<!-- - lower-level task parallelism: create one task to do this, another task to do this -->
+<!-- - higher-level data parallelism: for all elements in my array, distribute them this way -->
+
+<!-- parallelism and locality are completely separate concepts -->
+
+<!-- - library of standard domain maps provided by chapel -->
+<!-- - users can write their own domain maps -->
 
 # Chapel: basic language features
 
 **_Chapel_** is
-- a modern programming language developed by _Cray Inc._
+- a modern, open-source programming language developed at _Cray Inc._
 - simplicity and readability of scripting languages such as Python or Matlab
-- supports high-level abstractions for data and task parallelism
-  - allow users to express parallel codes in a natural, almost intuitive, manner
-  - performance comparable to lower-level compiled languages such as C / C++ / Fortran
+- speed and performance of Fortran and C
+- supports high-level abstractions for data distribution/parallelism, and for task parallelism
+  - allow users to express parallel computations in a natural, almost intuitive, manner
   - can achieve anything you can do with MPI and OpenMP
 - designed around a _multi-resolution_ philosophy: users can incrementally add more detail to their
   original code, to bring it as close to the machine as required
@@ -214,8 +229,9 @@ The main loop in our simulation can be programmed using a while statement like t
 ~~~
 delta = tolerance;   // safe initial bet; could also be a large number
 while (count < niter && delta >= tolerance) do {
+  // specify boundary conditions for T
   count += 1;      // increase the iteration counter by one
-  // calculate the new temperatures (Tnew) using the past temperatures (T)
+  // calculate the new temperatures Tnew using the past temperatures T
   // update delta, the greatest difference between Tnew and T
   T = Tnew;    // update T once all elements of Tnew are calculated
   // print the temperature at the desired position if the iteration is multiple of nout
@@ -297,10 +313,8 @@ We need to iterate both over all rows and all columns in order to access every s
 `Tnew`. This can be done with nested _for_ loops like this
 
 ~~~
-for i in 1..rows do {
-  // do this for row i
-  for j in 1..cols do {
-    // do this for column j, row i
+for i in 1..rows do {   // process row i
+  for j in 1..cols do {   // process column j, row i
     Tnew[i,j] = (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1])/4;
   }
 }
@@ -324,7 +338,8 @@ Temperature at iteration 480: 24.8883
 Temperature at iteration 500: 24.8595
 ~~~
 
-As we can see, the temperature in the middle of the plate (position 50,50) is slowly decreasing as the plate is cooling down. 
+As we can see, the temperature in the middle of the plate (position 50,50) is slowly decreasing as the
+plate is cooling down.
 
 > ## Exercise 1
 > What would be the temperature at the top right corner (row 1, column `cols`) of the plate? The border
@@ -357,7 +372,7 @@ As we can see, the temperature in the middle of the plate (position 50,50) is sl
 > conditions. Compile and run your code to see how the temperature is changing now.
 >> ## Solution
 >> To get the linear distribution, the 80 degrees must be divided by the number of rows or columns in our
->> plate. So, the following couple of for loops will give us what we want:
+>> plate. So, the following couple of for loops at the start of time iteration will give us what we want:
 >> ~~~
 >> // boundary conditions
 >> for i in 1..rows do
@@ -367,7 +382,7 @@ As we can see, the temperature in the middle of the plate (position 50,50) is sl
 >> ~~~
 >> Note that 80 degrees is written as a real
 >> number 80.0. The division of integers in Chapel returns an integer, then, as `rows` and `cols` are
->> integers, we must have 80 as real so that the cocient is not truncated.
+>> integers, we must have 80 as real so that the result is not truncated.
 >> ~~~ {.bash}
 >> $ chpl baseSolver.chpl -o baseSolver
 >> $ ./baseSolver

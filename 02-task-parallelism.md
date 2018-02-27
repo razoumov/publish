@@ -11,6 +11,9 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+* Official lessons at https://hpc-carpentry.github.io/hpc-chapel.
+* These notes at https://github.com/razoumov/publish/blob/master/02-task-parallelism.md
+
 # Task Parallelism with Chapel
 
 The basic concept of parallel computing is simple to understand: we **divide our job in tasks that can be
