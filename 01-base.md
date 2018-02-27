@@ -53,6 +53,7 @@ single-locale Chapel. If you are logged into Cedar or Graham, you'll need to loa
 Chapel module:
 
 ~~~ {.bash}
+$ module spider chapel     # list all Chapel modules
 $ module load gcc chapel-single/1.15.0
 ~~~
 
@@ -117,11 +118,12 @@ So, our objective is to:
 
 1. Write a code to implement the difference equation above.The code should have the following
    requirements: (a) it should work for any given number of rows and columns in the grid, (b) it should
-   run for a given number of iterations, or until the difference between T and Tp is smaller than a given
-   tolerance value, and (c) it should output the temperature at a desired position on the grid every
-   given number of iterations.
-1. Use task parallelism to improve the performance of the code and run it in the cluster
-1. Use data parallelism to improve the performance of the code and run it in the cluster.
+   run for a given number of iterations, or until the difference between Tnew and T is smaller than a
+   given tolerance value, and (c) it should output the temperature at a desired position on the grid
+   every given number of iterations.
+1. Use task parallelism to improve the performance of the code and run it on a single cluster node.
+1. Use data parallelism to improve the performance of the code and run it on multiple cluster nodes using
+   hybrid parallelism.
 
 ## Variables
 
@@ -376,9 +378,9 @@ plate is cooling down.
 >> ~~~
 >> // boundary conditions
 >> for i in 1..rows do
->>   T[i,cols+1] = i*80.0/rows;
+>>   T[i,cols+1] = i*80.0/rows;   # right side
 >> for j in 1..cols do
->>   T[rows+1,j] = j*80.0/cols;
+>>   T[rows+1,j] = j*80.0/cols;   # bottom side
 >> ~~~
 >> Note that 80 degrees is written as a real
 >> number 80.0. The division of integers in Chapel returns an integer, then, as `rows` and `cols` are
@@ -486,7 +488,7 @@ The greatest difference in temperatures between the last two iterations was: 0.0
 ~~~
 
 > ## Exercise 4
-> Make `rows`, `cols`, `nout`, `iout`, `jout`, `tolerance`, `rows` and `cols` configurable variables, and
+> Make `rows`, `cols`, `nout`, `iout`, `jout`, `tolerance` configurable variables, and
 > test the code simulating different configurations. What can you conclude about the performance of the
 > code.
 >
@@ -582,6 +584,6 @@ The greatest difference in temperatures between the last two iterations was: 0.0
 
 > ## Exercise 4.5
 > Try recompiling without `--fast` and see how it affects the execution time. If it becomes too slow,
-> try reducing the problem size.
+> try reducing the problem size. What is the speedup factor with `--fast`?
 >> ## Solution
 >> Without `--fast` the calculation will become slower by ~95X.
