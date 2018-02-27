@@ -167,7 +167,7 @@ Of course, we can use both, the initial value and the type, when declaring a var
 ~~~
 const tolerance = 0.0001: real;   // temperature difference tolerance
 var count = 0: int;                // the iteration counter
-const nout = 20: int;             // the temperature at (x,y) will be printed every nout interations
+const nout = 20: int;             // the temperature at (iout,jout) will be printed every nout interations
 ~~~
 
 Lets print out our configuration after we set all parameters:
@@ -231,10 +231,10 @@ delta = tolerance;   // safe initial bet; could also be a large number
 while (count < niter && delta >= tolerance) do {
   // specify boundary conditions for T
   count += 1;      // increase the iteration counter by one
-  // calculate the new temperatures Tnew using the past temperatures T
+  Tnew = T;    // will be replaced: calculate Tnew from T
   // update delta, the greatest difference between Tnew and T
   T = Tnew;    // update T once all elements of Tnew are calculated
-  // print the temperature at the desired position if the iteration is multiple of nout
+  // print the temperature at [iout,jout] if the iteration is multiple of nout
 }
 ~~~
 
@@ -348,7 +348,7 @@ plate is cooling down.
 > temperature at the top right corner.
 >> ## Solution
 >> To see the evolution of the temperature at the top right corner of the plate, we just need to modify
->> `x` and `y`. This corner correspond to the first row (`x=1`) and the last column (`y=cols`) of the
+>> `iout` and `jout`. This corner correspond to the first row (`iout=1`) and the last column (`jout=cols`) of the
 >> plate.
 >> ~~~ {.bash}
 >> $ chpl baseSolver.chpl -o baseSolver
@@ -435,7 +435,7 @@ Now, after Exercise 3 we should have a working program to simulate our heat tran
 just print some additional useful information:
 
 ~~~
-writeln('Final temperature at the desired position after ', count, ' iterations is: ', T[iout,jout]);
+writeln('Final temperature at the desired position [', iout, ',', jout, '] after ', count, ' iterations is: ', T[iout,jout]);
 writeln('The largest temperature difference between the last two iterations was: ', delta);
 ~~~
 
@@ -450,7 +450,7 @@ Temperature at iteration 0: 25.0
 Temperature at iteration 20: 2.0859
 ...
 Temperature at iteration 500: 0.823152
-Final temperature at the desired position after 500 iterations is: 0.823152
+Final temperature at the desired position [1,100] after 500 iterations is: 0.823152
 The largest temperature difference between the last two iterations was: 0.0258874
 ~~~
 
@@ -540,7 +540,7 @@ user   0m9.122s
 sys    0m0.040s
 ~~~
 
-The real time is what interest us. Our code is taking around 34 seconds from the moment it is called at
+The real time is what interest us. Our code is taking around 9.2 seconds from the moment it is called at
 the command line until it returns. Sometimes, however, it could be useful to take the execution time of
 specific parts of the code. This can be achieved by modifying the code to output the information that we
 need. This process is called **_instrumentation of the code_**.
