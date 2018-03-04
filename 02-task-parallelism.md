@@ -115,7 +115,7 @@ scenario.
 
 >> ## Key idea
 >> **Task parallelism** is a style of parallel programming in which parallelism is driven by
->> *programmer-specified tasks*. This is in cotrast with **Data Parallelism** which is a style of
+>> *programmer-specified tasks*. This is in contrast with **Data Parallelism** which is a style of
 >> parallel programming in which parallelism is driven by *computations over collections of data elements
 >> or their indices*.
 
@@ -139,7 +139,7 @@ thread continues its normal execution. Let's start a new code `begin.chpl` with 
 
 ~~~
 var x = 100;
-writeln("This is the main thread starting first task");
+writeln('This is the main thread starting first task');
 begin {
   var count = 0;
   while count < 10 {
@@ -147,7 +147,7 @@ begin {
     writeln('thread 1: ', x + count);
   }
 }
-writeln("This is the main thread starting second task");
+writeln('This is the main thread starting second task');
 begin {
   var count = 0;
   while count < 10 {
@@ -188,9 +188,10 @@ screen.
 > What would happen if in the last code we declare `count` in the main thread?
 >
 >> _Answer_: we'll get an error at compilation, since then `count` will belong to the main thread (will
->> be within the scope of the main thread), and we can modify its value only in the main thread.
+>> be defined within the scope of the main thread), and we can modify its value only in the main thread.
 >
-> What would happen if we try to insert `var x = 10;` inside the first begin statement?
+> What would happen if we try to insert a second definition `var x = 10;` inside the first `begin`
+> statement?
 >
 >> _Answer_: that will actually work, as we'll simply create another, local instance of `x` with its own
 >> value.
@@ -198,7 +199,7 @@ screen.
 >> ## Key idea
 >> All variables have a **_scope_** in which they can be used. The variables declared inside a concurrent
 >> task are accessible only by the task. The variables declared in the main task can be read everywhere,
->> but Chapel won't allow other concurrent tasks to try to modify them.
+>> but Chapel won't allow other concurrent tasks to modify them.
 
 > ## Discussion
 > Are the concurrent tasks, spawned by the last code, running truly in parallel?
@@ -218,15 +219,15 @@ execution until all tasks are done. Let's start `cobegin.chpl`:
 
 ~~~
 var x = 0;
-writeln("This is the main thread, my value of x is ", x);
+writeln('This is the main thread, my value of x is ', x);
 cobegin {
   {
     var x = 5;
-    writeln("This is task 1, my value of x is ", x);
+    writeln('This is task 1, my value of x is ', x);
   }
-  writeln("This is task 2, my value of x is ", x);
+  writeln('This is task 2, my value of x is ', x);
 }
-writeln("This message won't appear until all tasks are done ...");
+writeln('This message will not appear until all tasks are done ...');
 ~~~
 ~~~ {.bash}
 $ chpl cobegin.chpl -o cobegin
@@ -236,7 +237,7 @@ $ ./cobegin
 This is the main thread, my value of x is 0
 This is task 2, my value of x is 0
 This is task 1, my value of x is 5
-This message won't appear until all tasks are done...
+This message will not appear until all tasks are done...
 ~~~
 
 As you may have conclude from the Discussion exercise above, the variables declared inside a task are
@@ -260,10 +261,10 @@ var x = 10;
 config var numtasks = 2;
 writeln('This is the main task: x = ', x);
 coforall taskid in 1..numtasks do {
-  var c = taskid**2;
-  writeln('this is task ', taskid, ': my value of c is ', c, ' and x is ', x);
+  var count = taskid**2;
+  writeln('this is task ', taskid, ': my value of count is ', count, ' and x is ', x);
 }
-writeln('This message won't appear until all tasks are done ...');
+writeln('This message will not appear until all tasks are done ...');
 ~~~
 ~~~ {.bash}
 $ chpl coforall.chpl -o coforall
@@ -276,7 +277,7 @@ this is task 2: my value of c is 4 and x is 10
 this is task 4: my value of c is 16 and x is 10
 this is task 3: my value of c is 9 and x is 10
 this is task 5: my value of c is 25 and x is 10
-This message won't appear until all tasks are done ...
+This message will not appear until all tasks are done ...
 ~~~
 
 Notice the random order of the print statements. And notice how, once again, the variables declared
@@ -302,7 +303,7 @@ to the particular task.
 >>   var c = taskid**2;
 >>   messages[taskid] = 'this is task ' + taskid + ': my value of c is ' + c + ' and x is ' + x;  // add to a string
 >> }
->> writeln('This message won't appear until all tasks are done ...');
+>> writeln('This message will not appear until all tasks are done ...');
 >> for i in 1..numtasks do  // serial loop, will be printed in sequential order
 >>   writeln(messages[i]);
 >> ~~~
@@ -312,7 +313,7 @@ to the particular task.
 >> ~~~
 >> ~~~
 >> This is the main task: x = 10
->> This message won't appear until all tasks are done ...
+>> This message will not appear until all tasks are done ...
 >> this is task 1: my value of c is 1 and x is 10
 >> this is task 2: my value of c is 4 and x is 10
 >> this is task 3: my value of c is 9 and x is 10
@@ -331,7 +332,7 @@ to the particular task.
 >
 > // here put your code to find gmax
 >
-> writeln("the maximum value in x is: ", gmax);
+> writeln('the maximum value in x is: ', gmax);
 > ~~~
 > Write a parallel code to find the maximum value in the array x. Be careful: the number of threads
 > should not be excessive. Best to use `numtasks` to organize parallel loops.
@@ -461,16 +462,16 @@ thread 2: 10
 > ## Discussion
 > What would happen if we swap `sync` and `begin` in the first task:
 > ~~~
-begin {
-  sync {
-    var c = 0;
-    while c < 10 {
-      c += 1;
-      writeln('thread 1: ', x + c);
-    }
-  }
-}
-writeln("The first task is done ...");
+> begin {
+>   sync {
+>     var c = 0;
+>     while c < 10 {
+>       c += 1;
+>       writeln('thread 1: ', x + c);
+>     }
+>   }
+> }
+> writeln('The first task is done ...');
 > ~~~
 > Discuss your observations.
 >
@@ -485,17 +486,17 @@ writeln("The first task is done ...");
 >> ## Solution
 >> ~~~
 >> var x = 0;
->> writeln("This is the main thread, my value of x is ", x);
+>> writeln('This is the main thread, my value of x is ', x);
 >>
 >> sync {
 >>   begin {
 >>      var x = 5;
->>      writeln("this is task 1, my value of x is ", x);
+>>      writeln('this is task 1, my value of x is ', x);
 >>   }
->>   begin writeln("this is task 2, my value of x is ", x);
+>>   begin writeln('this is task 2, my value of x is ', x);
 >> }
 >>
->> writeln("this message won't appear until all tasks are done...");
+>> writeln('this message will not appear until all tasks are done...');
 >> ~~~
 
 A more elaborated and powerful use of `sync` is as a type qualifier for variables. When a variable is
@@ -581,10 +582,10 @@ const numtasks = 5;
 lock.write(0);   // the main task set lock to zero
 
 coforall id in 1..numtasks {
-  writeln("greetings form task ", id, "... I am waiting for all tasks to say hello");
+  writeln('greetings form task ', id, '... I am waiting for all tasks to say hello');
   lock.add(1);              // task id says hello and atomically adds 1 to lock
   lock.waitFor(numtasks);   // then it waits for lock to be equal numtasks (which will happen when all tasks say hello)
-  writeln("task ", id, " is done ...");
+  writeln('task ', id, ' is done ...');
 }
 ~~~
 ~~~ {.bash}
@@ -810,10 +811,10 @@ synchronization points inside the `coforall` loop.
 > const numtasks = 5;
 > lock.write(0);   // the main task set lock to zero
 > coforall id in 1..numtasks {
->   writeln("greetings form task ", id, "... I am waiting for all tasks to say hello");
+>   writeln('greetings form task ', id, '... I am waiting for all tasks to say hello');
 >   lock.add(1);              // task id says hello and atomically adds 1 to lock
 >   lock.waitFor(numtasks);   // then it waits for lock to be equal numtasks (which will happen when all tasks say hello)
->   writeln("task ", id, " is done ...");
+>   writeln('task ', id, ' is done ...');
 > }
 > ~~~
 > Suppose we want to add another synchronization point right after the last `writeln()` command. What is
@@ -821,7 +822,7 @@ synchronization points inside the `coforall` loop.
 > ~~~
 >   lock.sub(1);      // task id says hello and atomically subtracts 1 from lock
 >   lock.waitFor(0);   // then it waits for lock to be equal 0 (which will happen when all tasks say hello)
->   writeln("task ", id, " is really done ...");
+>   writeln('task ', id, ' is really done ...');
 > ~~~
 >
 >> ## Answer
@@ -839,13 +840,13 @@ synchronization points inside the `coforall` loop.
 >> lock1.write(0);   // the main task set lock to zero
 >> lock2.write(0);   // the main task set lock to zero
 >> coforall id in 1..numtasks {
->>   writeln("greetings form task ", id, "... I am waiting for all tasks to say hello");
+>>   writeln('greetings form task ', id, '... I am waiting for all tasks to say hello');
 >>   lock1.add(1);              // task id says hello and atomically adds 1 to lock
 >>   lock1.waitFor(numtasks);   // then it waits for lock to be equal numtasks (which will happen when all tasks say hello)
->>   writeln("task ", id, " is done ...");
+>>   writeln('task ', id, ' is done ...');
 >>   lock2.add(1);
 >>   lock2.waitFor(numtasks);
->>   writeln("task ", id, " is really done ...");  
+>>   writeln('task ', id, ' is really done ...');  
 >> }
 >> ~~~
 
