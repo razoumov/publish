@@ -14,6 +14,111 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+
+
+
+
+
+
+
+<!-- Finally, we will mention the `forall` loop which is similar to `coforall`, except that it is a _for_ loop -->
+<!-- executed by **all cores** in parallel. The number of tasks created is simply equal to the number of cores -->
+<!-- available. Consider a simple (and somewhat silly!) code `forall.chpl`: -->
+
+<!-- ~~~ -->
+<!-- var counter = 0; -->
+<!-- forall i in 1..1000 with (+ reduce counter) { // go in parallel through all 1000 numbers -->
+<!--   counter = 1;    // set this thread's value to 1 (same for all loop iterations in this task) -->
+<!-- } -->
+<!-- writeln("actual number of threads = ", counter); -->
+<!-- ~~~ -->
+<!-- ~~~ {.bash} -->
+<!-- $ chpl forall.chpl -o forall -->
+<!-- $ ./forall -->
+<!-- ~~~ -->
+<!-- ~~~ -->
+<!-- actual number of threads = 2 -->
+<!-- ~~~ -->
+
+<!-- >> ## Key idea -->
+<!-- >> Strictly speaking, this is an example of **data parallelism** in Chapel. We have a collection of -->
+<!-- >> indices 1..1000, and they get broken into groups that are processed by different cores. -->
+
+<!-- Let's modify the code slightly to perform actual computation: -->
+
+<!-- - change `counter = 1;` to `counter += i;` -->
+<!-- - change last line to `writeln("the sum = ", counter);` -->
+
+<!-- Now it computes the sum of all positive integers up to 1000, using two cores! -->
+
+<!-- `forall` loop will be very useful in Part 3 (Data parallelism) where we'll use it to create tasks on all -->
+<!-- cores on all nodes available to us. -->
+
+
+
+
+
+
+<!-- exercise to compute pi -->
+
+<!-- forall i in 1..n with (+ reduce sum) { -->
+<!--   var x = h * ( i - 0.5 ); -->
+<!--   sum += 4.0 / ( 1.0 + x**2); -->
+<!-- } -->
+<!-- sum /= n; -->
+
+
+
+
+
+
+
+
+<!-- Here is what we do with `baseSolver.chpl` and save it as `parallel3.chpl`: -->
+
+<!-- ~~~ {.bash} -->
+<!-- $ diff baseSolver.chpl parallel3.chpl -->
+<!-- ~~~ -->
+<!-- ~~~ -->
+<!--   config const rows = 100, cols = 100; -->
+<!-- + const rowStride = 20, colStride = 20; -->
+
+<!-- - var tmp: real; -->
+
+<!-- -   for i in 1..rows do { -->
+<!-- -     for j in 1..cols do { -->
+<!-- -       Tnew[i,j] = (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1])/4; -->
+<!-- -     } -->
+<!-- -   } -->
+
+<!--   delta = 0; -->
+<!-- - for i in 1..rows do { -->
+<!-- -   for j in 1..cols do { -->
+<!-- -     tmp = abs(Tnew[i,j] - T[i,j]); -->
+<!-- -     if tmp > delta then delta = tmp; -->
+<!-- -   } -->
+<!-- - } -->
+<!-- + forall (i,j) in {1..rows,1..cols} by (rowStride,colStride) with (max reduce delta) { // 5x5 decomposition into 20x20 blocks => up to 25 tasks -->
+<!-- +   for k in i..i+rowStride-1 {         // serial loop inside each subgrid over its local k-range -->
+<!-- +     for l in j..j+colStride-1 do {    // serial loop inside each subgrid over its local l-range -->
+<!-- +       Tnew[k,l] = (T[k-1,l] + T[k+1,l] + T[k,l-1] + T[k,l+1]) / 4; -->
+<!-- +       var tmp = abs(Tnew[k,l] - T[k,l]); -->
+<!-- +     } -->
+<!-- +   } -->
+<!-- + } -->
+
+<!-- ~~~ -->
+
+
+
+
+
+
+
+
+
+
+
 * Official lessons at https://hpc-carpentry.github.io/hpc-chapel.
 * These notes at https://github.com/razoumov/publish/blob/master/03-domain-parallelism.md
 
@@ -72,6 +177,8 @@ using the real executable `mybinary_real`. For example, for an interactive job y
 
 ~~~ {.bash}
 $ salloc --time=0:30:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-razoumov-ac
+$ echo $SLURM_NODELIST          # print the list of four nodes
+$ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
 $ chpl mycode.chpl -o mybinary
 $ srun ./mybinary_real -nl 4   # will run on four locales with max 3 cores per locale
 ~~~

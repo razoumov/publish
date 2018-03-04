@@ -2,9 +2,10 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [Quick review of the last week's session](#quick-review-of-the-last-weeks-session)
 - [Task Parallelism with Chapel](#task-parallelism-with-chapel)
   - [Parallel programming in Chapel](#parallel-programming-in-chapel)
-  - [Runniing on Cedar](#runniing-on-cedar)
+  - [Running on Cedar](#running-on-cedar)
   - [Fire-and-forget tasks](#fire-and-forget-tasks)
   - [Synchronization of tasks](#synchronization-of-tasks)
   - [Parallelizing the heat transfer equation](#parallelizing-the-heat-transfer-equation)
@@ -14,11 +15,31 @@
 * Official lessons at https://hpc-carpentry.github.io/hpc-chapel.
 * These notes at https://github.com/razoumov/publish/blob/master/02-task-parallelism.md
 
+# Quick review of the last week's session
+
+* we wrote the serial version of the 2D heat transfer solver in Chapel `baseSolver.chpl`: initial T=25,
+  zero boundary conditions on the left/upper sides, and linearly increasing temperature on the boundary
+  for the right/bottom sides; the temperature should converge to a steady state
+* it optionally took the following `config` variables from the command line: _rows_, _cols_, _niter_, _iout_,
+  _jout_, _tolerance_, _nout_
+* we ran the benchmark solution to convergence after 7750 iterations
+~~~
+$ ./baseSolver--rows=650 --cols=650 --iout=200 --jout=300 --niter=10000 --tolerance=0.002 --nout=1000
+~~~
+* we learned how to time individual sections of the code
+* we saw that --fast flag sped up calculation by ~100X
+
 # Task Parallelism with Chapel
 
 The basic concept of parallel computing is simple to understand: we **divide our job in tasks that can be
 executed at the same time**, so that we finish the job in a fraction of the time that it would have taken
-if the tasks are executed one by one.  Implementing parallel computations, however, is not always easy.
+if the tasks are executed one by one.
+
+>> ## Key idea
+>> **Task** is a unit of computation that can run in parallel with other tasks.
+
+Implementing parallel computations, however, is not always easy. How easy it is to parallelize a code
+really depends on the underlying problem you are trying to solve:
 
 <!-- A number of misconceptions arises when implementing parallel computations, and we need to address them -->
 <!-- before looking into how task parallelism works in Chapel. To this effect, let's consider the following -->
@@ -71,12 +92,16 @@ distributed, the number of cores, etc.) and tune your code/algorithm to obtain a
 To this effect, **_concurrency_** (the creation and execution of multiple tasks), and **_locality_** (on
 which set of resources these tasks are executed) are orthogonal concepts in Chapel.
 
+<!-- parallelism and locality are completely separate concepts -->
+
 In summary, we can have a set of several tasks; these tasks could be running, e.g.,
 ```
-a. concurrently by the same processor in a single compute node,
-b. in parallel by several processors in a single compute node,
-c. in parallel by several processors distributed in different compute nodes, or
-d. serially (one by one) by several processors distributed in different compute nodes. 
+a. concurrently by the same processor in a single compute node (**serial local** code),
+b. in parallel by several processors in a single compute node (**parallel local** code),
+c. in parallel by several processors distributed in different compute nodes (**parallel distributed**
+   code), or
+d. serially (one by one) by several processors distributed in different compute nodes (**serial
+   distributed** code -- yes, this is possible in Chapel)
 ```
 Similarly, each of these tasks could be using variables located in: 
 ```
@@ -88,39 +113,49 @@ And again, Chapel could take care of all the stuff required to run our algorithm
 scenarios, but we can always add more specific detail to gain performance when targeting a particular
 scenario.
 
-## Runniing on Cedar
+>> ## Key idea
+>> **Task parallelism** is a style of parallel programming in which parallelism is driven by
+>> *programmer-specified tasks*. This is in cotrast with **Data Parallelism** which is a style of
+>> parallel programming in which parallelism is driven by *computations over collections of data elements
+>> or their indices*.
+
+## Running on Cedar
 
 In this lesson, we'll be running on several cores on one node:
 
 ~~~ {.bash}
-$ salloc --time=0:30:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-razoumov-ac
+$ module load gcc chapel-single/1.15.0
+$ salloc --time=0:30:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 \
+         --account=def-razoumov-ac --reservation=cc-training_1
+$ echo $SLURM_NODELIST          # print the list of nodes (should be one)
+$ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
 ~~~
 
 ## Fire-and-forget tasks
 
 A Chapel program always starts as a single main thread. You can then start concurrent tasks with the
 `begin` statement. A task spawned by the `begin` statement will run in a different thread while the main
-thread continues its normal execution. Let's start a new code `begin.chpl` with the following code:
+thread continues its normal execution. Let's start a new code `begin.chpl` with the following lines:
 
 ~~~
-var x = 0;
+var x = 100;
 writeln("This is the main thread starting first task");
 begin {
-  var c = 0;
-  while c < 10 {
-    c += 1;
-    writeln('thread 1: ', x + c);
+  var count = 0;
+  while count < 10 {
+    count += 1;
+    writeln('thread 1: ', x + count);
   }
 }
 writeln("This is the main thread starting second task");
 begin {
-  var c = 0;
-  while c < 10 {
-    c += 1;
-    writeln('thread 2: ', x + c);
+  var count = 0;
+  while count < 10 {
+    count += 1;
+    writeln('thread 2: ', x + count);
   }
 }
-writeln('This is main thread, I am done ...');
+writeln('This is the main thread, I am done ...');
 ~~~
 ~~~ {.bash}
 $ chpl begin.chpl -o begin
@@ -129,40 +164,43 @@ $ ./begin
 ~~~
 This is the main thread starting first task
 This is the main thread starting second task
-This is main thread, I am done ...
-thread 1: 1
-thread 2: 1
-thread 1: 2
-thread 2: 2
-thread 1: 3
-thread 2: 3
+This is the main thread, I am done ...
+thread 2: 101
+thread 1: 101
+thread 2: 102
+thread 1: 102
+thread 2: 103
+thread 1: 103
+thread 2: 104
 ...
-thread 1: 9
-thread 2: 9
-thread 1: 10
-thread 2: 10
+thread 1: 109
+thread 2: 109
+thread 1: 110
+thread 2: 110
 ~~~
 
-As you can see the order of the output is not what we would expected, and actually it is completely
+As you can see the order of the output is not what we would expected, and actually it is somewhat
 unpredictable. This is a well known effect of concurrent tasks accessing the same shared resource at the
 same time (in this case the screen); the system decides in which order the tasks could write to the
 screen.
 
 > ## Discussion
-> What would happen if in the last code we declare `c` in the main thread?
+> What would happen if in the last code we declare `count` in the main thread?
 >
->> _Answer_: we'll create another instance of `c` with its own value.
+>> _Answer_: we'll get an error at compilation, since then `count` will belong to the main thread (will
+>> be within the scope of the main thread), and we can modify its value only in the main thread.
 >
-> What would happen if we try to modify the value of `x` inside a begin statement?
+> What would happen if we try to insert `var x = 10;` inside the first begin statement?
 >
->> _Answer_: can't modify it (error), but we can create another instance of `x` with its own value.
+>> _Answer_: that will actually work, as we'll simply create another, local instance of `x` with its own
+>> value.
 
 >> ## Key idea
 >> All variables have a **_scope_** in which they can be used. The variables declared inside a concurrent
 >> task are accessible only by the task. The variables declared in the main task can be read everywhere,
->> but Chapel won't allow two concurrent tasks to try to modify them.
+>> but Chapel won't allow other concurrent tasks to try to modify them.
 
-> ## Try this...
+> ## Discussion
 > Are the concurrent tasks, spawned by the last code, running truly in parallel?
 >
 > _Answer_: it depends on the number of cores available to your job. If you have a single core, they'll
@@ -170,17 +208,17 @@ screen.
 > will likely run in parallel using the two cores.
 
 >> ## Key idea
->> To maximize performance, start as many tasks as cores are avaialble
+>> To maximize performance, start as many tasks as the number of available cores.
 
 A slightly more structured way to start concurrent tasks in Chapel is by using the `cobegin`
 statement. Here you can start a block of concurrent tasks, **one for each statement** inside the curly
-brackets. The main difference between the `begin`and `cobegin` statements is that with the `cobegin`, all
+brackets. Another difference between the `begin`and `cobegin` statements is that with the `cobegin`, all
 the spawned tasks are synchronized at the end of the statement, i.e. the main thread won't continue its
 execution until all tasks are done. Let's start `cobegin.chpl`:
 
 ~~~
 var x = 0;
-writeln("This is the main thread, my value of x is ",x);
+writeln("This is the main thread, my value of x is ", x);
 cobegin {
   {
     var x = 5;
@@ -208,7 +246,7 @@ Another, and one of the most useful ways to start concurrent/parallel tasks in C
 loop. This is a combination of the for-loop and the `cobegin`statements. The general syntax is:
 
 ```
-coforall index in iterand 
+coforall index in iterand
 {instructions}
 ```
 
@@ -218,32 +256,32 @@ corresponding value yielded by the iterand. This index allows us to _customize_ 
 for each particular task. Let's write `coforall.chpl`:
 
 ~~~
-var x = 1;
-config var numoftasks = 2;
-writeln("This is the main task: x = ", x);
-coforall taskid in 1..numoftasks do {
-  var c = taskid + 1;
-  writeln("this is task ", taskid, ": my value of c is ", c, ' and x is ', x);
+var x = 10;
+config var numtasks = 2;
+writeln('This is the main task: x = ', x);
+coforall taskid in 1..numtasks do {
+  var c = taskid**2;
+  writeln('this is task ', taskid, ': my value of c is ', c, ' and x is ', x);
 }
-writeln("This message won't appear until all tasks are done ...");
+writeln('This message won't appear until all tasks are done ...');
 ~~~
 ~~~ {.bash}
 $ chpl coforall.chpl -o coforall
-$ ./coforall --numoftasks=5
+$ ./coforall --numtasks=5
 ~~~ 
 ~~~
-This is the main task: x = 1
-this is task 2: my value of c is 3 and x is 1
-this is task 1: my value of c is 2 and x is 1
-this is task 3: my value of c is 4 and x is 1
-this is task 5: my value of c is 6 and x is 1
-this is task 4: my value of c is 5 and x is 1
+This is the main task: x = 10
+this is task 1: my value of c is 1 and x is 10
+this is task 2: my value of c is 4 and x is 10
+this is task 4: my value of c is 16 and x is 10
+this is task 3: my value of c is 9 and x is 10
+this is task 5: my value of c is 25 and x is 10
 This message won't appear until all tasks are done ...
 ~~~
 
 Notice the random order of the print statements. And notice how, once again, the variables declared
-outside the coforall can be read by all tasks, while the variables declared inside, are available only to
-the particular task.
+outside the `coforall` can be read by all tasks, while the variables declared inside, are available only
+to the particular task.
 
 > ## Exercise 1
 > Would it be possible to print all the messages in the right order? Modify the code in the last example
@@ -252,41 +290,41 @@ the particular task.
 > Hint: you can use an array of strings declared in the main task, into which all the concurrent tasks
 > could write their messages in the right order. Then, at the end, have the main task print all elements
 > of the array.
+>
 >> ## Solution
 >> The following code is a possible solution:
 >> ~~~
 >> var x = 1;
->> config var numoftasks = 2;
->> var messages: [1..numoftasks] string;
->> writeln("This is the main task: x = ", x);
->> coforall taskid in 1..numoftasks do {
->>   var c = taskid + 1;
->>   var s = "this is task " + taskid + ": my value of c is " + c + ' and x is ' + x;  // add to a string
->>   messages[taskid] = s;
+>> config var numtasks = 2;
+>> var messages: [1..numtasks] string;
+>> writeln('This is the main task: x = ', x);
+>> coforall taskid in 1..numtasks do {
+>>   var c = taskid**2;
+>>   messages[taskid] = 'this is task ' + taskid + ': my value of c is ' + c + ' and x is ' + x;  // add to a string
 >> }
->> for i in 1..numoftasks do
+>> writeln('This message won't appear until all tasks are done ...');
+>> for i in 1..numtasks do  // serial loop, will be printed in sequential order
 >>   writeln(messages[i]);
->> writeln("This message won't appear until all tasks are done ...");
 >> ~~~
 >> ~~~
 >> chpl exercise1.chpl -o exercise1
->> ./exercise1 --numoftasks=5
+>> ./exercise1 --numtasks=5
 >> ~~~
 >> ~~~
->> This is the main task: x = 1
->> this is task 1: my value of c is 2 and x is 1
->> this is task 2: my value of c is 3 and x is 1
->> this is task 3: my value of c is 4 and x is 1
->> this is task 4: my value of c is 5 and x is 1
->> this is task 5: my value of c is 6 and x is 1
+>> This is the main task: x = 10
 >> This message won't appear until all tasks are done ...
+>> this is task 1: my value of c is 1 and x is 10
+>> this is task 2: my value of c is 4 and x is 10
+>> this is task 3: my value of c is 9 and x is 10
+>> this is task 4: my value of c is 16 and x is 10
+>> this is task 5: my value of c is 25 and x is 10
 >> ~~~
 
 > ## Exercise 2
 > Consider the following code `exercise2.chpl`:
 > ~~~
 > use Random;
-> config const nelem = 1e9:int;    // converting real to integer
+> config const nelem = 1e9: int;
 > var x: [1..nelem] real;
 > fillRandom(x);	// fill array with random numbers
 > var gmax = 0.0;
@@ -296,25 +334,25 @@ the particular task.
 > writeln("the maximum value in x is: ", gmax);
 > ~~~
 > Write a parallel code to find the maximum value in the array x. Be careful: the number of threads
-> should not be excessive. Best to use `numoftasks` to organize parallel loops.
+> should not be excessive. Best to use `numtasks` to organize parallel loops.
 >
 >> ## Solution
 >> ~~~
->> config const numoftasks = 12;     // let's pretend we have 12 cores
->> const n = nelem / numoftasks;     // number of elements per task
->> const r = nelem - n*numoftasks;   // these did not fit into the last task
->> var lmax: [1..numoftasks] real;
+>> config const numtasks = 12;     // let's pretend we have 12 cores
+>> const n = nelem / numtasks;     // number of elements per task
+>> const r = nelem - n*numtasks;   // these did not fit into the last task
+>> var lmax: [1..numtasks] real;   // local maximum for each task
 >>
->> coforall taskid in 1..numoftasks do {
+>> coforall taskid in 1..numtasks do {   // each iteration processed by a separate task
 >>   var start, finish: int;
 >>   start  = (taskid-1)*n + 1;
 >>   finish = (taskid-1)*n + n;
->>   if taskid == numoftasks then finish += r;    // add r elements to the last task
+>>   if taskid == numtasks then finish += r;    // add r elements to the last task
 >>   for i in start..finish do
 >>     if x[i] > lmax[taskid] then lmax[taskid] = x[i];
 >>  }
 >>
->> for taskid in 1..numoftasks do     // no need for a parallel loop here
+>> for taskid in 1..numtasks do     // no need for a parallel loop here
 >>   if lmax[taskid] > gmax then gmax = lmax[taskid];
 >>
 >> ~~~
@@ -335,7 +373,7 @@ the particular task.
 > Run the code of last Exercise using different number of tasks, and different sizes of the array _x_ to
 > see how the execution time changes. For example:
 > ~~~ {.bash}
-> $ time ./exercise2 --nelem=3000 --numoftasks=4
+> $ time ./exercise2 --nelem=3000 --numtasks=4
 > ~~~
 >
 > Discuss your observations. Is there a limit on how fast the code could run?
@@ -345,49 +383,20 @@ the particular task.
 >>             number of cores
 
 > ## Try this...
-> Substitute the code to find _gmax_ in the last exercise with:
+> Substitute your addition to the code to find _gmax_ in the last exercise with:
 > ~~~
-> gmax = max reduce x;
+> gmax = max reduce x;    // here 'max' is one of the reduce operators
 > ~~~
-> {:.source}
 > Time the execution of the original code and this new one. How do they compare?
 >
->> Answer: the built-in runs in parallel utilizing all cores.
+>> Answer: the built-in reduction operation runs in parallel utilizing all cores.
 >
 >> ## Key idea
 >> It is always a good idea to check whether there is _built-in_ functions or methods in the used
 >> language, that can do what we want as efficiently (or better) than our house-made code. In this case,
 >> the _reduce_ statement reduces the given array to a single number using the operation `max`, and it is
->> parallelized (but not really optimized ...).
-
-Finally, we will mention the `forall` loop which is similar to `coforall`, except that it is a _for_ loop
-executed by **all cores** in parallel. The number of tasks created is simply equal to the number of cores
-available. Consider a simple (and somewhat silly!) code `forall.chpl`:
-
-~~~
-var counter = 0;
-forall i in 1..1000 with (+ reduce counter) { // go in parallel through all 1000 numbers
-  counter = 1;    // set this thread's value to 1 (same for all loop iterations in this task)
-}
-writeln("actual number of threads = ", counter);
-~~~
-~~~ {.bash}
-$ chpl forall.chpl -o forall
-$ ./forall
-~~~
-~~~
-actual number of threads = 2
-~~~
-
-Let's modify the code slightly to perform actual computation:
-
-- change `counter = 1;` to `counter += i;`
-- change last line to `writeln("counter = ", counter);`
-
-Now it computes the sum of all positive integers up to 1000, using two cores!
-
-`forall` loop will be very useful in Part 3 (Domain parallelism) where we'll use it to create tasks on
-all cores on all nodes available to us.
+>> parallelized. Here is the full list of reduce operations: + &nbsp; * &nbsp; && &nbsp; || &nbsp; &
+>> &nbsp; | &nbsp; ^ &nbsp; min &nbsp; max.
 
 ## Synchronization of tasks
 
@@ -397,26 +406,26 @@ The keyword `sync` provides all sorts of mechanisms to synchronize tasks in Chap
 
 ~~~
 var x = 0;
-writeln("This is the main thread starting a synchronous task");
+writeln('This is the main thread starting a synchronous task');
 sync {
   begin {
-    var c = 0;
-    while c < 10 {
-      c += 1;
-      writeln('thread 1: ', x + c);
+    var count = 0;
+    while count < 10 {
+      count += 1;
+      writeln('thread 1: ', x + count);
     }
   }
 }
-writeln("The first task is done ...");
-writeln("This is the main thread starting an asynchronous task");
+writeln('The first task is done ...');
+writeln('This is the main thread starting an asynchronous task');
 begin {
-  var c = 0;
-  while c < 10 {
-    c += 1;
-    writeln('thread 2: ', x + c);
+  var count = 0;
+  while count < 10 {
+    count += 1;
+    writeln('thread 2: ', x + count);
   }
 }
-writeln('This is main thread, I am done ...');
+writeln('This is the main thread, I am done ...');
 ~~~
 ~~~ {.bash}
 $ chpl sync1.chpl -o sync1
@@ -436,7 +445,7 @@ thread 1: 9
 thread 1: 10
 The first task is done ...
 This is the main thread starting an asynchronous task
-This is main thread, I am done ...
+This is the main thread, I am done ...
 thread 2: 1
 thread 2: 2
 thread 2: 3
@@ -463,14 +472,20 @@ begin {
 }
 writeln("The first task is done ...");
 > ~~~
-> Discuss your observations. (Answer: `sync` wouldn't do anything.)
+> Discuss your observations.
+>
+> Answer: `sync` would have no effect on the rest of the program. We only pause the execution of the
+> first task, until all statements inside sync {} are completed -- but this does not affect the main and
+> the second threads: they keep on running.
 
 > ## Exercise 3
-> Use `begin` and `sync` statements to reproduce the functionality of `cobegin` in cobegin.chpl.
+> Use `begin` and `sync` statements to reproduce the functionality of `cobegin` in cobegin.chpl, i.e.,
+> the main thread should not continue until both tasks 1 and 2 are completed.
+>
 >> ## Solution
 >> ~~~
 >> var x = 0;
->> writeln("This is the main thread, my value of x is ",x);
+>> writeln("This is the main thread, my value of x is ", x);
 >>
 >> sync {
 >>   begin {
@@ -484,7 +499,7 @@ writeln("The first task is done ...");
 >> ~~~
 
 A more elaborated and powerful use of `sync` is as a type qualifier for variables. When a variable is
-declared as _sync_, a state that can be **_full_** or **_empty_** is associated to it.
+declared as _sync_, a state that can be **_full_** or **_empty_** is associated with it.
 
 To assign a new value to a _sync_ variable,  its state must be _empty_ (after the assignment operation is
 completed, the state will be set as _full_). On the contrary, to read a value from a _sync_ variable, its
@@ -492,16 +507,16 @@ state must be _full_ (after the read operation is completed, the state will be s
 
 ~~~
 var x: sync int;
-writeln("this is main task launching a new task");
+writeln('this is the main task launching a new task');
 begin {
   for i in 1..10 do
-    writeln("this is new task working: ", i);
+    writeln('this is the new task working: ', i);
   x = 2;
-  writeln("New task finished");
+  writeln('New task finished');
 }
-writeln("this is main task after launching new task ... I will wait until  it is done");
+writeln('this is the main task after launching new task ... I will wait until it is done');
 x;   // not doing anything with a variable, not printing, just calling it
-writeln("and now it is done");
+writeln('and now it is done');
 ~~~
 ~~~ {.bash}
 $ chpl sync2.chpl -o sync2
@@ -524,7 +539,10 @@ New task finished
 and now it is done
 ~~~
 
-* Let's replace `x;` with `var a = x; writeln(a);` -- now it prints the value!
+Here the main thread does not continue until the variable is full and can be read.
+
+* Let's replace `x;` with `var a = x; writeln(a);` -- now it prints the value! As you can see, you can't
+  write a sync variable (current limitation).
 * Let's add another line `a = x; writeln(a);` -- now it is stuck since we cannot read 'x' while it's empty!
 
 There are a number of methods defined for _sync_ variables. Suppose _x_ is a sync variable of a given type:
@@ -587,7 +605,8 @@ task 4 is done...
 ~~~
 
 > ## Try this...
-> Comment out the line `lock.waitfor(numtasks)` in the code above to clearly observe the effect of the task synchronization.
+> Comment out the line `lock.waitfor(numtasks)` in the code above to clearly observe the effect of the
+> task synchronization.
 
 Finally, with all the material studied so far, we should be ready to parallelize our code for the
 simulation of the heat transfer equation.
@@ -596,443 +615,328 @@ simulation of the heat transfer equation.
 
 1. divide the entire grid of points into blocks and assign blocks to individual tasks
 1. each tasks should compute the new temperature of its assigned points
-1. then we must perform a **_reduction_** over the whole grid, to update the greatest difference in temperature
+1. then we must perform a **_reduction_** over the whole grid, to update the greatest temperature
+   difference between Tnew and T
 
-<!-- For the reduction of the grid we can simply use the `max reduce` statement, which is already -->
-<!-- parallelized. Now, let's divide the grid into `rowtasks` x `coltasks` subgrids, and assign each subgrid -->
-<!-- to a task using the `coforall` loop (we will have `rowtasks * coltasks` tasks in total). -->
+For the reduction of the grid we can simply use the `max reduce` statement, which is already
+parallelized. Now, let's divide the grid into `rowtasks` x `coltasks` subgrids, and assign each subgrid
+to a task using the `coforall` loop (we will have `rowtasks * coltasks` tasks in total).
 
-Let's start with a simple 1D loop in `parallel1.chpl`:
-
-~~~
-const rows = 100;
-coforall i in 1..rows do
-  writeln(i);
-~~~
-
-This will create 100 tasks -- one for each loop iteration -- and will print out the numbers 1..100 in
-somewhat random order. Now let's go through 1..100 with a step of 20:
+Recall out code `exercise2.chpl` in which we broke the 1D array with 1e9 elements into `numtasks=12`
+blocks, and each task was processing elements `start..finish`. Now we'll do exactly the same in
+2D. First, let's write a quick serial code to test the indices:
 
 ~~~
-const rows = 100;
-const rowStride = 20;
-coforall i in 1..rows by rowStride do
-  writeln(i);
-~~~
-~~~ {.bash}
-$ chpl parallel1.chpl -o parallel1
-$ ./parallel1
-~~~
-~~~
-1
-21
-61
-41
-81
-~~~
+config const rows = 100, cols = 100;   // number of rows and columns in our matrix
 
-This created five tasks. Let's make it 2D:
+config const rowtasks = 3, coltasks = 4;   // let's pretend we have 12 cores
+const nr = rows / rowtasks;   // number of rows per task
+const rr = rows - nr*rowtasks; // remainder rows (did not fit into the last task)
+const nc = cols / coltasks;   // number of columns per task
+const rc = cols - nc*coltasks; // remainder columns (did not fit into the last task)
 
-~~~
-const rows = 100, cols = 100;
-const rowStride = 20, colStride = 20;
-coforall (i,j) in {1..rows,1..cols} by (rowStride,colStride) do
-  writeln(i, ' ', j);
-~~~
-~~~ {.bash}
-$ chpl parallel1.chpl -o parallel1
-$ ./parallel1
-~~~
-~~~
-1 1
-1 21
-1 61
-21 1
-21 41
-21 81
-41 21
-...
-41 81
-61 21
-61 61
-81 1
-81 41
-81 81
-~~~
-
-This created 25 tasks. Inside each task, we have 20x20 subgrids:
-
-~~~
-const rows = 100, cols = 100;
-const rowStride = 20, colStride = 20;
-coforall (i,j) in {1..rows,1..cols} by (rowStride,colStride) do {
-  writeln('on this subgrid, k will run ', i, '..', i+rowStride-1, ' and l will run ', j, '..', j+colStride-1);
+coforall taskid in 0..coltasks*rowtasks-1 do {
+for taskid in 0..coltasks*rowtasks-1 do {
+  var row1, row2, col1, col2: int;
+  row1 = taskid/coltasks*nr + 1;
+  row2 = taskid/coltasks*nr + nr;
+  if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
+  col1 = taskid%coltasks*nc + 1;
+  col2 = taskid%coltasks*nc + nc;
+  if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
+  writeln('task ', taskid, ': rows ', row1, '-', row2, ' and columns ', col1, '-', col2);
  }
 ~~~
 ~~~ {.bash}
-$ chpl parallel1.chpl -o parallel1
-$ ./parallel1
+$ chpl test.chpl -o test
+$ ./test
 ~~~
 ~~~
-on this subgrid, k will run 1..20 and l will run 1..20
-on this subgrid, k will run 1..20 and l will run 21..40
-on this subgrid, k will run 1..20 and l will run 61..80
-on this subgrid, k will run 21..40 and l will run 1..20
-on this subgrid, k will run 21..40 and l will run 41..60
-on this subgrid, k will run 1..20 and l will run 81..100
-on this subgrid, k will run 21..40 and l will run 81..100
-on this subgrid, k will run 41..60 and l will run 21..40
-on this subgrid, k will run 41..60 and l will run 61..80
-...
-on this subgrid, k will run 41..60 and l will run 41..60
-on this subgrid, k will run 41..60 and l will run 81..100
-on this subgrid, k will run 61..80 and l will run 21..40
-on this subgrid, k will run 61..80 and l will run 61..80
-on this subgrid, k will run 81..100 and l will run 1..20
-on this subgrid, k will run 81..100 and l will run 41..60
-on this subgrid, k will run 81..100 and l will run 81..100
+task 0: rows 1-33 and columns 1-25
+task 1: rows 1-33 and columns 26-50
+task 2: rows 1-33 and columns 51-75
+task 3: rows 1-33 and columns 76-100
+task 4: rows 34-66 and columns 1-25
+task 5: rows 34-66 and columns 26-50
+task 6: rows 34-66 and columns 51-75
+task 7: rows 34-66 and columns 76-100
+task 8: rows 67-100 and columns 1-25
+task 9: rows 67-100 and columns 26-50
+task 10: rows 67-100 and columns 51-75
+task 11: rows 67-100 and columns 76-100
 ~~~
 
-Instead of `coforall` in the diffusion solver we'll use `forall`:
+As you can see, dividing Tnew computation between concurrent tasks could be cumbersome. Chapel provides
+high-level abstractions for data parallelism that take care of all the data distribution for us. We will
+study data parallelism in the following lessons, but for now, let's compare the benchmark solution
+(`baseSolver.chpl`) with our `coforall` parallelization to see how the performance improved.
 
-~~~
-...
-delta = 0;   // maximum temperature change from one timestep to next
-forall (i,j) in {1..rows,1..cols} by (rowStride,colStride) with (max reduce delta) {
-  for k in i..i+rowStride-1 {         // serial loop inside each subgrid over its local k-range
-    for l in j..j+colStride-1 do {    // serial loop inside each subgrid over its local l-range
-      Tnew[k,l] = (T[k-1,l] + T[k+1,l] + T[k,l-1] + T[k,l+1]) / 4;
-      var tmp = abs(Tnew[k,l] - T[k,l]);
-      if tmp > delta then delta = tmp;
-    }
-  }
-}
-...
-~~~
-
-It is still a parallel loop, but instead of creating 25 tasks, it'll create max(numberOfCores,25) tasks,
-i.e., 3 tasks on a 3-core system, running multiple loops inside each task. The main advantage of `forall`
--- unlike `coforall` -- here is that it allows the use of `with (max reduce delta)` construct, allowing
-us to compute local _delta_ on each task and then pick the largest among them on the main thread. The
-calculation will still be synchronized as the reduction operation will force synchronization.
-
-Here is what we do with `baseSolver.chpl` and save it as `parallel1.chpl`:
+Now we'll parallelize our heat transfer solver. Let's copy `baseSolver.chpl` into `parallel1.chpl` and
+then start editing the latter. We'll make the following changes in `parallel1.chpl`:
 
 ~~~ {.bash}
 $ diff baseSolver.chpl parallel1.chpl
-~~~
-~~~
-  config const rows = 100, cols = 100;
-+ const rowStride = 20, colStride = 20;
-
-- var tmp: real;
-
--   for i in 1..rows do {
--     for j in 1..cols do {
--       Tnew[i,j] = (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1])/4;
--     }
--   }
-
-  delta = 0;
-- for i in 1..rows do {
--   for j in 1..cols do {
--     tmp = abs(Tnew[i,j] - T[i,j]);
--     if tmp > delta then delta = tmp;
--   }
-- }
-+ forall (i,j) in {1..rows,1..cols} by (rowStride,colStride) with (max reduce delta) { // 5x5 decomposition into 20x20 blocks => up to 25 tasks
-+   for k in i..i+rowStride-1 {         // serial loop inside each subgrid over its local k-range
-+     for l in j..j+colStride-1 do {    // serial loop inside each subgrid over its local l-range
-+       Tnew[k,l] = (T[k-1,l] + T[k+1,l] + T[k,l-1] + T[k,l+1]) / 4;
-+       var tmp = abs(Tnew[k,l] - T[k,l]);
-+     }
-+   }
-+ }
-
-~~~
-
-> ## Exercise 4
-> Estimate parallel speedup for a 'largish' problem.
+18a19,24
+> config const rowtasks = 3, coltasks = 4;   // let's pretend we have 12 cores
+> const nr = rows / rowtasks;   // number of rows per task
+> const rr = rows - nr*rowtasks; // remainder rows (did not fit into the last task)
+> const nc = cols / coltasks;   // number of columns per task
+> const rc = cols - nc*coltasks; // remainder columns (did not fit into the last task)
 >
->> ## Solution
->> ~~~ {.bash}
->> chpl --fast baseSolver.chpl -o baseSolver
->> ./baseSolver --rows=1000 --cols=1000        # serial run
->> chpl --fast parallel1.chpl -o parallel1
->> ./parallel1 --rows=1000 --cols=1000         # parallel run on all available cores
->> ~~~
->> We get a spedup of ~2X on two cores, which is about expected.
+31,32c37,46
+<   for i in 1..rows do {  // do smth for row i
+<     for j in 1..cols do {   // do smth for row i and column j
+<       Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
+<     }
+<   }
+---
+>   coforall taskid in 0..coltasks*rowtasks-1 do { // each iteration processed by a separate task
+>     var row1, row2, col1, col2: int;
+>     row1 = taskid/coltasks*nr + 1;
+>     row2 = taskid/coltasks*nr + nr;
+>     if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
+>     col1 = taskid%coltasks*nc + 1;
+>     col2 = taskid%coltasks*nc + nc;
+>     if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
+>     for i in row1..row2 do {
+>       for j in col1..col2 do {
+>         Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
+>       }
+>     }
+>   }
+>
+36,42d49
+<   delta = 0;
+<   for i in 1..rows do {
+<     for j in 1..cols do {
+<       tmp = abs(Tnew[i,j]-T[i,j]);
+<       if tmp > delta then delta = tmp;
+<     }
+43a51,52
+>   delta = max reduce abs(Tnew[1..rows,1..cols]-T[1..rows,1..cols]);
+~~~
 
-Further possible improvements:
-* parallel tasks are launched/terminated at each iteration; in principle, could do that once and iterate
-inside
+Let's compile and run both codes on the same large problem:
 
+~~~ {.bash}
+$ chpl --fast baseSolver.chpl -o baseSolver
+$ ./baseSolver --rows=650 --cols=650 --iout=200 --jout=300 --niter=10000 --tolerance=0.002 --nout=1000
+Working with a matrix 650x650 to 10000 iterations or dT below 0.002
+Temperature at iteration 0: 25.0
+Temperature at iteration 1000: 25.0
+Temperature at iteration 2000: 25.0
+Temperature at iteration 3000: 25.0
+Temperature at iteration 4000: 24.9998
+Temperature at iteration 5000: 24.9984
+Temperature at iteration 6000: 24.9935
+Temperature at iteration 7000: 24.9819
+Final temperature at the desired position [200,300] after 7750 iterations is: 24.9671
+The largest temperature difference was 0.00199985
+The simulation took 8.96548 seconds
 
+$ chpl --fast parallel1.chpl -o parallel1
+$ ./parallel1 --rows=650 --cols=650 --iout=200 --jout=300 --niter=10000 --tolerance=0.002 --nout=1000
+Working with a matrix 650x650 to 10000 iterations or dT below 0.002
+Temperature at iteration 0: 25.0
+Temperature at iteration 1000: 25.0
+Temperature at iteration 2000: 25.0
+Temperature at iteration 3000: 25.0
+Temperature at iteration 4000: 24.9998
+Temperature at iteration 5000: 24.9984
+Temperature at iteration 6000: 24.9935
+Temperature at iteration 7000: 24.9819
+Final temperature at the desired position [200,300] after 7750 iterations is: 24.9671
+The largest temperature difference was 0.00199985
+The simulation took 25.106 seconds
+~~~
 
+Both ran to 7750 iterations, with the same numerical results, but the parallel code is nearly 3X slower
+-- that's terrible!
 
+> ## Discussion
+> What happened!?...
 
+To understand the reason, let's analyze the code. When the program starts, the main thread does all the
+declarations and initializations, and then, it enters the main loop of the simulation (the **_while_**
+loop). Inside this loop, the parallel tasks are launched for the first time. When these tasks finish
+their computations, the main task resumes its execution, it updates `delta` and T, and everything is
+repeated again. So, in essence, parallel tasks are launched and resumed 7750 times, which introduces a
+significant amount of overhead (the time the system needs to effectively start and destroy threads in the
+specific hardware, at each iteration of the while loop).
 
+Clearly, a better approach would be to launch the parallel tasks just once, and have them execute all the
+time steps, before resuming the main task to print the final results.
 
+Let's copy `parallel1.chpl` into `parallel2.chpl` and then start editing the latter. We'll make the
+following changes:
 
+(1) Move the rows
 
+~~~
+  coforall taskid in 0..coltasks*rowtasks-1 do { // each iteration processed by a separate task
+    var row1, row2, col1, col2: int;
+    row1 = taskid/coltasks*nr + 1;
+    row2 = taskid/coltasks*nr + nr;
+    if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
+    col1 = taskid%coltasks*nc + 1;
+    col2 = taskid%coltasks*nc + nc;
+    if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
+~~~
 
+and the corresponding closing bracket `}` of this `coforall` loop outside the `while` loop, so that
+`while` is now nested inside `coforall`.
 
+(2) Since now copying Tnew into T is a local operation for each task, i.e. we should replace `T = Tnew;`
+with
 
-<!-- Note that now the nested for loops run from `row1` to `row2` and from `col1` to `col2` which are, -->
-<!-- respectively, the initial and final row and column of the sub-grid associated to the task `taskid`. To -->
-<!-- compute these limits, based on `taskid`, we can again follow the same ideas as in Exercise 2. -->
+~~~
+T[row1..row2,col1..col2] = Tnew[row1..row2,col1..col2];
+~~~
 
-<!-- ~~~ -->
-
-<!-- { -->
-
-<!--     if taskr<rr then -->
-<!--     { -->
-<!--       row1=(taskr*nr)+1+taskr; -->
-<!--       row2=(taskr*nr)+nr+taskr+1; -->
-<!--     } -->
-<!--     else -->
-<!--     { -->
-<!--       row1=(taskr*nr)+1+rr; -->
-<!--       row2=(taskr*nr)+nr+rr; -->
-<!--     } -->
-
-<!--     if taskc<rc then -->
-<!--     { -->
-<!--       col1=(taskc*nc)+1+taskc; -->
-<!--       col2=(taskc*nc)+nc+taskc+1; -->
-<!--     } -->
-<!--     else -->
-<!--     { -->
-<!--       col1=(taskc*nc)+1+rc; -->
-<!--       col2=(taskc*nc)+nc+rc; -->
-<!--     } -->
-
-<!--     for i in row1..row2 do -->
-<!--     { -->
-<!--       for j in col1..col2 do -->
-<!--       { -->
-<!-- 	  ... -->
-	
-<!-- } -->
-<!-- ~~~ -->
-<!-- {:.source} -->
-
-<!-- As you can see, to divide a data set (the array `temp` in this case) between concurrent tasks, could be cumbersome. Chapel provides high-level abstractions for data parallelism that take care of all the data distribution for us. We will study data parallelism in the following lessons, but for now, let's compare the benchmark solution with our `coforall` parallelization to see how the performance improved.  -->
-
-<!-- ~~~ -->
-<!-- $ chpl --fast parallel1.chpl -o parallel1 -->
-<!-- $ ./parallel1 --rows=650 --cols=650 --x=200 --y=300 --niter=10000 --tolerance=0.002 --n=1000 -->
-<!-- ~~~ -->
-<!-- {:.input} -->
-
-<!-- ~~~ -->
-<!-- The simulation will consider a matrix of 650 by 650 elements, -->
-<!-- it will run up to 10000 iterations, or until the largest difference -->
-<!-- in temperature between iterations is less than 0.002. -->
-<!-- You are interested in the evolution of the temperature at the position (200,300) of the matrix... -->
-
-<!-- and here we go... -->
-<!-- Temperature at iteration 0: 25.0 -->
-<!-- Temperature at iteration 1000: 25.0 -->
-<!-- Temperature at iteration 2000: 25.0 -->
-<!-- Temperature at iteration 3000: 25.0 -->
-<!-- Temperature at iteration 4000: 24.9998 -->
-<!-- Temperature at iteration 5000: 24.9984 -->
-<!-- Temperature at iteration 6000: 24.9935 -->
-<!-- Temperature at iteration 7000: 24.9819 -->
-
-<!-- The simulation took 17.0193 seconds -->
-<!-- Final temperature at the desired position after 7750 iterations is: 24.9671 -->
-<!-- The greatest difference in temperatures between the last two iterations was: 0.00199985 -->
-<!-- ~~~ -->
-<!-- {:.output} -->
-
-<!-- This parallel solution, using 4 parallel tasks, took around 17 seconds to finish. Compared with the ~20 seconds needed by the benchmark solution, seems not very impressive. To understand the reason, let's analyze the code's flow. When the program starts, the main thread does all the declarations and initializations, and then, it enters the main loop of the simulation (the **_while loop_**). Inside this loop, the parallel tasks are launched for the first time. When these tasks finish their computations, the main task resumes its execution, it updates `delta`, and everything is repeated again. So, in essence, parallel tasks are launched and resumed 7750 times, which introduces a significant amount of overhead (the time the system needs to effectively start and destroy threads in the specific hardware, at each iteration of the while loop).  -->
-
-<!-- Clearly, a better approach would be to launch the parallel tasks just once, and have them executing all the simulations, before resuming the main task to print the final results.  -->
-
-<!-- ~~~ -->
-<!-- config const rowtasks=2; -->
-<!-- config const coltasks=2; -->
-
-<!-- const nr=rows/rowtasks; -->
-<!-- const rr=rows-nr*rowtasks; -->
-<!-- const nc=cols/coltasks; -->
-<!-- const rc=cols-nc*coltasks; -->
-
-<!-- //this is the main loop of the simulation -->
-<!-- delta=tolerance; -->
-<!-- coforall taskid in 0..coltasks*rowtasks-1 do -->
-<!-- { -->
-<!--   var row1, col1, row2, col2: int; -->
-<!--   var taskr, taskc: int; -->
-<!--   var c=0; -->
-
-<!--   taskr=taskid/coltasks; -->
-<!--   taskc=taskid%coltasks; -->
-
-<!--   if taskr<rr then -->
-<!--   { -->
-<!--     row1=(taskr*nr)+1+taskr; -->
-<!--     row2=(taskr*nr)+nr+taskr+1; -->
-<!--   } -->
-<!--   else -->
-<!--   { -->
-<!--     row1=(taskr*nr)+1+rr; -->
-<!--     row2=(taskr*nr)+nr+rr; -->
-<!--   } -->
-
-<!--   if taskc<rc then -->
-<!--   { -->
-<!--     col1=(taskc*nc)+1+taskc; -->
-<!--     col2=(taskc*nc)+nc+taskc+1; -->
-<!--   } -->
-<!--   else -->
-<!--   { -->
-<!--     col1=(taskc*nc)+1+rc; -->
-<!--     col2=(taskc*nc)+nc+rc; -->
-<!--   } -->
-
-<!--   while (c<niter && delta>=tolerance) do    -->
-<!--   { -->
-<!--     c=c+1; -->
-    
-<!--     for i in row1..row2 do -->
-<!--     { -->
-<!--       for j in col1..col2 do -->
-<!--       { -->
-<!--         temp[i,j]=(past_temp[i-1,j]+past_temp[i+1,j]+past_temp[i,j-1]+past_temp[i,j+1])/4; -->
-<!--       } -->
-<!--     } -->
-        
-<!--     //update delta -->
-<!--     //update past_temp -->
-<!--     //print temperature in desired position -->
-<!--   } -->
-<!-- } -->
-<!-- ~~~ -->
-<!-- {:.source} -->
-
-<!-- The problem with this approach is that now we have to explicitly synchronize the tasks. Before, `delta` and `past_temp` were updated only by the main task at each iteration; similarly, only the main task was printing results. Now, all these operations must be carried inside the coforall loop, which imposes the need of synchronization between tasks.  -->
+But this is not sufficient! We need to make sure we finish computing all elements of Tnew in all tasks
+before computing the greatest temperature difference `delta`. For that we need to synchronize all tasks,
+right after computing Tnew. We'll also need to synchronize tasks after computing `delta` and T from Tnew,
+as none of the tasks should jump into the new iteration without having `delta` and T! So, we need two
+synchronization points inside the `coforall` loop.
 
 <!-- The synchronization must happen at two points:  -->
 <!-- 1. We need to be sure that all tasks have finished with the computations of their part of the grid `temp`, before updating `delta` and `past_temp` safely. -->
 <!-- 2. We need to be sure that all tasks use the updated value of `delta` to evaluate the condition of the while loop for the next iteration. -->
 
-<!-- To update `delta` we could have each task computing the greatest difference in temperature in its associated sub-grid, and then, after the synchronization, have only one task reducing all the sub-grids' maximums. -->
+> ## Exercise 4
+> Recall our earlier code `atomic.chpl`:
+> ~~~
+> var lock: atomic int;
+> const numtasks = 5;
+> lock.write(0);   // the main task set lock to zero
+> coforall id in 1..numtasks {
+>   writeln("greetings form task ", id, "... I am waiting for all tasks to say hello");
+>   lock.add(1);              // task id says hello and atomically adds 1 to lock
+>   lock.waitFor(numtasks);   // then it waits for lock to be equal numtasks (which will happen when all tasks say hello)
+>   writeln("task ", id, " is done ...");
+> }
+> ~~~
+> Suppose we want to add another synchronization point right after the last `writeln()` command. What is
+> wrong with adding the following at the end of the `coforall` loop?
+> ~~~
+>   lock.sub(1);      // task id says hello and atomically subtracts 1 from lock
+>   lock.waitFor(0);   // then it waits for lock to be equal 0 (which will happen when all tasks say hello)
+>   writeln("task ", id, " is really done ...");
+> ~~~
+>
+>> ## Answer
+>> The code most likely will lock (although sometimes it might not), as we'll be hitting a race
+>> condition. Refer to the diagram for explanation.
 
-<!-- ~~~ -->
-<!-- var delta: atomic real; -->
-<!-- var myd: [0..coltasks*rowtasks-1] real; -->
-<!-- ... -->
-<!-- //this is the main loop of the simulation -->
-<!-- delta.write(tolerance); -->
-<!-- coforall taskid in 0..coltasks*rowtasks-1 do -->
-<!-- { -->
-<!--   var myd2: real; -->
-<!--   ... -->
-  
-<!--   while (c<niter && delta>=tolerance) do    -->
-<!--   { -->
-<!--     c=c+1; -->
-<!--     ... -->
-  
-<!--     for i in row1..row2 do -->
-<!--     { -->
-<!--       for j in col1..col2 do -->
-<!--       { -->
-<!--         temp[i,j]=(past_temp[i-1,j]+past_temp[i+1,j]+past_temp[i,j-1]+past_temp[i,j+1])/4; -->
-<!--         myd2=max(abs(temp[i,j]-past_temp[i,j]),myd2); -->
-<!--       } -->
-<!--     } -->
-<!--     myd[taskid]=myd2     -->
-    
-<!--     //here comes the synchronization of tasks -->
-    
-<!--     past_temp[row1..row2,col1..col2]=temp[row1..row2,col1..col2]; -->
-<!--     if taskid==0 then -->
-<!--     { -->
-<!--       delta.write(max reduce myd); -->
-<!--       if c%n==0 then writeln('Temperature at iteration ',c,': ',temp[x,y]); -->
-<!--     } -->
-    
-<!--     //here comes the synchronization of tasks again -->
-<!--   } -->
-<!-- }      -->
-<!-- ~~~ -->
-<!-- {:.source} -->
+> ## Exercise 5
+> Ok, then what is the solution, if we want two synchronization points?
+>
+>> ## Answer
+>> You need two separate locks, and for simplicity increase them both:
+>> ~~~
+>> var lock1, lock2: atomic int;
+>> const numtasks = 5;
+>> lock1.write(0);   // the main task set lock to zero
+>> lock2.write(0);   // the main task set lock to zero
+>> coforall id in 1..numtasks {
+>>   writeln("greetings form task ", id, "... I am waiting for all tasks to say hello");
+>>   lock1.add(1);              // task id says hello and atomically adds 1 to lock
+>>   lock1.waitFor(numtasks);   // then it waits for lock to be equal numtasks (which will happen when all tasks say hello)
+>>   writeln("task ", id, " is done ...");
+>>   lock2.add(1);
+>>   lock2.waitFor(numtasks);
+>>   writeln("task ", id, " is really done ...");  
+>> }
+>> ~~~
 
-<!-- > ## Exercise 4 -->
-<!-- > Use `sync` or `atomic` variables to implement the synchronization required in the code above. -->
-<!-- >> ## Solution -->
-<!-- >> One possible solution is to use an atomic variable as a _lock_ that opens (using the `waitFor` method) when all the tasks complete the required instructions -->
-<!-- >> ~~~ -->
-<!-- >> var lock: atomic int; -->
-<!-- >> lock.write(0); -->
-<!-- >> ... -->
-<!-- >> //this is the main loop of the simulation -->
-<!-- >> delta.write(tolerance); -->
-<!-- >> coforall taskid in 0..coltasks*rowtasks-1 do -->
-<!-- >> { -->
-<!-- >>    ... -->
-<!-- >>    while (c<niter && delta>=tolerance) do    -->
-<!-- >>    { -->
-<!-- >>       ... -->
-<!-- >>       myd[taskid]=myd2     -->
-<!-- >> -->
-<!-- >>       //here comes the synchronization of tasks -->
-<!-- >>       lock.add(1); -->
-<!-- >>       lock.waitFor(coltasks*rowtasks); -->
-<!-- >>        -->
-<!-- >>       past_temp[row1..row2,col1..col2]=temp[row1..row2,col1..col2]; -->
-<!-- >>       ... -->
-<!-- >> -->
-<!-- >>       //here comes the synchronization of tasks again -->
-<!-- >>       lock.sub(1); -->
-<!-- >>       lock.waitFor(0); -->
-<!-- >>    } -->
-<!-- >> } -->
-<!-- >> ~~~ -->
-<!-- >> {:.source}  -->
-<!-- > {:.solution} -->
-<!-- {:.challenge}  -->
+(3) Define two atomic variables that we'll use for synchronization
 
-<!-- Using the solution in the Exercise 4, we can now compare the performance with the benchmark solution -->
+~~~
+var lock1, lock2: atomic int;
+~~~
 
-<!-- ~~~ -->
-<!-- $ chpl --fast parallel2.chpl -o parallel2 -->
-<!-- $ ./parallel2 --rows=650 --cols=650 --x=200 --y=300 --niter=10000 --tolerance=0.002 --n=1000 -->
-<!-- ~~~ -->
-<!-- {:.input} -->
+and add after the (i,j)-loops to compute Tnew the following:
 
-<!-- ~~~ -->
-<!-- The simulation will consider a matrix of 650 by 650 elements, -->
-<!-- it will run up to 10000 iterations, or until the largest difference -->
-<!-- in temperature between iterations is less than 0.002. -->
-<!-- You are interested in the evolution of the temperature at the position (200,300) of the matrix... -->
+~~~
+    lock1.add(1);   // each task atomically adds 1 to lock
+    lock1.waitFor(coltasks*rowtasks*count);   // then it waits for lock to be equal coltasks*rowtasks
+~~~
 
-<!-- and here we go... -->
-<!-- Temperature at iteration 0: 25.0 -->
-<!-- Temperature at iteration 1000: 25.0 -->
-<!-- Temperature at iteration 2000: 25.0 -->
-<!-- Temperature at iteration 3000: 25.0 -->
-<!-- Temperature at iteration 4000: 24.9998 -->
-<!-- Temperature at iteration 5000: 24.9984 -->
-<!-- Temperature at iteration 6000: 24.9935 -->
-<!-- Temperature at iteration 7000: 24.9819 -->
+and after `T[row1..row2,col1..col2] = Tnew[row1..row2,col1..col2];` the following:
 
-<!-- The simulation took 4.2733 seconds -->
-<!-- Final temperature at the desired position after 7750 iterations is: 24.9671 -->
-<!-- The greatest difference in temperatures between the last two iterations was: 0.00199985 -->
-<!-- ~~~ -->
-<!-- {:.output} -->
+~~~
+    lock2.add(1);   // each task atomically subtracts 1 from lock
+    lock2.waitFor(coltasks*rowtasks*count);   // then it waits for lock to be equal 0
+~~~
 
-<!-- to see that we now have a code that performs 5x faster.  -->
+Notice that we have a product `coltasks*rowtasks*count`, since lock1/lock2 will be incremented by all
+tasks at all iterations.
 
-<!-- We finish this section by providing another, elegant version of the task-parallel diffusion solver -->
-<!-- (without time stepping) on a single locale: -->
+(4) Move `var count = 0: int;` into `coforall` so that it becomes a local variable for each task. Also,
+remove `count` instance (in `writeln()`) after `coforall` ends.
 
-<!-- ~~~ -->
-<!-- ~~~ -->
-<!-- {:.source} -->
+(5) Make `delta` atomic:
+
+~~~
+var delta: atomic real;    // the greatest temperature difference between Tnew and T
+...
+delta.write(tolerance*10);    // some safe initial large value
+...
+  while (count < niter && delta.read() >= tolerance) do {
+~~~
+
+(6) Define an array of local delta's for each task and use it to compute delta:
+
+~~~
+var arrayDelta: [0..coltasks*rowtasks-1] real;
+...
+  var tmp: real;   // inside coforall
+...
+    tmp = 0;       // inside while
+...
+        tmp = max(abs(Tnew[i,j]-T[i,j]),tmp);    // next line after Tnew[i,j] = ...
+...
+    arrayDelta[taskid] = tmp;      // right after (i,j)-loop to compute Tnew[i,j]
+...
+    if taskid == 0 then {        // compute delta right after lock1.waitFor()
+      delta.write(max reduce arrayDelta);
+      if count%nout == 0 then writeln('Temperature at iteration ', count, ': ', T[iout,jout]);
+    }
+~~~
+	
+(7) Remove the original T[iout,jout] output line.
+
+Now let's compare the performance of `parallel2.chpl` to the benchmark serial solution `baseSolver.chpl`:
+
+~~~
+$ ./baseSolver --rows=650 --cols=650 --iout=200 --jout=300 --niter=10000 --tolerance=0.002 --nout=1000
+Working with a matrix 650x650 to 10000 iterations or dT below 0.002
+Temperature at iteration 0: 25.0
+Temperature at iteration 1000: 25.0
+Temperature at iteration 2000: 25.0
+Temperature at iteration 3000: 25.0
+Temperature at iteration 4000: 24.9998
+Temperature at iteration 5000: 24.9984
+Temperature at iteration 6000: 24.9935
+Temperature at iteration 7000: 24.9819
+Final temperature at the desired position [200,300] after 7750 iterations is: 24.9671
+The largest temperature difference was 0.00199985
+The simulation took 9.40637 seconds
+
+$ chpl --fast parallel2.chpl -o parallel2
+$ ./parallel2 --rows=650 --cols=650 --iout=200 --jout=300 --niter=10000 --tolerance=0.002 --nout=1000
+Working with a matrix 650x650 to 10000 iterations or dT below 0.002
+Temperature at iteration 0: 25.0
+Temperature at iteration 1000: 25.0
+Temperature at iteration 2000: 25.0
+Temperature at iteration 3000: 25.0
+Temperature at iteration 4000: 24.9998
+Temperature at iteration 5000: 24.9984
+Temperature at iteration 6000: 24.9935
+Temperature at iteration 7000: 24.9819
+Final temperature at the desired position [200,300] is: 24.9671
+The largest temperature difference was 0.00199985
+The simulation took 4.74536 seconds
+~~~
+
+We get a speedup of 2X on two cores, as we should.

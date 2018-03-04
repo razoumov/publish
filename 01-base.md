@@ -26,8 +26,6 @@
 <!-- - lower-level task parallelism: create one task to do this, another task to do this -->
 <!-- - higher-level data parallelism: for all elements in my array, distribute them this way -->
 
-<!-- parallelism and locality are completely separate concepts -->
-
 <!-- - library of standard domain maps provided by chapel -->
 <!-- - users can write their own domain maps -->
 
@@ -378,9 +376,9 @@ plate is cooling down.
 >> ~~~
 >> // boundary conditions
 >> for i in 1..rows do
->>   T[i,cols+1] = i*80.0/rows;   # right side
+>>   T[i,cols+1] = i*80.0/rows;   // right side
 >> for j in 1..cols do
->>   T[rows+1,j] = j*80.0/cols;   # bottom side
+>>   T[rows+1,j] = j*80.0/cols;   // bottom side
 >> ~~~
 >> Note that 80 degrees is written as a real
 >> number 80.0. The division of integers in Chapel returns an integer, then, as `rows` and `cols` are
@@ -582,7 +580,7 @@ Final temperature at the desired position after 7750 iterations is: 24.9671
 The greatest difference in temperatures between the last two iterations was: 0.00199985
 ~~~
 
-> ## Exercise 4.5
+> ## Exercise 5
 > Try recompiling without `--fast` and see how it affects the execution time. If it becomes too slow,
 > try reducing the problem size. What is the speedup factor with `--fast`?
 >> ## Solution
