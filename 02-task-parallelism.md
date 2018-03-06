@@ -41,38 +41,6 @@ if the tasks are executed one by one.
 Implementing parallel computations, however, is not always easy. How easy it is to parallelize a code
 really depends on the underlying problem you are trying to solve. This can result in:
 
-<!-- A number of misconceptions arises when implementing parallel computations, and we need to address them -->
-<!-- before looking into how task parallelism works in Chapel. To this effect, let's consider the following -->
-<!-- analogy: -->
-
-<!-- Suppose that we want to paint the four walls in a room. This is our problem. We can divide our problem in -->
-<!-- 4 different tasks: paint each of the walls. In principle, our 4 tasks are independent from each other in -->
-<!-- the sense that we don't need to finish one to start one another. We say that we have 4 **_concurrent -->
-<!-- tasks_**; the tasks can be executed within the same time frame. However, this does not mean that the -->
-<!-- tasks can be executed simultaneously or in parallel. It all depends on the amount of resources that we -->
-<!-- have for the tasks. If there is only one painter, this guy could work for a while in one wall, then start -->
-<!-- painting another one, then work for a little bit in the third one, and so on and so for. **_The tasks are -->
-<!-- being executed concurrently but not in parallel_**. If we have 2 painters for the job, then more -->
-<!-- parallelism can be introduced. 4 painters could executed the tasks **_truly in parallel_**. -->
-
-<!-- Think of the CPU cores as the painters or workers that will execute your concurrent tasks -->
-
-<!-- Now imagine that all workers have to obtain their paint form a central dispenser located at the middle of -->
-<!-- the room. If each worker is using a different colour, then they can work **_asynchronously_**, however, -->
-<!-- if they use the same colour, and two of them run out of paint at the same time, then they have to -->
-<!-- **_synchronize_** to use the dispenser, one should wait while the other is being serviced. -->
-
-<!-- Think of the shared memory in your computer as the central dispenser for all your workers -->
-
-<!-- Finally, imagine that we have 4 paint dispensers, one for each worker. In this scenario, each worker can -->
-<!-- complete its task totally on its own. They don't even have to be in the same room, they could be painting -->
-<!-- walls of different rooms in the house, on different houses in the city, and different cities in the -->
-<!-- country. We need, however, a communication system in place. Suppose that worker A, for some reason, needs -->
-<!-- a colour that is only available in the dispenser of worker B, they should then synchronize: worker A -->
-<!-- should request the paint to worker B and this last one should response by sending the required colour. -->
-
-<!-- Think of the memory distributed on each node of a cluster as the different dispensers for your workers -->
-
 - a **_fine-grained_** parallel code that needs lots of communication/synchronization between tasks, or
 - a **_coarse-grained_** code that requires little communication between tasks.
 - in this sense **_grain size_** refers to the amount of independent computing in between communication
@@ -90,11 +58,9 @@ consider the specificities of the particular system you are going to use (whethe
 distributed, the number of cores, etc.) and tune your code/algorithm to obtain a better performance.
 
 To this effect, **_concurrency_** (the creation and execution of multiple tasks), and **_locality_** (on
-which set of resources these tasks are executed) are orthogonal concepts in Chapel.
+which set of resources these tasks are executed) are orthogonal (separate) concepts in Chapel. For
+example, we can have a set of several tasks; these tasks could be running, e.g.,
 
-<!-- parallelism and locality are completely separate concepts -->
-
-In summary, we can have a set of several tasks; these tasks could be running, e.g.,
 ```
 a. concurrently by the same processor in a single compute node (**serial local** code),
 b. in parallel by several processors in a single compute node (**parallel local** code),
@@ -639,16 +605,14 @@ const nc = cols / coltasks;   // number of columns per task
 const rc = cols - nc*coltasks; // remainder columns (did not fit into the last task)
 
 coforall taskid in 0..coltasks*rowtasks-1 do {
-  for taskid in 0..coltasks*rowtasks-1 do {
-    var row1, row2, col1, col2: int;
-    row1 = taskid/coltasks*nr + 1;
-    row2 = taskid/coltasks*nr + nr;
-    if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
-    col1 = taskid%coltasks*nc + 1;
-    col2 = taskid%coltasks*nc + nc;
-    if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
-    writeln('task ', taskid, ': rows ', row1, '-', row2, ' and columns ', col1, '-', col2);
-  }
+  var row1, row2, col1, col2: int;
+  row1 = taskid/coltasks*nr + 1;
+  row2 = taskid/coltasks*nr + nr;
+  if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
+  col1 = taskid%coltasks*nc + 1;
+  col2 = taskid%coltasks*nc + nc;
+  if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
+  writeln('task ', taskid, ': rows ', row1, '-', row2, ' and columns ', col1, '-', col2);
 }
 ~~~
 ~~~ {.bash}
@@ -672,7 +636,7 @@ task 11: rows 67-100 and columns 76-100
 
 As you can see, dividing `Tnew` computation between concurrent tasks could be cumbersome. Chapel provides
 high-level abstractions for data parallelism that take care of all the data distribution for us. We will
-study data parallelism in the following lessons, but for now, let's compare the benchmark solution
+study data parallelism in the following lessons, but for now let's compare the benchmark solution
 (`baseSolver.chpl`) with our `coforall` parallelization to see how the performance improved.
 
 Now we'll parallelize our heat transfer solver. Let's copy `baseSolver.chpl` into `parallel1.chpl` and
