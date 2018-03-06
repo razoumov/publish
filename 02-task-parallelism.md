@@ -39,7 +39,7 @@ if the tasks are executed one by one.
 >> **Task** is a unit of computation that can run in parallel with other tasks.
 
 Implementing parallel computations, however, is not always easy. How easy it is to parallelize a code
-really depends on the underlying problem you are trying to solve:
+really depends on the underlying problem you are trying to solve. This can result in:
 
 <!-- A number of misconceptions arises when implementing parallel computations, and we need to address them -->
 <!-- before looking into how task parallelism works in Chapel. To this effect, let's consider the following -->
@@ -73,8 +73,8 @@ really depends on the underlying problem you are trying to solve:
 
 <!-- Think of the memory distributed on each node of a cluster as the different dispensers for your workers -->
 
-- a **_fine-grained_** parallel code needs lots of communication/synchronization between tasks
-- a **_coarse-grained_** code requires little communication between tasks
+- a **_fine-grained_** parallel code that needs lots of communication/synchronization between tasks, or
+- a **_coarse-grained_** code that requires little communication between tasks.
 - in this sense **_grain size_** refers to the amount of independent computing in between communication
 - an **_embarrassing parallel_** problem is one where all tasks can be executed completely independent
   from each other (no communications required)
@@ -125,7 +125,7 @@ In this lesson, we'll be running on several cores on one node:
 
 ~~~ {.bash}
 $ module load gcc chapel-single/1.15.0
-$ salloc --time=0:30:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 \
+$ salloc --time=2:00:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 \
          --account=def-razoumov-ac --reservation=cc-training_1
 $ echo $SLURM_NODELIST          # print the list of nodes (should be one)
 $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
@@ -325,7 +325,7 @@ to the particular task.
 > Consider the following code `exercise2.chpl`:
 > ~~~
 > use Random;
-> config const nelem = 1e9: int;
+> config const nelem = 1e8: int;
 > var x: [1..nelem] real;
 > fillRandom(x);	// fill array with random numbers
 > var gmax = 0.0;
@@ -386,7 +386,7 @@ to the particular task.
 > ## Try this...
 > Substitute your addition to the code to find _gmax_ in the last exercise with:
 > ~~~
-> gmax = max reduce x;    // here 'max' is one of the reduce operators
+> gmax = max reduce x;   // 'max' is one of the reduce operators (data parallelism example)
 > ~~~
 > Time the execution of the original code and this new one. How do they compare?
 >
@@ -515,7 +515,7 @@ begin {
   x = 2;
   writeln('New task finished');
 }
-writeln('this is the main task after launching new task ... I will wait until it is done');
+writeln('this is the main task after launching new task ... I will wait until x is full');
 x;   // not doing anything with a variable, not printing, just calling it
 writeln('and now it is done');
 ~~~
@@ -525,7 +525,7 @@ $ ./sync2
 ~~~
 ~~~
 this is main task launching a new task
-this is main task after launching new task ... I will wait until  it is done
+this is main task after launching new task ... I will wait until x is full
 this is new task working: 1
 this is new task working: 2
 this is new task working: 3
@@ -544,7 +544,9 @@ Here the main thread does not continue until the variable is full and can be rea
 
 * Let's replace `x;` with `var a = x; writeln(a);` -- now it prints the value! As you can see, you can't
   write a sync variable (current limitation).
-* Let's add another line `a = x; writeln(a);` -- now it is stuck since we cannot read 'x' while it's empty!
+* Let's add another line `x;` -- now it is stuck since we cannot read 'x' while it's empty!
+* Let's add `x.writeXF(5);` right before the last `x;` -- now we set is to full again (and assigned 5),
+  and it can be read again.
 
 There are a number of methods defined for _sync_ variables. Suppose _x_ is a sync variable of a given type:
 
@@ -569,8 +571,8 @@ x.readXX()         // will return the value of x regardless its state; the state
 ~~~
 
 Chapel also implements **_atomic_** operations with variables declared as `atomic`, and this provides
-another option to synchronize tasks. Atomic operations run completely independently of any other thread
-or process. This means that when several tasks try to write an atomic variable, only one will succeed at
+another option to synchronize tasks. Atomic operations run *completely independently of any other thread
+or process*. This means that when several tasks try to write an atomic variable, only one will succeed at
 a given moment, providing implicit synchronization between them. There is a number of methods defined for
 atomic variables, among them `sub()`, `add()`, `write()`, `read()`, and `waitfor()` are very useful to
 establish explicit synchronization between tasks, as shown in the next code `atomic.chpl`:
@@ -625,7 +627,7 @@ to a task using the `coforall` loop (we will have `rowtasks * coltasks` tasks in
 
 Recall out code `exercise2.chpl` in which we broke the 1D array with 1e9 elements into `numtasks=12`
 blocks, and each task was processing elements `start..finish`. Now we'll do exactly the same in
-2D. First, let's write a quick serial code to test the indices:
+2D. First, let's write a quick serial code `test.chpl` to test the indices:
 
 ~~~
 config const rows = 100, cols = 100;   // number of rows and columns in our matrix
@@ -637,16 +639,17 @@ const nc = cols / coltasks;   // number of columns per task
 const rc = cols - nc*coltasks; // remainder columns (did not fit into the last task)
 
 coforall taskid in 0..coltasks*rowtasks-1 do {
-for taskid in 0..coltasks*rowtasks-1 do {
-  var row1, row2, col1, col2: int;
-  row1 = taskid/coltasks*nr + 1;
-  row2 = taskid/coltasks*nr + nr;
-  if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
-  col1 = taskid%coltasks*nc + 1;
-  col2 = taskid%coltasks*nc + nc;
-  if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
-  writeln('task ', taskid, ': rows ', row1, '-', row2, ' and columns ', col1, '-', col2);
- }
+  for taskid in 0..coltasks*rowtasks-1 do {
+    var row1, row2, col1, col2: int;
+    row1 = taskid/coltasks*nr + 1;
+    row2 = taskid/coltasks*nr + nr;
+    if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
+    col1 = taskid%coltasks*nc + 1;
+    col2 = taskid%coltasks*nc + nc;
+    if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
+    writeln('task ', taskid, ': rows ', row1, '-', row2, ' and columns ', col1, '-', col2);
+  }
+}
 ~~~
 ~~~ {.bash}
 $ chpl test.chpl -o test
@@ -667,7 +670,7 @@ task 10: rows 67-100 and columns 51-75
 task 11: rows 67-100 and columns 76-100
 ~~~
 
-As you can see, dividing Tnew computation between concurrent tasks could be cumbersome. Chapel provides
+As you can see, dividing `Tnew` computation between concurrent tasks could be cumbersome. Chapel provides
 high-level abstractions for data parallelism that take care of all the data distribution for us. We will
 study data parallelism in the following lessons, but for now, let's compare the benchmark solution
 (`baseSolver.chpl`) with our `coforall` parallelization to see how the performance improved.
@@ -713,6 +716,7 @@ $ diff baseSolver.chpl parallel1.chpl
 <       tmp = abs(Tnew[i,j]-T[i,j]);
 <       if tmp > delta then delta = tmp;
 <     }
+<   }
 43a51,52
 >   delta = max reduce abs(Tnew[1..rows,1..cols]-T[1..rows,1..cols]);
 ~~~
@@ -941,3 +945,19 @@ The simulation took 4.74536 seconds
 ~~~
 
 We get a speedup of 2X on two cores, as we should.
+
+Finally, here is a parallel scaling test on Cedar inside a 32-core interactive job:
+
+~~~
+$ ./parallel2 ... --rowtasks=1 --coltasks=1
+The simulation took 32.2201 seconds
+
+$ ./parallel2 ... --rowtasks=2 --coltasks=2
+The simulation took 10.197 seconds
+
+$ ./parallel2 ... --rowtasks=4 --coltasks=4
+The simulation took 3.79577 seconds
+
+$ ./parallel2 ... --rowtasks=4 --coltasks=8
+The simulation took 2.4874 seconds
+~~~
