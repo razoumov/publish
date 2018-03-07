@@ -9,6 +9,8 @@
   - [Fire-and-forget tasks](#fire-and-forget-tasks)
   - [Synchronization of tasks](#synchronization-of-tasks)
   - [Parallelizing the heat transfer equation](#parallelizing-the-heat-transfer-equation)
+- [We paused here](#we-paused-here)
+- [Why did parallel1.chpl perform so purely compared to baseSolver.chpl?](#why-did-parallel1chpl-perform-so-purely-compared-to-basesolverchpl)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -723,6 +725,9 @@ The simulation took 25.106 seconds
 
 Both ran to 7750 iterations, with the same numerical results, but the parallel code is nearly 3X slower
 -- that's terrible!
+
+# We paused here
+# Why did parallel1.chpl perform so purely compared to baseSolver.chpl?
 
 > ## Discussion
 > What happened!?...
