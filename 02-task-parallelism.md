@@ -588,7 +588,7 @@ simulation of the heat transfer equation.
    difference between Tnew and T
 
 For the reduction of the grid we can simply use the `max reduce` statement, which is already
-parallelized. Now, let's divide the grid into `rowtasks` x `coltasks` subgrids, and assign each subgrid
+parallelized. Now, let's divide the grid into `rowtasks` * `coltasks` subgrids, and assign each subgrid
 to a task using the `coforall` loop (we will have `rowtasks * coltasks` tasks in total).
 
 Recall out code `exercise2.chpl` in which we broke the 1D array with 1e9 elements into `numtasks=12`
@@ -598,7 +598,9 @@ blocks, and each task was processing elements `start..finish`. Now we'll do exac
 ~~~
 config const rows = 100, cols = 100;   // number of rows and columns in our matrix
 
-config const rowtasks = 3, coltasks = 4;   // let's pretend we have 12 cores
+config const rowtasks = 3, coltasks = 4;   // number of blocks in x- and y-dimensions
+                                           // each block processed by a separate task
+                                           // let's pretend we have 12 cores
 const nr = rows / rowtasks;   // number of rows per task
 const rr = rows - nr*rowtasks; // remainder rows (did not fit into the last task)
 const nc = cols / coltasks;   // number of columns per task
