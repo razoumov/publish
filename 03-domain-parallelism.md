@@ -8,7 +8,7 @@
 - [Data parallelism](#data-parallelism-1)
   - [Domains and single-locale data parallelism](#domains-and-single-locale-data-parallelism)
   - [Distributed domains](#distributed-domains)
-  - [Diffusion solver on distributed domains](#diffusion-solver-on-distributed-domains)
+  - [Heat transfer solver on distributed domains](#heat-transfer-solver-on-distributed-domains)
 - [I/O](#io)
 - [Ideas for future topics](#ideas-for-future-topics)
 
@@ -602,33 +602,31 @@ In addition to BlockDist and CyclicDist, Chapel has several other predefined dis
 ReplicatedDist, DimensionalDist2D, ReplicatedDim, BlockCycDim -- for details please see
 http://chapel.cray.com/docs/1.12/modules/distributions.html.
 
-## Diffusion solver on distributed domains
+## Heat transfer solver on distributed domains
 
-Now let us use distributed domains to write a parallel version of our original diffusion solver
+Now let us use distributed domains to write a parallel version of our original heat transfer solver
 code. We'll start by copying `baseSolver.chpl` into `parallel3.chpl` and making the following
 modifications to the latter:
 
 (1) add
 
+~~~
 use BlockDist;
 const mesh: domain(2) = {1..rows, 1..cols};   // local 2D domain
+~~~
 
 (2) we will add a larger (n+2)^2 block-distributed domain `largerMesh` with a layer of *ghost points* on
 *perimeter locales*, and define a temperature array T on top of it, by adding the following to our code:
 
+~~~
 const largerMesh: domain(2) dmapped Block(boundingBox=mesh) = {0..rows+1, 0..cols+1};
+~~~
 
 (3) change the definitions of T and Tnew (delete those two lines) to
 
-var T, Tnew: [largerMesh] real;   // a block-distributed array of temperatures
-
-<!-- forall (i,j) in T.domain[1..n,1..n] { -->
-<!--   var x = ((i:real)-0.5)/(n:real); // x, y are local to each task -->
-<!--   var y = ((j:real)-0.5)/(n:real); -->
-<!--   T[i,j] = exp(-((x-0.5)**2 + (y-0.5)**2) / 0.01); // narrow gaussian peak -->
-<!-- } -->
-
-
+~~~
+var T, Tnew: [largerMesh] real;   // block-distributed arrays of temperatures
+~~~
 
 <!-- Here we initialized an initial Gaussian temperature peak in the middle of the mesh. As we evolve our -->
 <!-- solution in time, this peak should diffuse slowly over the rest of the domain. -->
@@ -658,15 +656,13 @@ var T, Tnew: [largerMesh] real;   // a block-distributed array of temperatures
 <!-- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0   -->
 <!-- ~~~ -->
 
-
-
 Let us define an array of strings `message` with the same distribution over locales as T, by adding the
 following to our code:
 
 ~~~
 var message: [largerMesh] string;
 forall m in message do
-  m = "%i".format(here.id);
+  m = "%i".format(here.id);   # store ID of the locale on which the code is running
 writeln(message);
 assert(1>2);    // will halt if the condition is false
 ~~~
@@ -700,7 +696,7 @@ The outer perimeter in the partition below are the *ghost points*, with the inne
 
 (4) Let's comment out this `message` part, and start working on the parallel solver.
 
-(5) Move the linearly increasing boundary conditions (right/bottom sides) outside the `while` loop.
+(5) Move the linearly increasing boundary conditions (right/bottom sides) before the `while` loop.
 
 (6) Replace the loop for computing *inner* `Tnew`:
 
