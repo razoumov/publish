@@ -225,7 +225,7 @@ We want to run some code on each locale (node). For that, we can cycle through l
 ~~~
 for loc in Locales do   // this is still a serial program
   on loc do             // run the next line on locale `loc`
-    writeln("this locale is named ", here.name[1..6]);    # `here` is the locale on which the node is running
+    writeln("this locale is named ", here.name[1..6]);   // `here` is the locale on which the node is running
 ~~~
 
 This will produce
@@ -312,8 +312,8 @@ our job.
 
 ## Domains and single-locale data parallelism
 
-We start this section by recalling the definition of a range in Chapel. A range is a 1D set of integer
-indices that can be bounded or infinite:
+We start this section by recalling the definition of a **range** in Chapel. A range is a 1D set of
+integer indices that can be bounded or infinite:
 
 ~~~
 var oneToTen: range = 1..10; // 1, 2, 3, ..., 10
@@ -323,15 +323,15 @@ var twoToTenByTwo: range(stridable=true) = 2..10 by 2; // 2, 4, 6, 8, 10
 var oneToInf = 1.. ; // unbounded range
 ~~~
 
-On the other hand, domains are multi-dimensional (including 1D) sets of integer indices that are always
-bounded. To stress the difference between domain ranges and domains, domain definitions always enclose
-their indices in curly brackets. Ranges can be used to define a specific dimension of a domain:
+On the other hand, **domains** are multi-dimensional (including 1D) sets of integer indices that are
+always bounded. To stress the difference between domain ranges and domains, domain definitions always
+enclose their indices in curly brackets. Ranges can be used to define a specific dimension of a domain:
 
 ~~~
 var domain1to10: domain(1) = {1..10};        // 1D domain from 1 to 10 defined using the range 1..10
-var twoDimensions: domain(2) = {-2..2,0..2}; // 2D domain over a product of two ranges
+var twoDimensions: domain(2) = {-2..2, 0..2}; // 2D domain over a product of two ranges
 var thirdDim: range = 1..16; // a range
-var threeDims: domain(3) = {thirdDim, 1..10, 5..10}; // 3D domain over a product of three ranges
+var threeDims: domain(3) = {1..10, 5..10, thirdDim}; // 3D domain over a product of three ranges
 for idx in twoDimensions do   // cycle through all points in a 2D domain
   write(idx, ', ');
 writeln();
@@ -355,9 +355,8 @@ here.numPUs(), here.physicalMemory(), here.maxTaskPar.
 ~~~
 config const n = 8;
 const mesh: domain(2) = {1..n, 1..n};  // a 2D domain defined in shared memory on a single locale
-forall m in mesh { // go in parallel through all n^2 mesh points
-  writeln((m, m.locale.id, here.id, here.maxTaskPar));
-}
+forall m in mesh do   // go in parallel through all n^2 mesh points
+  writeln(m, ' ', m.locale.id, ' ', here.id, ' ', here.maxTaskPar);
 ~~~
 ~~~
 ((7, 1), 0, 0, 3)
@@ -378,9 +377,8 @@ real numbers on top of `mesh`:
 config const n = 8;
 const mesh: domain(2) = {1..n, 1..n};   // a 2D domain defined in shared memory on a single locale
 var T: [mesh] real;   // a 2D array of reals defined in shared memory on a single locale (mapped onto this domain)
-forall t in T {   // go in parallel through all n^2 elements of T
-  writeln((t, t.locale.id));
-}
+forall t in T do   // go in parallel through all n^2 elements of T
+  writeln(t, ' ', t.locale.id);
 ~~~
 ~~~ {.bash}
 $ chpl test.chpl -o test
@@ -401,9 +399,8 @@ By default, all n^2 array elements are set to zero, and all of them are defined 
 underlying mesh. We can also cycle through all indices of T by accessing its domain:
 
 ~~~
-forall idx in T.domain {
+forall idx in T.domain 
   writeln(idx, ' ', T(idx));   // idx is a tuple (i,j); also print the corresponding array element
-}
 ~~~
 ~~~
 (7, 1) 0.0
@@ -608,21 +605,21 @@ Now let us use distributed domains to write a parallel version of our original h
 code. We'll start by copying `baseSolver.chpl` into `parallel3.chpl` and making the following
 modifications to the latter:
 
-(1) add
+(1) Add
 
 ~~~
 use BlockDist;
 const mesh: domain(2) = {1..rows, 1..cols};   // local 2D domain
 ~~~
 
-(2) we will add a larger (n+2)^2 block-distributed domain `largerMesh` with a layer of *ghost points* on
+(2) Add a larger (n+2)^2 block-distributed domain `largerMesh` with a layer of *ghost points* on
 *perimeter locales*, and define a temperature array T on top of it, by adding the following to our code:
 
 ~~~
 const largerMesh: domain(2) dmapped Block(boundingBox=mesh) = {0..rows+1, 0..cols+1};
 ~~~
 
-(3) change the definitions of T and Tnew (delete those two lines) to
+(3) Change the definitions of T and Tnew (delete those two lines) to
 
 ~~~
 var T, Tnew: [largerMesh] real;   // block-distributed arrays of temperatures
