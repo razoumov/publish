@@ -57,11 +57,11 @@ Consider a simple code `forall.chpl` that we'll run inside a 3-core interactive 
 indices 1..1000, and they get broken into groups that are processed by different tasks:
 
 ~~~
-var counter = 0;
-forall i in 1..1000 with (+ reduce counter) {   // parallel loop
-  counter += i;
+var count = 0;
+forall i in 1..1000 with (+ reduce count) {   // parallel loop
+  count += i;
 }
-writeln('counter = ', counter);
+writeln('count = ', count);
 ~~~
 ~~~ {.bash}
 $ module load gcc chapel-single/1.15.0
@@ -71,15 +71,15 @@ $ chpl forall.chpl -o forall
 $ ./forall
 ~~~
 ~~~
-counter = 500500
+count = 500500
 ~~~
 
 We computed the sum of integers from 1 to 1000 in parallel. How many cores did the code run on? Looking
 at the code or its output, **we don't know**. Most likely, on three cores available to us inside the
 job. But we can actually check that!
 
-(1) replace `counter += i;` with `counter = 1;`
-(2) change the last line to `writeln('actual number of threads = ', counter);`
+(1) replace `count += i;` with `count = 1;`  
+(2) change the last line to `writeln('actual number of threads = ', count);`
 
 ~~~ {.bash}
 $ chpl forall.chpl -o forall

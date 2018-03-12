@@ -874,7 +874,7 @@ var arrayDelta: [0..coltasks*rowtasks-1] real;
 ...
     if taskid == 0 then {        // compute delta right after lock1.waitFor()
       delta.write(max reduce arrayDelta);
-      if count%nout == 0 then writeln('Temperature at iteration ', count, ': ', T[iout,jout]);
+      if count%nout == 0 then writeln('Temperature at iteration ', count, ': ', Tnew[iout,jout]);
     }
 ~~~
 	
