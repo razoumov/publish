@@ -611,10 +611,10 @@ coforall taskid in 0..coltasks*rowtasks-1 do {
   var row1, row2, col1, col2: int;
   row1 = taskid/coltasks*nr + 1;
   row2 = taskid/coltasks*nr + nr;
-  if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
+  if rr > 0 then row2 += rr; // add rr rows to the last row of tasks
   col1 = taskid%coltasks*nc + 1;
   col2 = taskid%coltasks*nc + nc;
-  if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
+  if rc > 0 then col2 += rc; // add rc columns to the last column of tasks
   writeln('task ', taskid, ': rows ', row1, '-', row2, ' and columns ', col1, '-', col2);
 }
 ~~~
@@ -665,10 +665,10 @@ $ diff baseSolver.chpl parallel1.chpl
 >     var row1, row2, col1, col2: int;
 >     row1 = taskid/coltasks*nr + 1;
 >     row2 = taskid/coltasks*nr + nr;
->     if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
+>     if rr > 0 then row2 += rr; // add rr rows to the last row of tasks
 >     col1 = taskid%coltasks*nc + 1;
 >     col2 = taskid%coltasks*nc + nc;
->     if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
+>     if rc > 0 then col2 += rc; // add rc columns to the last column of tasks
 >     for i in row1..row2 do {
 >       for j in col1..col2 do {
 >         Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
@@ -751,10 +751,10 @@ following changes:
     var row1, row2, col1, col2: int;
     row1 = taskid/coltasks*nr + 1;
     row2 = taskid/coltasks*nr + nr;
-    if taskid/coltasks + 1 == rowtasks then row2 += rr; // add rr rows to the last row of tasks
+    if rr > 0 then row2 += rr; // add rr rows to the last row of tasks
     col1 = taskid%coltasks*nc + 1;
     col2 = taskid%coltasks*nc + nc;
-    if taskid%coltasks + 1 == coltasks then col2 += rc; // add rc columns to the last column of tasks
+    if rc > 0 then col2 += rc; // add rc columns to the last column of tasks
 ~~~
 
 and the corresponding closing bracket `}` of this `coforall` loop outside the `while` loop, so that
