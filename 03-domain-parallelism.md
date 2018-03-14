@@ -94,17 +94,26 @@ actual number of threads = 3
 > write a Chapel code to compute `pi` by calculating the integral (see slides) numerically through
 > summation using `forall` parallelism. Implement the number of intervals as `config` variable.
 >
+> Hint: to get you started, here is a serial version of this code:
+> ~~~
+> config const n = 1000;
+> var h, total: real;
+> h = 1.0 / n;    // interval width
+> for i in 1..n {
+>   var x = h * ( i - 0.5 );
+>   total += 4.0 / ( 1.0 + x**2);
+> }
+> writef('pi is %3.10r\n', total*h);    // C-style formatted write, r stands for real
+> ~~~
+>
 >> ## Solution
->> The following code is a possible solution:
+>> Change the line
 >> ~~~
->> config const n = 1000;
->> var h, total: real;
->> h = 1.0 / n;    // interval width
+>> for i in 1..n {
+>> ~~~
+>> to
+>> ~~~
 >> forall i in 1..n with (+ reduce total) {
->>   var x = h * ( i - 0.5 );
->>   total += 4.0 / ( 1.0 + x**2);
->> }
->> writef('pi is %3.10r\n', total*h);    // C-style formatted write, r stands for real
 >> ~~~
 
 We finish this section by providing an example of how you can organize a data-parallel, shared-memory
@@ -187,7 +196,7 @@ examples on four nodes with three cores per node.
 <!-- Alternatively, instead of loading the system-wide module, you can configure multi-locale Chapel in your -->
 <!-- own directory. Send me an email later, and I'll share the instructions. Here is how you would use it: -->
 
-On Cedar let's exit out single-node job (Ctrl-D, if you are still running it), and then back on the login
+On Cedar let's exit our single-node job (Ctrl-D if you are still running it), and then back on the login
 node unload `chapel-single` and load `chapel-multi-cedar`, and then start a **4-node** interactive job
 with **3 cores per MPI task** (12 cores per job):
 
@@ -198,9 +207,12 @@ $ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 \
          --account=def-razoumov-ac --reservation=cc-training_2
 $ echo $SLURM_NODELIST          # print the list of nodes (should be four)
 $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
-$ export HFI_NO_CPUAFFINITY=1        # to be able to use parallelism on each locale with OmniPath drivers
-$ export CHPL_RT_NUM_THREADS_PER_LOCALE=$SLURM_CPUS_PER_TASK   # otherwise Chapel will use all physical cores
+$ export HFI_NO_CPUAFFINITY=1   # to enable parallelism on each locale with OmniPath drivers
+$ export CHPL_RT_NUM_THREADS_PER_LOCALE=$SLURM_CPUS_PER_TASK   # to limit the number of tasks
 ~~~
+
+<!-- Check: without `CHPL_RT_NUM_THREADS_PER_LOCALE`, will 32 tasks run on separate 32 cores -->
+<!-- or will they run on the 3 cores inside our Slurm job? -->
 
 # Simple multi-locale codes
 
