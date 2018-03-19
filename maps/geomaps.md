@@ -67,4 +67,6 @@
 ### Bokeh
 
 - what they call *interactive maps* is just a non-rectangular heatmap (with zoom/pan), no underlying
-  geographical map; e.g., see the bottom image in http://bit.ly/2G1PzZT
+  zoomable geographical map; e.g., see the bottom image in http://bit.ly/2G1PzZT
+- can [import coast/other lines](http://geo.holoviews.org/Gridded_Datasets_II.html) into regular heat map
+  images, but these are not multi-resolution geographical maps
