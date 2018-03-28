@@ -52,11 +52,11 @@ $ pip install plotly
 
 ## Online documentation:
 
-1. [tutorials](https://plot.ly/python)
-1. [examples](https://plot.ly/create)
-1. [keyword index](https://plot.ly/python/reference)
-1. [getting started guide](https://plot.ly/python/getting-started)
-1. [community feed with gallery](https://plot.ly/feed)
+1. [Tutorials](https://plot.ly/python)
+1. [Code examples](https://plot.ly/create)
+1. [Keyword index](https://plot.ly/python/reference)
+1. [Getting started guide](https://plot.ly/python/getting-started)
+1. [Community feed with gallery](https://plot.ly/feed)
 1. [Plotly for matplotlib users](https://plot.ly/matplotlib/getting-started)
 1. [Using Plotly with Python offline](https://plot.ly/python/offline)
 1. [Saving static images (PNG, PDF, etc) ](https://plot.ly/python/static-image-export)
@@ -67,9 +67,10 @@ $ pip install plotly
 
 ## Initial setup for online plotting
 
-setting up online plotting (do this only once)
-obtain a free account
-need to generate [your API key](https://plot.ly/settings/api)
+Setting up online plotting (need to do this only once):
+1. obtain a free account at https://plot.ly
+1. generate [your API key](https://plot.ly/settings/api)
+1. run the following from Python
 ~~~ {.python}
 import plotly
 plotly.tools.set_credentials_file(username='rkenjius', api_key='yourAPIkey')   # will write to ~/.plotly/.credentials
@@ -77,7 +78,8 @@ plotly.tools.set_credentials_file(username='rkenjius', api_key='yourAPIkey')   #
 
 ## Three different plot destinations
 
-quick online plot
+Quick online plot:
+
 ~~~ {.python}
 import plotly.plotly as py    # online plotting
 import plotly.graph_objs as go
@@ -88,14 +90,22 @@ trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
 py.plot(data)   # create a unique URL for this plot and optionally open it
 ~~~
-it should return the URL of the plot and open it in your web browser (no local plots saved)
-help(py.plot) to show all plotting arguments
-py.plot(data, auto_open=False)       # make the online plot, do not auto-open in the web browser
-py.plot(data, auto_open=False, sharing='private')    # only 1 free private file, will quickly reach the quota
-same for secret (need a paid account)
-unlimited public plots
 
-quick offline plot: (1) change the first line, (2) specify filename in last line
+This should return the URL of the plot and open it in your web browser (no local plots saved).
+
+~~~ {.python}
+help(py.plot) to show all plotting arguments
+py.plot(data, auto_open=False)   # make the online plot, do not auto-open in the web browser
+py.plot(data, auto_open=False, sharing='private')   # only 1 free private file
+~~~
+
+With default one free _private_ file, you will quickly reach the quota. Same for _secret_ keyword (need a
+paid account). However, you get unlimited free public plots, and unlimited offline plotting!
+
+Quick offline plot:
+1. change the first line,
+1. specify filename in last line.
+
 ~~~ {.python}
 import plotly.offline as py   # offline plotting
 import plotly.graph_objs as go
@@ -106,15 +116,19 @@ trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
 py.plot(data, filename='lines.html')
 ~~~
-by default will auto-open the file, but you can also use auto_open=False
 
-finally, you can work inside a Jupyter notebook
+By default this will auto-open the file, but you can also use `auto_open=False` if you want.
+
+Finally, we can work inside a Jupyter notebook:
+
 ~~~ {.bash}
 $ jupyter notebook
 ~~~
-start a new Python 3 notebook
-in the first line switch back to plotly.plotly
-in the last line change py.plot() to py.iplot()
+
+1. start a new Python 3 notebook
+1. in the first line switch back to plotly.plotly
+1. in the last line change py.plot() to py.iplot()
+
 ~~~ {.python}
 import plotly.plotly as py   # for some reason inside Jupyter notebook only online plots work
 import plotly.graph_objs as go
@@ -125,6 +139,7 @@ trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
 py.iplot(data)   # create a unique URL and open the plot inline in  a Jupyter Notebook
 ~~~
+
 For this one, an online plot will also be created -- you can see the URL by clicking `Edit Chart` button.
 
 ## 2D plots: deeper dive
@@ -138,15 +153,16 @@ import plotly.graph_objs as go
 from numpy import linspace, sin
 x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
-trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
-data = [trace1]
+trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')   # dataset
+data = [trace1]     # a list of datasets
 py.plot(data, filename='lines.html')
 ~~~
 
-Let's print `trace1`: it is a plotly object resembling a Python dictionary, with all elements clearly
-identified (plot type, x numpy array, y numpy array, line type, legend line name). So, `go.Scatter`
-simply creates a dictionary with the corresponding `type` element. **This variable `trace1` completely
-describes our plot!*** Then we create a list `data` of such objects and pass it to the plotting routine.
+Let's print the dataset `trace1`: it is a plotly object which is actually a Python dictionary, with all
+elements clearly identified (plot type, x numpy array, y numpy array, line type, legend line name). So,
+`go.Scatter` simply creates a dictionary with the corresponding `type` element. **This variable/dataset
+`trace1` completely describes our plot!*** Then we create a list `data` of such objects and pass it to
+the plotting routine.
 
 In fact, we can rewrite this routine with dictionaries:
 
@@ -160,7 +176,7 @@ data = [trace1]
 py.plot(data, filename='lines.html')
 ~~~
 
-Let's pass of list of two objects:
+Let's pass the list of two objects:
 
 (1) add
 ~~~ {.python}
@@ -215,8 +231,7 @@ Let's try a Bar plot, constructing `data` directly in one line from the dictiona
 import plotly.offline as py
 import plotly.graph_objs as go
 data = [go.Bar(x=['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax'],
-               y=[2463431, 1392609, 5928040, 4098927, 403131]
-       )]
+               y=[2463431, 1392609, 5928040, 4098927, 403131])]
 py.plot(data, filename='population.html')
 ~~~
 
@@ -292,17 +307,17 @@ py.plot(data, filename='heatmap.html')
 Let's plot these data as a contour map, removing the entry for 'Year':
 
 ~~~
-< months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Year']
----
-> months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-9c9
+9,10c9,10
 < trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow],
+<                    x=months,
 ---
 > trace = go.Contour(z=[recordHigh[:12], averageHigh[:12], dailyMean[:12], averageLow[:12], recordLow[:12]],
+>                    x=months[:12],
 13c13
 < py.plot(data, filename='heatmap.html')
 ---
 > py.plot(data, filename='contour.html')
+
 ~~~
 
 Let's change to a different colourmap:
@@ -311,7 +326,8 @@ Let's change to a different colourmap:
 11c11
 <                    y=['record high', 'aver.high', 'daily mean', 'aver.low', 'record low'])
 ---
->                    y=['record high', 'aver.high', 'daily mean', 'aver.low', 'record low'], colorscale='Jet')
+>                    y=['record high', 'aver.high', 'daily mean', 'aver.low', 'record low'],
+>                    colorscale='Jet')
 ~~~
 
 ### Geographical scatterplot
@@ -416,26 +432,27 @@ py.plot(fig, filename='elevation.html')
 > Plot a 2D function f(x,y) = (1−y) sin(πx) + y sin^2(2πx), where x,y ∈ [0,1] on a 100^2 grid.
 >
 >> ## One possible solution is with *lambda*-functions, with
->>    i=0..n-1,   j=0..n-1,   x=i/(n-1)=0..1,   y=j/(n-1)=0..1:
+>>    i=0..n-1, &nbsp;&nbsp;&nbsp; j=0..n-1, &nbsp;&nbsp;&nbsp; x=i/(n-1)=0..1, &nbsp;&nbsp;&nbsp;
+>>    y=j/(n-1)=0..1:
 >> ~~~ {.python}
 >> import plotly.offline as py
 >> import plotly.graph_objs as go
 >> from numpy *
 >> n = 100   # plot resolution
->> f = fromfunction(lambda i, j: (1-j/(n-1))*sin(pi*i/(n-1)) + \
+>> F = fromfunction(lambda i, j: (1-j/(n-1))*sin(pi*i/(n-1)) + \
 >>                  j/(n-1)*(sin(2*pi*i/(n-1)))**2, (n,n), dtype=float)
->> data = go.Surface(z=f)
+>> data = go.Surface(z=F)
 >> layout = go.Layout(width=800, height=800)
 >> fig = go.Figure(data=[data], layout=layout)
 >> py.plot(fig, filename='elevation.html')
 >> ~~~
 >>
->> If you don't like *lambda*-functions, you can replace `f = fromfunction(...)` line with:
+>> If you don't like *lambda*-functions, you can replace `F = fromfunction(...)` line with:
 >> ~~~ {.python}
->> f = zeros((n,n))
+>> F = zeros((n,n))
 >> for i, x in enumerate(linspace(0,1,n)):
 >>     for j, y in enumerate(linspace(0,1,n)):
->>         f[i,j] = (1-y)*sin(pi*x) + y*(sin(2*pi*x))**2
+>>         F[i,j] = (1-y)*sin(pi*x) + y*(sin(2*pi*x))**2
 >> ~~~
 >>
 >> As a third option, you can use **array operations** to compute `f`:
@@ -443,7 +460,7 @@ py.plot(fig, filename='elevation.html')
 >> x = linspace(0,1,n)
 >> y = linspace(0,1,n)
 >> Y, X = meshgrid(x, y)   # meshgrid() returns two 2D arrays storing x/y respectively at each point
->> f = (1-Y)*sin(pi*X) + Y*(sin(2*pi*X))**2   # array operation
+>> F = (1-Y)*sin(pi*X) + Y*(sin(2*pi*X))**2   # array operation
 >> ~~~
 >>
 >> If we want to scale the z-range, we can add `scene=go.Scene(zaxis=go.ZAxis(range=[-1,2]))` inside
@@ -460,8 +477,8 @@ n = 100   # plot resolution
 x = linspace(0,1,n)
 y = linspace(0,1,n)
 Y, X = meshgrid(x, y)   # meshgrid() returns two 2D arrays storing x/y respectively at each mesh point
-f = (1-Y)*sin(pi*X) + Y*(sin(2*pi*X))**2   # array operation
-data = go.Surface(z=f, colorscale='Viridis')
+F = (1-Y)*sin(pi*X) + Y*(sin(2*pi*X))**2   # array operation
+data = go.Surface(z=F, colorscale='Viridis')
 layout = go.Layout(width=1000, height=1000, scene=go.Scene(zaxis=go.ZAxis(range=[-1,2])));
 fig = go.Figure(data=[data], layout=layout)
 py.plot(fig, filename='elevation.html')
@@ -714,10 +731,13 @@ fig = go.Figure(data=[line1,line2], layout=layout, frames=frames)
 py.plot(fig, filename='spiral.html')
 ~~~
 
-I could not find how to control the animation speed; obviously, it should be via a keyword to either
+I could not find how to control the animation speed. Obviously, it should be via a keyword to either
 `go.Figure()` or `py.plot`.
 
+&nbsp;
 
+You can find these notes at https://github.com/razoumov/publish/blob/master/plotly.md and the CSV/NetCDF
+data files at https://transfer.sh/98Bt5/csv.zip (ZIP archive).
 
 
 
