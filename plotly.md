@@ -73,7 +73,7 @@ Setting up online plotting (need to do this only once):
 1. run the following from Python
 ~~~ {.python}
 import plotly
-plotly.tools.set_credentials_file(username='rkenjius', api_key='yourAPIkey')   # will write to ~/.plotly/.credentials
+plotly.tools.set_credentials_file(username='yourUserName', api_key='yourAPIkey')   # will write to ~/.plotly/.credentials
 ~~~
 
 ## Three different plot destinations
