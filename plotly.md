@@ -78,7 +78,7 @@ plotly.tools.set_credentials_file(username='rkenjius', api_key='yourAPIkey')   #
 
 ## Three different plot destinations
 
-Quick online plot:
+Quick online plotting (with room to store 25 free charts):
 
 ~~~ {.python}
 import plotly.plotly as py    # online plotting
@@ -141,6 +141,19 @@ py.iplot(data)   # create a unique URL and open the plot inline in  a Jupyter No
 ~~~
 
 For this one, an online plot will also be created -- you can see the URL by clicking `Edit Chart` button.
+
+For offline plotting in Jupyter, you need to use:
+
+~~~ {.python}
+import plotly.plotly as py
+py.init_notebook_mode(connected=True)
+...
+py.iplot(data)
+~~~
+
+* `connected=True` will use the online plotly.js library inside the notebook (smaller notebook file sizes)
+* `connected=False` will include plotly.js into the notebook for complete offline work (larger files
+  sizes, also need to modify some notebook settings before it works)
 
 ## 2D plots: deeper dive
 ### Scatter plots
@@ -672,21 +685,25 @@ vmin, vmax = np.min(var), np.max(var)   # global dataset min/max
 x, y, z = np.linspace(0.005,0.995,100), np.linspace(0.005,0.995,100), np.linspace(0.005,0.995,100)
 slicePosition = [0,0,0]   # indices 0..99
 print('slices through the point', x[slicePosition[0]], y[slicePosition[1]], z[slicePosition[2]])
-# --- create the YZ-slice
-Y, Z = np.meshgrid(y,z)   # each is a 100x100 mesh covering [0,1] in each dimension
-X = x[slicePosition[0]] * np.ones((100,100))   # 100x100 array of constant value
-surfx = var[slicePosition[0],:,:]   # 100x100 array of function values
-slicex = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfx, cmin=vmin, cmax=vmax, showscale=True)
-# --- create the XZ-slice
-X, Z = np.meshgrid(x,z)
-Y = y[slicePosition[1]] * np.ones((100,100))   # 100x100 array of constant value
-surfy = var[:,slicePosition[1],:]
-slicey = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfy, cmin=vmin, cmax=vmax, showscale=False)
+
 # --- create the XY-slice
 X, Y = np.meshgrid(x,y)   # each is a 100x100 mesh covering [0,1] in each dimension
 Z = z[slicePosition[2]] * np.ones((100,100))   # 100x100 array of constant value
 surfz = var[:,:,slicePosition[2]]   # 100x100 array of function values
 slicez = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfz, cmin=vmin, cmax=vmax, showscale=False)
+
+# --- create the YZ-slice
+Y, Z = np.meshgrid(y,z)   # each is a 100x100 mesh covering [0,1] in each dimension
+X = x[slicePosition[0]] * np.ones((100,100))   # 100x100 array of constant value
+surfx = var[slicePosition[0],:,:]   # 100x100 array of function values
+slicex = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfx, cmin=vmin, cmax=vmax, showscale=True)
+
+# --- create the XZ-slice
+X, Z = np.meshgrid(x,z)
+Y = y[slicePosition[1]] * np.ones((100,100))   # 100x100 array of constant value
+surfy = var[:,slicePosition[1],:]
+slicey = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfy, cmin=vmin, cmax=vmax, showscale=False)
+
 # --- plot the three slices
 axis = dict(showbackground=True,  backgroundcolor="rgb(230, 230,230)",
             gridcolor="rgb(255, 255, 255)", zerolinecolor="rgb(255, 255, 255)")
