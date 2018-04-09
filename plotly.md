@@ -78,7 +78,10 @@ plotly.tools.set_credentials_file(username='yourUserName', api_key='yourAPIkey')
 
 ## Three different plot destinations
 
-Quick online plotting (with room to store 25 free charts):
+Quick online plotting:
+
+* room to store 25 free charts; beyond that will get an error
+* can free up some space by removing older plots using their Python web API
 
 ~~~ {.python}
 import plotly.plotly as py    # online plotting
@@ -189,42 +192,39 @@ data = [trace1]
 py.plot(data, filename='lines.html')
 ~~~
 
-Let's pass the list of two objects:
-
-(1) add
-~~~ {.python}
-x2 = linspace(0.4,1,500)
-y2 = 0.3*sin(0.5/(x2-0.39)) - 0.5
-trace2 = go.Scatter(x=x2, y=y2, mode='markers', name='same but scaled')
-~~~
-
-(2) change `data = [trace]` to `data = [trace1,trace2]`
-
-Now we have two lines in the plot!
+> ## Exercise 1
+> Pass a list of two objects the plotting routine with `data = [trace1,trace2]`. Let the second dataset
+> `trace2` contain another mathematical function.
+>
+>> ## One possible solution:
+>> ~~~ {.python}
+>> x2 = linspace(0.4,1,500)
+>> y2 = 0.3*sin(0.5/(x2-0.39)) - 0.5
+>> trace2 = go.Scatter(x=x2, y=y2, mode='markers', name='same but scaled')
+>> ~~~
+>> Now we have two lines in the plot!
 
 Notice:
 * how we can hover over each data point, and its (x,y) will be shown
 * the toolbar at the top
 * double-clicking on the plot will reset it
 
-Now let's add
+> ## Exercise 2
+> Add a bunch of dots to the plot with `dots = go.Scatter(x=[1,2,3,4], y=[2,1,2,1])`. What is default
+> scatter mode?
+>
+>> Answer: the default mode is 'lines+markers'. You'll need to change `data = [trace1,trace2]` to `data =
+>> [trace1,trace2, dots]`. You can see that we don't need numpy objects for data: can just have a list of
+>> numbers.
 
-~~~ {.python}
-dots = go.Scatter(x=[1,2,3,4], y=[2,1,2,1])   # default mode is 'lines+markers'
-~~~
-
-and change `data = [trace1,trace2]` to `data = [trace1,trace2, dots]`. You can see that we don't need
-numpy objects for data: can just have a list of numbers.
-
-Let's change line colour and width by adding a `line` dictionary to `dots`:
-
-~~~ {.python}
-dots = go.Scatter(
-    x=[1,2,3,4], y=[2,1,2,1],
-    line=dict(
-        color=('rgb(205,12,24)'),   # black=(0,0,0), white (255,255,255)
-        width=4))
-~~~
+> ## Exercise 3
+> Change line colour and width by adding the dictionary `line=dict(color=('rgb(205,12,24)'),width=4)` to
+> `dots`:
+>
+>> Solution:
+>> ~~~ {.python}
+>> dots = go.Scatter(x=[1,2,3,4], y=[2,1,2,1], line=dict(color=('rgb(205,12,24)'),width=4))
+>> ~~~
 
 What are the plot types? There are quite a few:
 
@@ -317,21 +317,23 @@ py.plot(data, filename='heatmap.html')
 
 ### Contour maps
 
-Let's plot these data as a contour map, removing the entry for 'Year':
-
-~~~
-9,10c9,10
-< trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow],
-<                    x=months,
----
-> trace = go.Contour(z=[recordHigh[:12], averageHigh[:12], dailyMean[:12], averageLow[:12], recordLow[:12]],
->                    x=months[:12],
-13c13
-< py.plot(data, filename='heatmap.html')
----
-> py.plot(data, filename='contour.html')
-
-~~~
+> ## Exercise 4
+> Pretend that our heatmap is defined over a 2D domain and plot the same temperature data as a contour
+> map. Remove the `Year` data (last column) and use `go.Contour` to plot the 2D contour map.
+>
+>> Solution:
+>> ~~~
+>> 9,10c9,10
+>> < trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow],
+>> <                    x=months,
+>> ---
+>> > trace = go.Contour(z=[recordHigh[:12], averageHigh[:12], dailyMean[:12], averageLow[:12], recordLow[:12]],
+>> >                    x=months[:12],
+>> 13c13
+>> < py.plot(data, filename='heatmap.html')
+>> ---
+>> > py.plot(data, filename='contour.html')
+>> ~~~
 
 Let's change to a different colourmap:
 
@@ -382,6 +384,9 @@ layout = go.Layout(title = 'City populations',
 fig = go.Figure(data=[cities], layout=layout)
 py.plot(fig, filename='citiesByPopulation.html')
 ~~~
+
+> ## Exercise 5
+> Modify the code to display only 10 largest cities.
 
 Recall how we combined several scatter plots in one figure before. You can combine several plots on top
 of a single map -- let's **combine scattergeo + choropleth**:
@@ -441,7 +446,7 @@ py.plot(fig, filename='elevation.html')
 
 ### Elevated 2D functions
 
-> ## Exercise 1
+> ## Exercise 6
 > Plot a 2D function f(x,y) = (1−y) sin(πx) + y sin^2(2πx), where x,y ∈ [0,1] on a 100^2 grid.
 >
 >> ## One possible solution is with *lambda*-functions, with
@@ -666,7 +671,7 @@ fig = go.Figure(data=[image], layout=layout)
 py.plot(fig, filename='slice.html')
 ~~~
 
-> ## Exercise 2
+> ## Exercise 7
 > Use the last two codes to plot an isosurface of `sineEnvelope.nc` dataset at f=0.5.
 
 #### Orthogonal 2D slices
