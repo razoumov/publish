@@ -211,6 +211,16 @@ $ export HFI_NO_CPUAFFINITY=1   # to enable parallelism on each locale with Omni
 $ export CHPL_RT_NUM_THREADS_PER_LOCALE=$SLURM_CPUS_PER_TASK   # to limit the number of tasks
 ~~~
 
+**Note**: On Graham currently there is no good Chapel installed centrally, so you'll have to load it from
+AR's home directory:
+
+~~~ {.bash}
+$ . /home/razoumov/startMultiLocale.sh
+$ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-razoumov-ac
+$ echo $SLURM_NODELIST          # print the list of nodes (should be four)
+$ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
+~~~
+
 <!-- Check: without `CHPL_RT_NUM_THREADS_PER_LOCALE`, will 32 tasks run on separate 32 cores -->
 <!-- or will they run on the 3 cores inside our Slurm job? -->
 
