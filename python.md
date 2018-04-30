@@ -8,7 +8,7 @@
   - [Variables and Assignment](#variables-and-assignment)
   - [Data Types and Type Conversion](#data-types-and-type-conversion)
   - [Built-in Functions and Help](#built-in-functions-and-help)
-  - [Conditionals](#conditionals)
+  - <span style="color:red">[Conditionals](#conditionals)</span>
   - [Lists](#lists)
   - [For Loops](#for-loops)
   - [More on lists](#more-on-lists)
@@ -29,6 +29,28 @@
   - [Other advanced Python topics](#other-advanced-python-topics)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+Covered on Day 1: Running and Quitting, Variables and Assignment, Data Types and Type Conversion,
+Built-in Functions and Help, Libraries, Reading Tabular Data into Data Frames, Pandas Data Frames,
+Plotting
+
+Will do on Day 2:
+Conditionals
+Lists (saw briefly in plotting)
+For Loops
+More on lists
+Advanced topic: list comprehensions
+Advanced topic: dictionaries
+Writing Functions
+Variable Scope
+If we have time
+Looping Over Data Sets
+Advanced topic: using Python from the command line
+Very advanced topic: adding standard input support
+Programming Style and Wrap-Up
+Other advanced Python topics
+
+
 
 # Setup
 
@@ -1288,6 +1310,12 @@ if n <= 0.:
 
 - list.sort() and list.index(value); heterogeneous lists
 - to/from matplotlib, to/from numpy
+- good exercise: write this code
+~~~ {.python}
+proper = [631486, 1239220, 2731571, 1704694, 316701]
+metro = [2463431, 1392609, 5928040, 4098927, 403131]
+outside = [m-p for p,m in zip(proper,metro)]   # subtract the two
+~~~
 
 <!-- abc -->
 <!-- https://www.w3resource.com/python-exercises/list -->
