@@ -8,49 +8,31 @@
   - [Variables and Assignment](#variables-and-assignment)
   - [Data Types and Type Conversion](#data-types-and-type-conversion)
   - [Built-in Functions and Help](#built-in-functions-and-help)
-  - <span style="color:red">[Conditionals](#conditionals)</span>
-  - [Lists](#lists)
-  - [For Loops](#for-loops)
-  - [More on lists](#more-on-lists)
-  - [Advanced topic: list comprehensions](#advanced-topic-list-comprehensions)
-  - [Advanced topic: dictionaries](#advanced-topic-dictionaries)
-  - [Writing Functions](#writing-functions)
-  - [Variable Scope](#variable-scope)
-  - [If we have time](#if-we-have-time)
+  - [**Conditionals**](#conditionals)
+  - [**Lists** (saw briefly in plotting)](#lists)
+  - [**For Loops**](#for-loops)
+  - [**More on lists**](#more-on-lists)
+  - [**Advanced topic: list comprehensions**](#advanced-topic-list-comprehensions)
+  - [**Advanced topic: dictionaries**](#advanced-topic-dictionaries)
+  - [**Writing Functions**](#writing-functions)
+  - [**Variable Scope**](#variable-scope)
+  - [**If we have time**](#if-we-have-time)
 - [Part 2](#part-2)
   - [Libraries](#libraries)
   - [Reading Tabular Data into Data Frames](#reading-tabular-data-into-data-frames)
   - [Pandas Data Frames](#pandas-data-frames)
   - [Plotting](#plotting)
-  - [Looping Over Data Sets](#looping-over-data-sets)
-  - [Advanced topic: using Python from the command line](#advanced-topic-using-python-from-the-command-line)
-  - [Very advanced topic: adding standard input support](#very-advanced-topic-adding-standard-input-support)
-  - [Programming Style and Wrap-Up](#programming-style-and-wrap-up)
-  - [Other advanced Python topics](#other-advanced-python-topics)
+  - [**Looping Over Data Sets**](#looping-over-data-sets)
+  - [**Advanced topic: using Python from the command line**](#advanced-topic-using-python-from-the-command-line)
+  - [**Very advanced topic: adding standard input support**](#very-advanced-topic-adding-standard-input-support)
+  - [**Programming Style and Wrap-Up**](#programming-style-and-wrap-up)
+  - [**Other advanced Python topics**](#other-advanced-python-topics)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 Covered on Day 1: Running and Quitting, Variables and Assignment, Data Types and Type Conversion,
 Built-in Functions and Help, Libraries, Reading Tabular Data into Data Frames, Pandas Data Frames,
 Plotting
-
-Will do on Day 2:
-Conditionals
-Lists (saw briefly in plotting)
-For Loops
-More on lists
-Advanced topic: list comprehensions
-Advanced topic: dictionaries
-Writing Functions
-Variable Scope
-If we have time
-Looping Over Data Sets
-Advanced topic: using Python from the command line
-Very advanced topic: adding standard input support
-Programming Style and Wrap-Up
-Other advanced Python topics
-
-
 
 # Setup
 
