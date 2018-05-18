@@ -84,7 +84,7 @@ cores on a login node with CPU-intensive tasks. Therefore, we'll be running test
 submitted jobs on compute nodes. We'll start by submitting a single-core interactive job:
 
 ~~~ {.bash}
-$ salloc --time=0:30:0 --mem-per-cpu=1000 --account=def-razoumov-ac
+$ salloc --time=0:30:0 --mem-per-cpu=1000 --account=def-razoumov-ws_cpu --reservation=arazoumov-may17
 ~~~
 
 and then inside that job compile and run the test code

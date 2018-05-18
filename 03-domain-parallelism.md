@@ -66,7 +66,7 @@ writeln('count = ', count);
 ~~~ {.bash}
 $ module load gcc chapel-single/1.15.0
 $ salloc --time=2:00:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 \
-         --account=def-razoumov-ac --reservation=cc-training_2
+         --account=def-razoumov-ws_cpu --reservation=arazoumov-may17
 $ chpl forall.chpl -o forall
 $ ./forall
 ~~~
@@ -204,7 +204,7 @@ with **3 cores per MPI task** (12 cores per job):
 $ module unload chapel-single
 $ module load chapel-multi-cedar/1.16.0
 $ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 \
-         --account=def-razoumov-ac --reservation=cc-training_2
+         --account=def-razoumov-ws_cpu --reservation=arazoumov-may17
 $ echo $SLURM_NODELIST          # print the list of nodes (should be four)
 $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
 $ export HFI_NO_CPUAFFINITY=1   # to enable parallelism on each locale with OmniPath drivers
@@ -216,7 +216,8 @@ AR's home directory:
 
 ~~~ {.bash}
 $ . /home/razoumov/startMultiLocale.sh
-$ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-razoumov-ac
+$ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 \
+         --account=def-razoumov-ws_cpu --reservation=arazoumov-may17
 $ echo $SLURM_NODELIST          # print the list of nodes (should be four)
 $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
 ~~~

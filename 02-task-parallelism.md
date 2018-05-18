@@ -92,7 +92,7 @@ In this lesson, we'll be running on several cores on one node:
 ~~~ {.bash}
 $ module load gcc chapel-single/1.15.0
 $ salloc --time=2:00:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 \
-         --account=def-razoumov-ac --reservation=cc-training_1
+         --account=def-razoumov-ws_cpu --reservation=arazoumov-may17
 $ echo $SLURM_NODELIST          # print the list of nodes (should be one)
 $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
 ~~~
