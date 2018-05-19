@@ -602,18 +602,18 @@ config const rowtasks = 3, coltasks = 4;   // number of blocks in x- and y-dimen
                                            // each block processed by a separate task
                                            // let's pretend we have 12 cores
 const nr = rows / rowtasks;   // number of rows per task
-const rr = rows - nr*rowtasks; // remainder rows (did not fit into the last task)
+const rr = rows % rowtasks; // remainder rows (did not fit into the last row of tasks)
 const nc = cols / coltasks;   // number of columns per task
-const rc = cols - nc*coltasks; // remainder columns (did not fit into the last task)
+const rc = cols % coltasks; // remainder columns (did not fit into the last column of tasks)
 
 coforall taskid in 0..coltasks*rowtasks-1 do {
   var row1, row2, col1, col2: int;
   row1 = taskid/coltasks*nr + 1;
   row2 = taskid/coltasks*nr + nr;
-  if rr > 0 then row2 += rr; // add rr rows to the last row of tasks
+  if row2 == rowtasks*nr then row2 += rr; // add rr rows to the last row of tasks
   col1 = taskid%coltasks*nc + 1;
   col2 = taskid%coltasks*nc + nc;
-  if rc > 0 then col2 += rc; // add rc columns to the last column of tasks
+  if col2 == coltasks*nc then col2 += rc; // add rc columns to the last column of tasks
   writeln('task ', taskid, ': rows ', row1, '-', row2, ' and columns ', col1, '-', col2);
 }
 ~~~
@@ -664,10 +664,10 @@ $ diff baseSolver.chpl parallel1.chpl
 >     var row1, row2, col1, col2: int;
 >     row1 = taskid/coltasks*nr + 1;
 >     row2 = taskid/coltasks*nr + nr;
->     if rr > 0 then row2 += rr; // add rr rows to the last row of tasks
+>     if row2 == rowtasks*nr then row2 += rr; // add rr rows to the last row of tasks
 >     col1 = taskid%coltasks*nc + 1;
 >     col2 = taskid%coltasks*nc + nc;
->     if rc > 0 then col2 += rc; // add rc columns to the last column of tasks
+>     if col2 == coltasks*nc then col2 += rc; // add rc columns to the last column of tasks
 >     for i in row1..row2 do {
 >       for j in col1..col2 do {
 >         Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
@@ -748,10 +748,10 @@ following changes:
     var row1, row2, col1, col2: int;
     row1 = taskid/coltasks*nr + 1;
     row2 = taskid/coltasks*nr + nr;
-    if rr > 0 then row2 += rr; // add rr rows to the last row of tasks
+    if row2 == rowtasks*nr then row2 += rr; // add rr rows to the last row of tasks
     col1 = taskid%coltasks*nc + 1;
     col2 = taskid%coltasks*nc + nc;
-    if rc > 0 then col2 += rc; // add rc columns to the last column of tasks
+    if col2 == coltasks*nc then col2 += rc; // add rc columns to the last column of tasks
 ~~~
 
 and the corresponding closing bracket `}` of this `coforall` loop outside the `while` loop, so that
