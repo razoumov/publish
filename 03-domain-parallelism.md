@@ -2,11 +2,11 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Data parallelism](#data-parallelism)
-- [Multi-local Chapel setup](#multi-local-chapel-setup)
+- [Single-locale data parallelism](#single-locale-data-parallelism)
+- [Multi-locale Chapel setup](#multi-locale-chapel-setup)
 - [Simple multi-locale codes](#simple-multi-locale-codes)
-- [Data parallelism](#data-parallelism-1)
-  - [Domains and single-locale data parallelism](#domains-and-single-locale-data-parallelism)
+- [Data parallelism](#data-parallelism)
+  - [Local domains](#local-domains)
   - [Distributed domains](#distributed-domains)
   - [Heat transfer solver on distributed domains](#heat-transfer-solver-on-distributed-domains)
 - [I/O](#io)
@@ -17,7 +17,7 @@
 * Official lessons at https://hpc-carpentry.github.io/hpc-chapel.
 * These notes at https://github.com/razoumov/publish/blob/master/03-domain-parallelism.md
 
-# Data parallelism
+# Single-locale data parallelism
 
 As we mentioned in the previous section, **Data Parallelism** is a style of parallel programming in which
 parallelism is driven by *computations over collections of data elements or their indices*. The main tool
@@ -63,6 +63,9 @@ forall i in 1..1000 with (+ reduce count) {   // parallel loop
 }
 writeln('count = ', count);
 ~~~
+
+If we have not done so, let's create our single-locale, three-processor environment:
+
 ~~~ {.bash}
 $ module load gcc chapel-single/1.15.0
 $ salloc --time=2:00:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 \
@@ -132,7 +135,7 @@ forall (r,c) in {1..rows,1..cols} by (rowStride,colStride) do {   // nested c-lo
 }
 ~~~
 
-# Multi-local Chapel setup
+# Multi-locale Chapel setup
 
 So far we have been working with single-locale Chapel codes that may run on one or many cores on a single
 compute node, making use of the shared memory space and accelerating computations by launching parallel
@@ -333,7 +336,7 @@ our job.
 
 # Data parallelism
 
-## Domains and single-locale data parallelism
+## Local domains
 
 We start this section by recalling the definition of a **range** in Chapel. A range is a 1D set of
 integer indices that can be bounded or infinite:
@@ -743,7 +746,7 @@ with a parallel `forall` loop (**contains a mistake on purpose!**):
 >>   **forall (i,j) in largerMesh[1..rows,1..cols] do**   # run on multiple locales in parallel  
 >> instead of  
 >>   forall (i,j) in mesh do   # run in parallel on locale 0 only  
->> Another possible solution is
+>> Another possible solution is__
 >>   forall (i,j) in Tnew.domain[1..rows,1..cols] do   # run on multiple locales in parallel  
 >> Also we cannot have  
 >>   forall (i,j) in largerMesh do   # will run in parallel on multiple locales
