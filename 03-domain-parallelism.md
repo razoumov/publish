@@ -682,7 +682,7 @@ following to our code:
 ~~~
 var message: [largerMesh] string;
 forall m in message do
-  m = "%i".format(here.id);   # store ID of the locale on which the code is running
+  m = "%i".format(here.id);   // store ID of the locale on which the code is running
 writeln(message);
 assert(1>2);    // will halt if the condition is false
 ~~~
@@ -740,11 +740,11 @@ with a parallel `forall` loop (**contains a mistake on purpose!**):
 >
 >> ## Answer
 >> It should be  
->>   forall (i,j) in largerMesh[1..rows,1..cols] do   # run on multiple locales in parallel
+>>   **forall (i,j) in largerMesh[1..rows,1..cols] do**   # run on multiple locales in parallel  
 >> instead of  
->>   forall (i,j) in mesh do   # run in parallel on locale 0 only
+>>   forall (i,j) in mesh do   # run in parallel on locale 0 only  
 >> Another possible solution is
->>   forall (i,j) in Tnew.domain[1..rows,1..cols] do   # run on multiple locales in parallel
+>>   forall (i,j) in Tnew.domain[1..rows,1..cols] do   # run on multiple locales in parallel  
 >> Also we cannot have  
 >>   forall (i,j) in largerMesh do   # will run in parallel on multiple locales
 >> as it will overwrite the boundaries.
