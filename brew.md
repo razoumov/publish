@@ -20,6 +20,8 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+* These notes at https://github.com/razoumov/publish/blob/master/brew.md.
+
 Abstract: Do you have a Mac? Did you know that BSD Unix is what powers much of OSX? Did you know that
 despite this heritage you don't have access to many Linux tools and resources because they are locked out
 by Apple?  Would you like to unlock the full power of a Linux system and take control of your computing
