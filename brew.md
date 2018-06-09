@@ -17,6 +17,7 @@
   - [dar](#dar)
   - [awscli](#awscli)
   - [imagemagick](#imagemagick)
+  - [7zip compression utility](#7zip-compression-utility)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -163,6 +164,7 @@ brew cask install bitwarden   # multi-platform password manager (GUI + command l
 - https://gist.github.com/indiesquidge/ec010eca3ffa254788c2
 - http://www.bigfastblog.com/homebrew-intro-to-the-mac-os-x-package-installer
 - http://osxdaily.com/2018/03/07/how-install-homebrew-mac-os
+- https://github.com/Homebrew/homebrew-cask/blob/master/USAGE.md
 
 ## Some useful packages
 
@@ -261,7 +263,7 @@ brew install imagemagick --with-x11   # library and command-line tool for image 
 http://www.imagemagick.org/Usage
 http://www.imagemagick.org/script/command-line-options.php
 convert https://images.pexels.com/photos/35600/road-sun-rays-path.jpg -resize 1600x1600 forest.png
-convert forest.png forest.pdf
+convert forest.png forest.jpg
 identify -list format   # see the list of support image formats
 man convert
 ls -l $(which convert)
@@ -285,8 +287,22 @@ convert growth.png -fuzz 10% -transparent 'rgb(86,86,86)' growth.png
 ~~~
 
 
+### 7zip compression utility
 
-
-
-- https://www.tecmint.com/7zip-command-examples-in-linux
-- https://github.com/Homebrew/homebrew-cask/blob/master/USAGE.md
+~~~ {.bash}
+brew install p7zip        # port of 7zip from Windows
+man convert > convert.txt
+gzip convert.txt && ls -l convert.txt.gz   # 6324 bytes
+gunzip convert.txt.gz
+7z a convert.txt.7z convert.txt            # 6141 bytes
+7z a -mx=9 convert.txt.7z convert.txt      # 6121 bytes (highest compression ratio)
+7z a landscapes.7z desert.png forest.png hills.png ocean.png   # create an archive
+rm desert.png forest.png hills.png ocean.png
+7z l landscapes.7z        # list contents
+7z t landscapes.7z        # test the archive's integrity
+7z e landscapes.7z        # extract from the archive
+tar -cf - dirName | 7za a -si landscapes.tar.7z    # pack a directory while keeping owner/group
+7za x -so landscapes.tar.7z | tar xf -     # restore it
+7z u landscapes.7z newFile1 newFile2 ...    # update the archive
+7z d landscapes.7z hills.png    # remove a file from the archive
+~~~
