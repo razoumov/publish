@@ -2,26 +2,29 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Introduction](#introduction)
-- [Installing Homebrew](#installing-homebrew)
-- [Working with packages](#working-with-packages)
-- [Getting help](#getting-help)
-- [Taps](#taps)
-- [Fine-level controls](#fine-level-controls)
-- [Mac OS GUI apps](#mac-os-gui-apps)
-- [Links](#links)
-- [Some useful packages](#some-useful-packages)
-  - [ffmpeg (video converter)](#ffmpeg-video-converter)
-  - [pass](#pass)
-  - [ccrypt](#ccrypt)
-  - [dar](#dar)
-  - [awscli](#awscli)
-  - [imagemagick](#imagemagick)
-  - [7zip compression utility](#7zip-compression-utility)
+- ["Unleash Linux on MacOS" DHSI mini-workshop](#unleash-linux-on-macos-dhsi-mini-workshop)
+  - [Introduction](#introduction)
+  - [Installing Homebrew](#installing-homebrew)
+  - [Working with packages](#working-with-packages)
+  - [Getting help](#getting-help)
+  - [Taps](#taps)
+  - [Fine-level controls](#fine-level-controls)
+  - [Mac OS GUI apps](#mac-os-gui-apps)
+  - [Links](#links)
+  - [Some useful packages](#some-useful-packages)
+    - [ffmpeg (video converter)](#ffmpeg-video-converter)
+    - [pass](#pass)
+    - [ccrypt](#ccrypt)
+    - [dar](#dar)
+    - [awscli](#awscli)
+    - [imagemagick](#imagemagick)
+    - [7zip compression utility](#7zip-compression-utility)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-* These notes at https://github.com/razoumov/publish/blob/master/brew.md.
+# "Unleash Linux on MacOS" DHSI mini-workshop
+
+* These notes at http://bit.ly/2l1il0H.
 
 Abstract: Do you have a Mac? Did you know that BSD Unix is what powers much of OSX? Did you know that
 despite this heritage you don't have access to many Linux tools and resources because they are locked out
