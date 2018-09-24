@@ -232,19 +232,19 @@ elif grade >= 90:
 A list stores many values in a single structure.
 
 ~~~ {.python}
-densities = [0.273, 0.275, 0.277, 0.275, 0.276]
-print('densities:', densities)
-print('length:', len(densities))
+T = [27.3, 27.5, 27.7, 27.5, 27.6]   # array of temperature measurements
+print('temperature:', T)
+print('length:', len(T))
 ~~~
 
 ~~~ {.python}
-print('zeroth item of densities', densities[0])
-print('fourth item of densities', densities[4])
+print('zeroth item of T is', T[0])
+print('fourth item of T is', T[4])
 ~~~
 
 ~~~ {.python}
-densities[0] = 0.265
-print('densities is now:', densities)
+T[0] = 21.3
+print('temperature is now:', T)
 ~~~
 
 ~~~ {.python}
