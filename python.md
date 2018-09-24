@@ -8,25 +8,26 @@
   - [Variables and Assignment](#variables-and-assignment)
   - [Data Types and Type Conversion](#data-types-and-type-conversion)
   - [Built-in Functions and Help](#built-in-functions-and-help)
-  - [**Conditionals**](#conditionals)
-  - [**Lists** (saw briefly in plotting)](#lists)
-  - [**For Loops**](#for-loops)
-  - [**More on lists**](#more-on-lists)
-  - [**Advanced topic: list comprehensions**](#advanced-topic-list-comprehensions)
-  - [**Advanced topic: dictionaries**](#advanced-topic-dictionaries)
-  - [**Writing Functions**](#writing-functions)
-  - [**Variable Scope**](#variable-scope)
-  - [**If we have time**](#if-we-have-time)
+  - [Conditionals](#conditionals)
+  - [Lists](#lists)
+  - [For Loops](#for-loops)
+  - [While Loops](#while-loops)
+  - [More on lists](#more-on-lists)
+  - [Advanced topic: list comprehensions](#advanced-topic-list-comprehensions)
+  - [Advanced topic: dictionaries](#advanced-topic-dictionaries)
+  - [Writing Functions](#writing-functions)
+  - [Variable Scope](#variable-scope)
+  - [If we have time](#if-we-have-time)
 - [Part 2](#part-2)
   - [Libraries](#libraries)
   - [Reading Tabular Data into Data Frames](#reading-tabular-data-into-data-frames)
   - [Pandas Data Frames](#pandas-data-frames)
   - [Plotting](#plotting)
-  - [**Looping Over Data Sets**](#looping-over-data-sets)
-  - [**Advanced topic: using Python from the command line**](#advanced-topic-using-python-from-the-command-line)
-  - [**Very advanced topic: adding standard input support**](#very-advanced-topic-adding-standard-input-support)
-  - [**Programming Style and Wrap-Up**](#programming-style-and-wrap-up)
-  - [**Other advanced Python topics**](#other-advanced-python-topics)
+  - [Looping Over Data Sets](#looping-over-data-sets)
+  - [Advanced topic: using Python from the command line](#advanced-topic-using-python-from-the-command-line)
+  - [Very advanced topic: adding standard input support](#very-advanced-topic-adding-standard-input-support)
+  - [Programming Style and Wrap-Up](#programming-style-and-wrap-up)
+  - [Other advanced Python topics](#other-advanced-python-topics)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -417,6 +418,17 @@ for i in a:
 a = [77, 9, 23, 67, 73, 21, 23, 9]
 import collections
 print(collections.Counter(a))
+~~~
+
+## While Loops
+
+Since we talk about loops, we can also briefly mention *while* loops, e.g.
+
+~~~ {.python}
+x = 2
+while x > 1.:
+    x /= 1.1
+    print(x)
 ~~~
 
 ## More on lists
