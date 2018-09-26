@@ -36,6 +36,7 @@ Built-in Functions and Help, Libraries, Reading Tabular Data into Data Frames, P
 Plotting
 
 # Setup
+# Setup
 
 official lesson http://swcarpentry.github.io/python-novice-gapminder
 
