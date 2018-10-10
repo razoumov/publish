@@ -34,7 +34,7 @@ You can find a much longer version of these notes at:
 We'll use a Slurm cluster inside a VM:
 
 ~~~ {.bash}
-ssh user01@206.12.100.115   # user01..user10, with passwd = immensely.loudly.secure.monster
+ssh user01@206.12.100.115   # user01..user10
 $ . /home/centos/startSingleLocale.sh
 $ which chpl
 $ mkdir tmp && cd tmp
