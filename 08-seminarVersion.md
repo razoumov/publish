@@ -10,7 +10,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-* These notes at https://github.com/razoumov/publish/blob/master/08-seminarVersion.md
+* These notes at http://bit.ly/ch1hr
 
 # A taste of parallel programming with Chapel (in one hour)
 
