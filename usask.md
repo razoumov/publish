@@ -33,7 +33,7 @@ me                                       | students
 (4) disable student names                |
 (5) start                                |
 
-This lesson notes (this file) can be found at http://bit.ly/bashmd.
+This lesson notes (this file) can be found at https://github.com/razoumov/publish/blob/master/usask.md.
 - a mix of http://bit.ly/bashmd, http://bit.ly/gitcontrolmd, https://hpc-carpentry.github.io/hpc-shell,
   and maybe some https://hpc-carpentry.github.io/hpc-intro
 
@@ -426,10 +426,16 @@ $ for ((i=1; i<=5; i++)) do echo $i; done   # can use C-style loops
 
 # Shell Scripts
 
+We now know a lot of UNIX commands! Wouldn't it be great if we could save certain commands so that we
+could run them later or not have to type them out again? As it turns out, this is extremely easy to
+do. Saving a list of commands to a file is called a "shell script". These shell scripts can be run
+whenever we want, and are a great way to automate our work.
+
 ~~~ {.bash}
 $ cd ~/Desktop/data-shell/molecules
 $ nano middle.sh
 	#!/bin/bash         # this is called sha-bang; can be omitted for generic (bash/csh/tcsh) commands
+	echo Looking into file octane.pdb
 	head -15 octane.pdb | tail -5       # what does it do?
 $ bash middle.sh   # the script ran!
 ~~~
@@ -444,7 +450,9 @@ $ ./middle.sh
 Let's pass an arbitrary file to it:
 ~~~ {.bash}
 $ nano middle.sh
-    head -15 $1 | tail -5                     # $1 means the first argument to the script
+	#!/bin/bash
+	echo Looking into file $1       # $1 means the first argument to the script
+    head -15 $1 | tail -5
 $ ./middle cubane.pdb
 $ ./middle propane.pdb
 ~~~
@@ -529,6 +537,7 @@ variable. Try defining the variable *newvar* without/with 'export' and then runn
 
 ~~~ {.bash}
 $ nano middle.sh
+	#!/bin/bash
     echo $newvar
 ~~~
 
