@@ -25,9 +25,10 @@
       - [2D slices through a 3D dataset](#2d-slices-through-a-3d-dataset)
       - [Orthogonal 2D slices](#orthogonal-2d-slices)
   - [Animation](#animation)
-  - [Permenently delete all online plots from your plot.ly account](#permenently-delete-all-online-plots-from-your-plotly-account)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+You can find these notes at https://github.com/razoumov/publish/blob/master/plotly.md.
 
 # Plot.ly for scientific visualization
 
@@ -763,7 +764,6 @@ I could not find how to control the animation speed. Obviously, it should be via
 You can find these notes at https://github.com/razoumov/publish/blob/master/plotly.md and the CSV/NetCDF
 data files at https://transfer.sh/98Bt5/csv.zip (ZIP archive).
 
-## Permenently delete all online plots from your plot.ly account
 
 
 
