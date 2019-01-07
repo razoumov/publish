@@ -25,6 +25,7 @@
       - [2D slices through a 3D dataset](#2d-slices-through-a-3d-dataset)
       - [Orthogonal 2D slices](#orthogonal-2d-slices)
   - [Animation](#animation)
+  - [Permenently delete all online plots from your plot.ly account](#permenently-delete-all-online-plots-from-your-plotly-account)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -68,7 +69,7 @@ $ pip install plotly
 ## Initial setup for online plotting
 
 Setting up online plotting (need to do this only once):
-1. obtain a free account at https://plot.ly
+1. obtain a free account at https://plot.ly/accounts/login/?action=signup
 1. generate [your API key](https://plot.ly/settings/api)
 1. run the following from Python
 ~~~ {.python}
@@ -81,7 +82,8 @@ plotly.tools.set_credentials_file(username='yourUserName', api_key='yourAPIkey')
 Quick online plotting:
 
 * room to store 25 free charts; beyond that will get an error
-* can free up some space by removing older plots using their Python web API
+* can free up some space by removing older plots using their Python web API or simply deleting individual
+  plots at https://plot.ly/organize/home
 
 ~~~ {.python}
 import plotly.plotly as py    # online plotting
@@ -140,7 +142,7 @@ x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
-py.iplot(data)   # create a unique URL and open the plot inline in  a Jupyter Notebook
+py.iplot(data)   # create a unique URL and open the plot inline in a Jupyter Notebook
 ~~~
 
 For this one, an online plot will also be created -- you can see the URL by clicking `Edit Chart` button.
@@ -760,6 +762,15 @@ I could not find how to control the animation speed. Obviously, it should be via
 
 You can find these notes at https://github.com/razoumov/publish/blob/master/plotly.md and the CSV/NetCDF
 data files at https://transfer.sh/98Bt5/csv.zip (ZIP archive).
+
+## Permenently delete all online plots from your plot.ly account
+
+
+
+
+
+
+
 
 
 
