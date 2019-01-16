@@ -6,9 +6,12 @@
   - [Installation](#installation)
   - [Online documentation:](#online-documentation)
   - [Initial setup for online plotting](#initial-setup-for-online-plotting)
-  - [Three different plot destinations](#three-different-plot-destinations)
-  - [2D plots: deeper dive](#2d-plots-deeper-dive)
-    - [Scatter plots](#scatter-plots)
+- [Three different plot destinations](#three-different-plot-destinations)
+  - [Online plotting](#online-plotting)
+  - [Offline plotting](#offline-plotting)
+  - [Plotting inside a Jupyter notebook](#plotting-inside-a-jupyter-notebook)
+- [2D plots: deeper dive](#2d-plots-deeper-dive)
+  - [Scatter plots](#scatter-plots)
     - [Bar plots](#bar-plots)
     - [Heatmaps](#heatmaps)
     - [Contour maps](#contour-maps)
@@ -28,11 +31,13 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-You can find these notes at https://github.com/razoumov/publish/blob/master/plotly.md.
+You can find these notes at http://bit.ly/plotlymd and the CSV/NetCDF data files at
+https://transfer.sh/98Bt5/csv.zip (ZIP archive). Solutions to exercises are in `solutions.md` on
+presenter's laptop.
 
 # Plot.ly for scientific visualization
 
-* developed by a Montreal-based company Plot.ly
+* developed by a Montreal-based company <a href="https://plot.ly" target="_blank">Plot.ly</a>
 * open-source scientific plotting Python library for Python, R, MATLAB, Perl, Julia
 * front end uses JavaScript/HTML/CSS and D3.js visualization library
 * files are hosted on Amazon S3
@@ -62,7 +67,7 @@ $ pip install plotly
 1. [Plotly for matplotlib users](https://plot.ly/matplotlib/getting-started)
 1. [Using Plotly with Python offline](https://plot.ly/python/offline)
 1. [Saving static images (PNG, PDF, etc) ](https://plot.ly/python/static-image-export)
-1. [Creating](HTML or PDF reports in Python](https://plot.ly/python/#report-generation)
+1. [Creating HTML or PDF reports in Python](https://plot.ly/python/#report-generation)
 1. [Creating dashboards with Plotly and Python](https://plot.ly/python/dashboard)
 1. [Connecting to databases](https://plot.ly/python/#databases)
 1. [Plotly and IPython / Jupyter notebook](https://plot.ly/ipython-notebooks)
@@ -78,9 +83,9 @@ import plotly
 plotly.tools.set_credentials_file(username='yourUserName', api_key='yourAPIkey')   # will write to ~/.plotly/.credentials
 ~~~
 
-## Three different plot destinations
+# Three different plot destinations
 
-Quick online plotting:
+## Online plotting
 
 * room to store 25 free charts; beyond that will get an error
 * can free up some space by removing older plots using their Python web API or simply deleting individual
@@ -106,9 +111,10 @@ py.plot(data, auto_open=False, sharing='private')   # only 1 free private file
 ~~~
 
 With default one free _private_ file, you will quickly reach the quota. Same for _secret_ keyword (need a
-paid account). However, you get unlimited free public plots, and unlimited offline plotting!
+paid account). However, you get 25 free public plots, and unlimited offline plotting!
 
-Quick offline plot:
+## Offline plotting
+
 1. change the first line,
 1. specify filename in last line.
 
@@ -125,7 +131,7 @@ py.plot(data, filename='lines.html')
 
 By default this will auto-open the file, but you can also use `auto_open=False` if you want.
 
-Finally, we can work inside a Jupyter notebook:
+## Plotting inside a Jupyter notebook
 
 ~~~ {.bash}
 $ jupyter notebook
@@ -136,7 +142,7 @@ $ jupyter notebook
 1. in the last line change py.plot() to py.iplot()
 
 ~~~ {.python}
-import plotly.plotly as py   # for some reason inside Jupyter notebook only online plots work
+import plotly.plotly as py
 import plotly.graph_objs as go
 from numpy import linspace, sin
 x1 = linspace(0.01,1,100)
@@ -161,20 +167,20 @@ py.iplot(data)
 * `connected=False` will include plotly.js into the notebook for complete offline work (larger files
   sizes, also need to modify some notebook settings before it works)
 
-## 2D plots: deeper dive
-### Scatter plots
+# 2D plots: deeper dive
+## Scatter plots
 
 Let's go back to the offline version of the code:
 
 ~~~ {.python}
-import plotly.offline as py   # offline plotting
+import plotly.plotly as py   # offline plotting
 import plotly.graph_objs as go
 from numpy import linspace, sin
 x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')   # dataset
 data = [trace1]     # a list of datasets
-py.plot(data, filename='lines.html')
+py.plot(data)
 ~~~
 
 Let's print the dataset `trace1`: it is a plotly object which is actually a Python dictionary, with all
@@ -186,26 +192,18 @@ the plotting routine.
 In fact, we can rewrite this routine with dictionaries:
 
 ~~~ {.python}
-import plotly.offline as py   # offline plotting
+import plotly.plotly as py   # offline plotting
 from numpy import linspace, sin
 x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = dict(type='scatter', x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
-py.plot(data, filename='lines.html')
+py.plot(data)
 ~~~
 
 > ## Exercise 1
 > Pass a list of two objects the plotting routine with `data = [trace1,trace2]`. Let the second dataset
-> `trace2` contain another mathematical function.
->
->> ## One possible solution:
->> ~~~ {.python}
->> x2 = linspace(0.4,1,500)
->> y2 = 0.3*sin(0.5/(x2-0.39)) - 0.5
->> trace2 = go.Scatter(x=x2, y=y2, mode='markers', name='same but scaled')
->> ~~~
->> Now we have two lines in the plot!
+> `trace2` contain another mathematical function. The idea is to have multiple objects in the plot.
 
 Notice:
 * how we can hover over each data point, and its (x,y) will be shown
@@ -213,21 +211,12 @@ Notice:
 * double-clicking on the plot will reset it
 
 > ## Exercise 2
-> Add a bunch of dots to the plot with `dots = go.Scatter(x=[1,2,3,4], y=[2,1,2,1])`. What is default
-> scatter mode?
->
->> Answer: the default mode is 'lines+markers'. You'll need to change `data = [trace1,trace2]` to `data =
->> [trace1,trace2, dots]`. You can see that we don't need numpy objects for data: can just have a list of
->> numbers.
+> Add a bunch of dots to the plot with `dots = go.Scatter(x=[.2,.4,.6,.8], y=[2,1.5,2,1.2])`. What is
+> default scatter mode?
 
 > ## Exercise 3
 > Change line colour and width by adding the dictionary `line=dict(color=('rgb(205,12,24)'),width=4)` to
 > `dots`:
->
->> Solution:
->> ~~~ {.python}
->> dots = go.Scatter(x=[1,2,3,4], y=[2,1,2,1], line=dict(color=('rgb(205,12,24)'),width=4))
->> ~~~
 
 What are the plot types? There are quite a few:
 
@@ -244,17 +233,17 @@ dir(go)
 Let's try a Bar plot, constructing `data` directly in one line from the dictionary:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 data = [go.Bar(x=['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax'],
                y=[2463431, 1392609, 5928040, 4098927, 403131])]
-py.plot(data, filename='population.html')
+py.plot(data)
 ~~~
 
 Let's plot inner city population vs. greater metro area for each city:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
 proper = [631486, 1239220, 2731571, 1704694, 316701]
@@ -262,13 +251,13 @@ metro = [2463431, 1392609, 5928040, 4098927, 403131]
 bar1 = go.Bar(x=cities, y=proper, name='inner city')
 bar2 = go.Bar(x=cities, y=metro, name='greater area')
 data = [bar1,bar2]
-py.plot(data, filename='population.html')   # we get a grouped bar chart
+py.plot(data)   # we get a grouped bar chart
 ~~~
 
 Let's now do a stacked plot, with *outer city* population on top of *inner city* population:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
 proper = [631486, 1239220, 2731571, 1704694, 316701]
@@ -279,7 +268,7 @@ bar2 = go.Bar(x=cities, y=outside, name='outer city')
 data = [bar1,bar2]
 layout = go.Layout(barmode='stack')         # new element!
 fig = go.Figure(data=data, layout=layout)   # new element!
-py.plot(fig, filename='population.html')   # we get a stacked bar chart
+py.plot(fig)   # we get a stacked bar chart
 ~~~
 
 What else can we modify in the layout?
@@ -303,7 +292,7 @@ layout = go.Layout(barmode='stack', title='Population', plot_bgcolor = 'rgb(153,
 Let's plot a heatmap of monthly temperatures at the South Pole:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Year']
 recordHigh = [-14.4,-20.6,-26.7,-27.8,-25.1,-28.8,-33.9,-32.8,-29.3,-25.1,-18.9,-12.3,-12.3]
@@ -315,7 +304,7 @@ trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow]
                    x=months,
                    y=['record high', 'aver.high', 'daily mean', 'aver.low', 'record low'])
 data = [trace]
-py.plot(data, filename='heatmap.html')
+py.plot(data)
 ~~~
 
 ### Contour maps
@@ -323,20 +312,6 @@ py.plot(data, filename='heatmap.html')
 > ## Exercise 4
 > Pretend that our heatmap is defined over a 2D domain and plot the same temperature data as a contour
 > map. Remove the `Year` data (last column) and use `go.Contour` to plot the 2D contour map.
->
->> Solution:
->> ~~~
->> 9,10c9,10
->> < trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow],
->> <                    x=months,
->> ---
->> > trace = go.Contour(z=[recordHigh[:12], averageHigh[:12], dailyMean[:12], averageLow[:12], recordLow[:12]],
->> >                    x=months[:12],
->> 13c13
->> < py.plot(data, filename='heatmap.html')
->> ---
->> > py.plot(data, filename='contour.html')
->> ~~~
 
 Let's change to a different colourmap:
 
@@ -353,7 +328,7 @@ Let's change to a different colourmap:
 Now let's do a scatterplot on top of a geographical map:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 import pandas as pd
 from math import log10
@@ -385,7 +360,7 @@ layout = go.Layout(title = 'City populations',
                            subunitwidth = 1, subunitcolor = "rgb(255,255,255)",   # province border
 						   countrywidth = 2, countrycolor = "rgb(255,255,255)"))  # country border
 fig = go.Figure(data=[cities], layout=layout)
-py.plot(fig, filename='citiesByPopulation.html')
+py.plot(fig)
 ~~~
 
 > ## Exercise 5
@@ -395,7 +370,7 @@ Recall how we combined several scatter plots in one figure before. You can combi
 of a single map -- let's **combine scattergeo + choropleth**:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 import pandas as pd
 df = pd.read_csv('cities.csv')
@@ -425,7 +400,7 @@ countries = go.Choropleth(locations = gdp['CODE'],
                           colorbar = dict(tickprefix = '$',title = 'GDP<br>Billions US$'))
 layout = go.Layout(hovermode = "x", showlegend = False)  # do not show legend for first plot
 fig = go.Figure(data=[cities,countries], layout=layout)
-py.plot(fig, filename='combine.html')
+py.plot(fig)
 ~~~
 
 ## 3D plots
@@ -435,7 +410,7 @@ py.plot(fig, filename='combine.html')
 Let's plot some tabulated topographic elevation data:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 import pandas as pd
 table = pd.read_csv('mt_bruno_elevation.csv')
@@ -444,54 +419,19 @@ layout = go.Layout(title='Mt Bruno Elevation',
                    width=800, height=800,    # image size
                    margin=dict(l=65, r=10, b=65, t=90))   # margins around the plot
 fig = go.Figure(data=[data], layout=layout)
-py.plot(fig, filename='elevation.html')
+py.plot(fig)
 ~~~
 
 ### Elevated 2D functions
 
 > ## Exercise 6
 > Plot a 2D function f(x,y) = (1−y) sin(πx) + y sin^2(2πx), where x,y ∈ [0,1] on a 100^2 grid.
->
->> ## One possible solution is with *lambda*-functions, with
->>    i=0..n-1, &nbsp;&nbsp;&nbsp; j=0..n-1, &nbsp;&nbsp;&nbsp; x=i/(n-1)=0..1, &nbsp;&nbsp;&nbsp;
->>    y=j/(n-1)=0..1:
->> ~~~ {.python}
->> import plotly.offline as py
->> import plotly.graph_objs as go
->> from numpy *
->> n = 100   # plot resolution
->> F = fromfunction(lambda i, j: (1-j/(n-1))*sin(pi*i/(n-1)) + \
->>                  j/(n-1)*(sin(2*pi*i/(n-1)))**2, (n,n), dtype=float)
->> data = go.Surface(z=F)
->> layout = go.Layout(width=800, height=800)
->> fig = go.Figure(data=[data], layout=layout)
->> py.plot(fig, filename='elevation.html')
->> ~~~
->>
->> If you don't like *lambda*-functions, you can replace `F = fromfunction(...)` line with:
->> ~~~ {.python}
->> F = zeros((n,n))
->> for i, x in enumerate(linspace(0,1,n)):
->>     for j, y in enumerate(linspace(0,1,n)):
->>         F[i,j] = (1-y)*sin(pi*x) + y*(sin(2*pi*x))**2
->> ~~~
->>
->> As a third option, you can use **array operations** to compute `f`:
->> ~~~ {.python}
->> x = linspace(0,1,n)
->> y = linspace(0,1,n)
->> Y, X = meshgrid(x, y)   # meshgrid() returns two 2D arrays storing x/y respectively at each point
->> F = (1-Y)*sin(pi*X) + Y*(sin(2*pi*X))**2   # array operation
->> ~~~
->>
->> If we want to scale the z-range, we can add `scene=go.Scene(zaxis=go.ZAxis(range=[-1,2]))` inside
->> `go.Layout()`.
 
 Let's define a different colourmap by adding `colorscale='Viridis'` inside `go.Surface()`. This is our
 current code:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 from numpy import *
 n = 100   # plot resolution
@@ -502,7 +442,7 @@ F = (1-Y)*sin(pi*X) + Y*(sin(2*pi*X))**2   # array operation
 data = go.Surface(z=F, colorscale='Viridis')
 layout = go.Layout(width=1000, height=1000, scene=go.Scene(zaxis=go.ZAxis(range=[-1,2])));
 fig = go.Figure(data=[data], layout=layout)
-py.plot(fig, filename='elevation.html')
+py.plot(fig)
 ~~~
 
 ### Lighting control
@@ -525,7 +465,7 @@ In plotly documentation you can find quite a lot of
 but it still uses `go.Surface(x,y,z)`:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 from numpy import pi, sin, cos, mgrid
 dphi, dtheta = pi/250, pi/250    # 0.72 degrees
@@ -538,7 +478,7 @@ z = r*sin(phi)*sin(theta)   # z is also (252,502)
 surface = go.Surface(x=x, y=y, z=z, colorscale='Viridis')
 layout = go.Layout(title='parametric plot')
 fig = go.Figure(data=[surface], layout=layout)
-py.plot(fig, filename='parametric.html')
+py.plot(fig)
 ~~~
 
 ### Scatter plots
@@ -547,7 +487,7 @@ Let's take a look at a 3D scatter plot using the `country index` data from http:
 for 142 countries:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 import pandas as pd
 df = pd.read_csv('legatum2015.csv')
@@ -570,7 +510,7 @@ layout = go.Layout(height=900, width=900,
                                 yaxis=dict(title='entrepreneurshipOpportunity'),
                                 zaxis=dict(title='governance')))
 fig = go.Figure(data=[spheres], layout=layout)
-py.plot(fig, filename='bubbles.html')
+py.plot(fig)
 ~~~
 
 ### Graphs
@@ -580,7 +520,7 @@ edge from the previous generation yields a new node, and the new graph can be ma
 three previous-generation graphs*.
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 import networkx as nx
 from forceatlas import forceatlas2_layout
@@ -621,7 +561,7 @@ layout = go.Layout(
                    zaxis=go.ZAxis(axis)),
     margin=go.Margin(t=100))
 fig = go.Figure(data=[edges,nodes], layout=layout)
-py.plot(fig, filename='network.html')
+py.plot(fig)
 ~~~
 
 ~~~ {.bash}
@@ -637,7 +577,7 @@ polygons, and for plotting polygons in plotly we need to use `plotly.figure_fact
 which replaces `plotly.graph_objs.Figure()`:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 from plotly import figure_factory as FF
 from numpy import mgrid
 from skimage import measure
@@ -649,7 +589,7 @@ vertices, triangles, normals, values = measure.marching_cubes(F, 0.03)  # create
 x,y,z = zip(*vertices)   # zip(*...) is opposite of zip(...): unzips a list of tuples
 fig = FF.create_trisurf(x=x, y=y, z=z, plot_edges=False,
                         simplices=triangles, title="Isosurface", height=900, width=900)
-py.plot(fig, filename='isosurface.html')
+py.plot(fig)
 ~~~
 
 Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual polygons!
@@ -660,7 +600,7 @@ Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual p
 How about processing real data?
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 from netCDF4 import Dataset
 dataset = Dataset('sineEnvelope.nc')
@@ -671,7 +611,7 @@ print(var.shape)
 image = go.Heatmap(z=var[:,:,49])   # use layer 50 (in the middle)
 layout = go.Layout(width=800, height=800, margin=dict(l=65,r=10,b=65,t=90))
 fig = go.Figure(data=[image], layout=layout)
-py.plot(fig, filename='slice.html')
+py.plot(fig)
 ~~~
 
 > ## Exercise 7
@@ -683,7 +623,7 @@ Let's do three orthogonal slices through our dataset:
 
 ~~~ {.python}
 import numpy as np
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 from netCDF4 import Dataset
 dataset = Dataset('sineEnvelope.nc')
@@ -722,7 +662,7 @@ layout = go.Layout(title='Orthogonal slices through volumetric data',
                                zaxis=go.ZAxis(axis), 
                                aspectratio=dict(x=1, y=1, z=1)))
 fig = go.Figure(data=[slicez,slicey,slicex], layout=layout)
-py.plot(fig, filename='orthogonal.html')
+py.plot(fig)
 ~~~
 
 ## Animation
@@ -730,7 +670,7 @@ py.plot(fig, filename='orthogonal.html')
 For animations, you need to pass the third (`frames`) argument to `go.Figure()`:
 
 ~~~ {.python}
-import plotly.offline as py
+import plotly.plotly as py
 import plotly.graph_objs as go
 import numpy as np
 t = np.linspace(0,10,100)
@@ -753,168 +693,10 @@ frames = [dict(data=[go.Scatter(x=[xdot[k]], y=[ydot[k]],
           for k in range(nframes)]
 # line1 will be shown before the first frame, line2 will be shown in each frame
 fig = go.Figure(data=[line1,line2], layout=layout, frames=frames)
-py.plot(fig, filename='spiral.html')
+py.plot(fig)
 ~~~
 
 I could not find how to control the animation speed. Obviously, it should be via a keyword to either
 `go.Figure()` or `py.plot`.
 
 &nbsp;
-
-You can find these notes at https://github.com/razoumov/publish/blob/master/plotly.md and the CSV/NetCDF
-data files at https://transfer.sh/98Bt5/csv.zip (ZIP archive).
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- # non-geo plotly -->
-<!-- 3dLayout.py -->
-<!-- diversePlots.py -->
-
-<!-- url = py.plot([data1, ...], validate=False, filename=out, auto_open=False)   # can create a plot from data -->
-
-<!-- fig = dict(data=[data1, ...], layout=layout)   # can create a plot from figure = data + layout -->
-<!-- url = py.plot(fig, filename='d3-world-map') -->
-
-<!-- print(url) -->
-
-<!-- # scatterplot circles of varible size on a map -->
-<!-- cities = dict( -->
-<!--     type = 'scattergeo', -->
-<!--     lon = df['lon'], -->
-<!--     lat = df['lat'], -->
-<!--     text = df['text'], -->
-<!--     marker = dict( -->
-<!--         size = df['pop']/5000, -->
-<!--         color = "lightblue", -->
-<!--         line = dict(width=0.5, color='rgb(40,40,40)'), -->
-<!--         sizemode = 'area' -->
-<!--     )) -->
-<!-- py.plot([cities]) -->
-
-<!-- pip install plotly    # initial install -->
-<!-- pip install plotly --upgrade   # upgrade -->
-
-<!-- import plotly -->
-<!-- plotly.__version__   # check version -->
-
-<!-- import plotly.plotly as py -->
-<!-- from plotly.graph_objs import * -->
-<!-- trace0 = Scatter(x=[1,2,3,4], y=[10,15,13,17]) -->
-<!-- trace1 = Scatter(x=[1,2,3,4], y=[16,5,11,9]) -->
-<!-- data = Data([trace0, trace1]) -->
-<!-- py.plot(data, filename = 'basicLine')   # send data to your account on plotly -->
-
-<!-- plotly.offline.plot()   # create an offline plot (need version 1.9.4+) -->
-<!-- plotly.offline.iplot() -->
-
-<!-- import plotly -->
-<!-- from plotly.graph_objs import Scatter, Layout -->
-<!-- out = '/Users/razoumov/Documents/01-eccc/tmp.html' -->
-<!-- dots = Scatter(x=[1, 2, 3, 4], y=[4, 3, 2, 1]) -->
-<!-- plotly.offline.plot({"data": [dots], "layout": Layout(title="hello world")}, filename=out) -->
-
-<!-- import plotly.graph_objs as go -->
-<!-- import plotly.plotly as py -->
-<!-- import numpy as np -->
-<!-- colorscale = [[0, '#FAEE1C'], [0.33, '#F3558E'], [0.66, '#9C1DE7'], [1, '#581B98']] -->
-<!-- trace1 = go.Scatter( -->
-<!--     y = np.random.randn(500), -->
-<!--     mode='markers', -->
-<!--     marker=dict( -->
-<!--         size='16', -->
-<!--         color = np.random.randn(500), -->
-<!--         colorscale=colorscale, -->
-<!--         showscale=True -->
-<!--     ) -->
-<!-- ) -->
-<!-- data = [trace1] -->
-<!-- py.plot(data, filename='scatterForDashboard', auto_open=False) -->
-
-<!-- Help on function plot in module plotly.offline.offline: -->
-<!-- plot(figure_or_data, show_link=True, link_text='Export to plot.ly', validate=True, output_type='file', include_plotlyjs=True, filename='temp-plot.html', auto_open=True, image=None, image_filename='plot_image', image_width=800, image_height=600, config=None) -->
-<!--     Create a plotly graph locally as an HTML document or string. -->
-<!--     Example: -->
-<!--     ``` -->
-<!--     from plotly.offline import plot -->
-<!--     import plotly.graph_objs as go -->
-<!--     plot([go.Scatter(x=[1, 2, 3], y=[3, 2, 6])], filename='my-graph.html') -->
-<!--     # We can also download an image of the plot by setting the image parameter -->
-<!--     # to the image format we want -->
-<!--     plot([go.Scatter(x=[1, 2, 3], y=[3, 2, 6])], filename='my-graph.html' -->
-<!--          image='jpeg') -->
-<!--     ``` -->
-<!--     More examples below. -->
-<!--     figure_or_data -- a plotly.graph_objs.Figure or plotly.graph_objs.Data or -->
-<!--                       dict or list that describes a Plotly graph. -->
-<!--                       See https://plot.ly/python/ for examples of -->
-<!--                       graph descriptions. -->
-<!--     Keyword arguments: -->
-<!--     show_link (default=True) -- display a link in the bottom-right corner of -->
-<!--         of the chart that will export the chart to Plotly Cloud or -->
-<!--         Plotly Enterprise -->
-<!--     link_text (default='Export to plot.ly') -- the text of export link -->
-<!--     validate (default=True) -- validate that all of the keys in the figure -->
-<!--         are valid? omit if your version of plotly.js has become outdated -->
-<!--         with your version of graph_reference.json or if you need to include -->
-<!--         extra, unnecessary keys in your figure. -->
-<!--     output_type ('file' | 'div' - default 'file') -- if 'file', then -->
-<!--         the graph is saved as a standalone HTML file and `plot` -->
-<!--         returns None. -->
-<!--         If 'div', then `plot` returns a string that just contains the -->
-<!--         HTML <div> that contains the graph and the script to generate the -->
-<!--         graph. -->
-<!--         Use 'file' if you want to save and view a single graph at a time -->
-<!--         in a standalone HTML file. -->
-<!--         Use 'div' if you are embedding these graphs in an HTML file with -->
-<!--         other graphs or HTML markup, like a HTML report or an website. -->
-<!--     include_plotlyjs (default=True) -- If True, include the plotly.js -->
-<!--         source code in the output file or string. -->
-<!--         Set as False if your HTML file already contains a copy of the plotly.js -->
-<!--         library. -->
-<!--     filename (default='temp-plot.html') -- The local filename to save the -->
-<!--         outputted chart to. If the filename already exists, it will be -->
-<!--         overwritten. This argument only applies if `output_type` is 'file'. -->
-<!--     auto_open (default=True) -- If True, open the saved file in a -->
-<!--         web browser after saving. -->
-<!--         This argument only applies if `output_type` is 'file'. -->
-<!--     image (default=None |'png' |'jpeg' |'svg' |'webp') -- This parameter sets -->
-<!--         the format of the image to be downloaded, if we choose to download an -->
-<!--         image. This parameter has a default value of None indicating that no -->
-<!--         image should be downloaded. Please note: for higher resolution images -->
-<!--         and more export options, consider making requests to our image servers. -->
-<!--         Type: `help(py.image)` for more details. -->
-<!--     image_filename (default='plot_image') -- Sets the name of the file your -->
-<!--         image will be saved to. The extension should not be included. -->
-<!--     image_height (default=600) -- Specifies the height of the image in `px`. -->
-<!--     image_width (default=800) -- Specifies the width of the image in `px`. -->
-<!--     config (default=None) -- Plot view options dictionary. Keyword arguments -->
-<!--         `show_link` and `link_text` set the associated options in this -->
-<!--         dictionary if it doesn't contain them already. -->
-
-<!-- https://automating-gis-processes.github.io/2016/Lesson5-interactive-map-bokeh.html -->
-<!-- https://automating-gis-processes.github.io/Lesson5-interactive-map-Bokeh-advanced-plotting.html -->
-<!-- http://geo.holoviews.org/Working_with_Bokeh.html -->
-
-<!-- cd ~/Documents/01-eccc -->
-<!-- git clone https://git.generalassemb.ly/dcarden5/gis.git -->
-
-<!-- python bokehAlmostMap.py -->
-
-<!-- http://geo.holoviews.org has a bokeh backend for interactive maps -->
-
-<!-- conda install -c conda-forge -c ioam holoviews geoviews -->
-<!-- conda install xarray -->
-<!-- conda install -c conda-forge iris -->
-
-<!-- python -c 'import geoviews; geoviews.examples("geoviews-examples",include_data=True)' -->
-<!-- cd geoviews-examples -->
-<!-- jupyter notebook -->
