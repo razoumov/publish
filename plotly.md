@@ -99,7 +99,7 @@ x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
-py.plot(data)   # create a unique URL for this plot and optionally open it
+py.plot(data,auto_open=False)   # create a unique URL for this plot and optionally open it
 ~~~
 
 This should return the URL of the plot and open it in your web browser (no local plots saved).
@@ -126,7 +126,7 @@ x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
-py.plot(data, filename='lines.html')
+py.plot(data, filename='lines.html',auto_open=False)
 ~~~
 
 By default this will auto-open the file, but you can also use `auto_open=False` if you want.
@@ -180,7 +180,7 @@ x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')   # dataset
 data = [trace1]     # a list of datasets
-py.plot(data)
+py.plot(data,auto_open=False)
 ~~~
 
 Let's print the dataset `trace1`: it is a plotly object which is actually a Python dictionary, with all
@@ -198,7 +198,7 @@ x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = dict(type='scatter', x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
-py.plot(data)
+py.plot(data,auto_open=False)
 ~~~
 
 > ## Exercise 1
@@ -237,7 +237,7 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 data = [go.Bar(x=['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax'],
                y=[2463431, 1392609, 5928040, 4098927, 403131])]
-py.plot(data)
+py.plot(data,auto_open=False)
 ~~~
 
 Let's plot inner city population vs. greater metro area for each city:
@@ -251,7 +251,7 @@ metro = [2463431, 1392609, 5928040, 4098927, 403131]
 bar1 = go.Bar(x=cities, y=proper, name='inner city')
 bar2 = go.Bar(x=cities, y=metro, name='greater area')
 data = [bar1,bar2]
-py.plot(data)   # we get a grouped bar chart
+py.plot(data,auto_open=False)   # we get a grouped bar chart
 ~~~
 
 Let's now do a stacked plot, with *outer city* population on top of *inner city* population:
@@ -268,7 +268,7 @@ bar2 = go.Bar(x=cities, y=outside, name='outer city')
 data = [bar1,bar2]
 layout = go.Layout(barmode='stack')         # new element!
 fig = go.Figure(data=data, layout=layout)   # new element!
-py.plot(fig)   # we get a stacked bar chart
+py.plot(fig,auto_open=False)   # we get a stacked bar chart
 ~~~
 
 What else can we modify in the layout?
@@ -304,7 +304,7 @@ trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow]
                    x=months,
                    y=['record high', 'aver.high', 'daily mean', 'aver.low', 'record low'])
 data = [trace]
-py.plot(data)
+py.plot(data,auto_open=False)
 ~~~
 
 ### Contour maps
@@ -360,7 +360,7 @@ layout = go.Layout(title = 'City populations',
                            subunitwidth = 1, subunitcolor = "rgb(255,255,255)",   # province border
 						   countrywidth = 2, countrycolor = "rgb(255,255,255)"))  # country border
 fig = go.Figure(data=[cities], layout=layout)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 > ## Exercise 5
@@ -400,7 +400,7 @@ countries = go.Choropleth(locations = gdp['CODE'],
                           colorbar = dict(tickprefix = '$',title = 'GDP<br>Billions US$'))
 layout = go.Layout(hovermode = "x", showlegend = False)  # do not show legend for first plot
 fig = go.Figure(data=[cities,countries], layout=layout)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 ## 3D plots
@@ -419,7 +419,7 @@ layout = go.Layout(title='Mt Bruno Elevation',
                    width=800, height=800,    # image size
                    margin=dict(l=65, r=10, b=65, t=90))   # margins around the plot
 fig = go.Figure(data=[data], layout=layout)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 ### Elevated 2D functions
@@ -442,7 +442,7 @@ F = (1-Y)*sin(pi*X) + Y*(sin(2*pi*X))**2   # array operation
 data = go.Surface(z=F, colorscale='Viridis')
 layout = go.Layout(width=1000, height=1000, scene=go.Scene(zaxis=go.ZAxis(range=[-1,2])));
 fig = go.Figure(data=[data], layout=layout)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 ### Lighting control
@@ -478,7 +478,7 @@ z = r*sin(phi)*sin(theta)   # z is also (252,502)
 surface = go.Surface(x=x, y=y, z=z, colorscale='Viridis')
 layout = go.Layout(title='parametric plot')
 fig = go.Figure(data=[surface], layout=layout)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 ### Scatter plots
@@ -510,7 +510,7 @@ layout = go.Layout(height=900, width=900,
                                 yaxis=dict(title='entrepreneurshipOpportunity'),
                                 zaxis=dict(title='governance')))
 fig = go.Figure(data=[spheres], layout=layout)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 ### Graphs
@@ -561,7 +561,7 @@ layout = go.Layout(
                    zaxis=go.ZAxis(axis)),
     margin=go.Margin(t=100))
 fig = go.Figure(data=[edges,nodes], layout=layout)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 ~~~ {.bash}
@@ -589,7 +589,7 @@ vertices, triangles, normals, values = measure.marching_cubes(F, 0.03)  # create
 x,y,z = zip(*vertices)   # zip(*...) is opposite of zip(...): unzips a list of tuples
 fig = FF.create_trisurf(x=x, y=y, z=z, plot_edges=False,
                         simplices=triangles, title="Isosurface", height=900, width=900)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual polygons!
@@ -611,7 +611,7 @@ print(var.shape)
 image = go.Heatmap(z=var[:,:,49])   # use layer 50 (in the middle)
 layout = go.Layout(width=800, height=800, margin=dict(l=65,r=10,b=65,t=90))
 fig = go.Figure(data=[image], layout=layout)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 > ## Exercise 7
@@ -662,7 +662,7 @@ layout = go.Layout(title='Orthogonal slices through volumetric data',
                                zaxis=go.ZAxis(axis), 
                                aspectratio=dict(x=1, y=1, z=1)))
 fig = go.Figure(data=[slicez,slicey,slicex], layout=layout)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 ## Animation
@@ -693,7 +693,7 @@ frames = [dict(data=[go.Scatter(x=[xdot[k]], y=[ydot[k]],
           for k in range(nframes)]
 # line1 will be shown before the first frame, line2 will be shown in each frame
 fig = go.Figure(data=[line1,line2], layout=layout, frames=frames)
-py.plot(fig)
+py.plot(fig,auto_open=False)
 ~~~
 
 I could not find how to control the animation speed. Obviously, it should be via a keyword to either
