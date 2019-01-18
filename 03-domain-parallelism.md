@@ -64,14 +64,32 @@ forall i in 1..1000 with (+ reduce count) {   // parallel loop
 writeln('count = ', count);
 ~~~
 
-If we have not done so, let's create our single-locale, three-processor environment:
+If we have not done so, let's write a script `shared.sh` for submitting single-locale, three-processor
+Chapel jobs:
+
+<!-- ~~~ {.bash} -->
+<!-- $ module load gcc chapel-single/1.15.0 -->
+<!-- $ salloc --time=2:00:0 --ntasks=1 --cpus-per-task=2 --mem-per-cpu=1000 \ -->
+<!--          --account=def-razoumov-ws_cpu --reservation=arazoumov-may17 -->
+<!-- $ chpl forall.chpl -o forall -->
+<!-- $ ./forall -->
+<!-- ~~~ -->
 
 ~~~ {.bash}
-$ module load gcc chapel-single/1.15.0
-$ salloc --time=2:00:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 \
-         --account=def-razoumov-ws_cpu --reservation=arazoumov-may17
+#!/bin/bash
+#SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
+#SBATCH --mem-per-cpu=1000   # in MB
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=2
+#SBATCH --output=solution.out
+./forall
+~~~
+
+~~~ {.bash}
+$ . ~centos/startSingleLocale.sh
 $ chpl forall.chpl -o forall
-$ ./forall
+$ sbatch shared.sh
+$ cat solution.out
 ~~~
 ~~~
 count = 500500
@@ -86,7 +104,8 @@ job. But we can actually check that!
 
 ~~~ {.bash}
 $ chpl forall.chpl -o forall
-$ ./forall
+$ sbatch shared.sh
+$ cat solution.out
 ~~~
 ~~~
 actual number of threads = 3
@@ -189,7 +208,7 @@ examples on four nodes with three cores per node.
 <!-- we cannot configure the same single launcher for both. Therefore, we launch multi-locale Chapel codes -->
 <!-- using the real executable `mybinary_real`. For example, for an interactive job you would type: -->
 <!-- ~~~ {.bash} -->
-<!-- $ salloc --time=0:30:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 --account=def-razoumov-ac -->
+<!-- $ salloc --time=0:30:0 --nodes=4 --cpus-per-task=2 --mem-per-cpu=1000 --account=def-razoumov-ac -->
 <!-- $ echo $SLURM_NODELIST          # print the list of four nodes -->
 <!-- $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3) -->
 <!-- $ chpl mycode.chpl -o mybinary -->
@@ -199,31 +218,43 @@ examples on four nodes with three cores per node.
 <!-- Alternatively, instead of loading the system-wide module, you can configure multi-locale Chapel in your -->
 <!-- own directory. Send me an email later, and I'll share the instructions. Here is how you would use it: -->
 
-On Cedar let's exit our single-node job (Ctrl-D if you are still running it), and then back on the login
-node unload `chapel-single` and load `chapel-multi-cedar`, and then start a **4-node** interactive job
-with **3 cores per MPI task** (12 cores per job):
+<!-- On Cedar let's exit our single-node job (Ctrl-D if you are still running it), and then back on the login -->
+<!-- node unload `chapel-single` and load `chapel-multi-cedar`, and then start a **4-node** interactive job -->
+<!-- with **3 cores per MPI task** (12 cores per job): -->
+
+<!-- ~~~ {.bash} -->
+<!-- $ module unload chapel-single -->
+<!-- $ module load chapel-multi-cedar/1.16.0 -->
+<!-- $ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 \ -->
+<!--          --account=def-razoumov-ws_cpu --reservation=arazoumov-may17 -->
+<!-- $ echo $SLURM_NODELIST          # print the list of nodes (should be four) -->
+<!-- $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3) -->
+<!-- $ export HFI_NO_CPUAFFINITY=1   # to enable parallelism on each locale with OmniPath drivers -->
+<!-- $ export CHPL_RT_NUM_THREADS_PER_LOCALE=$SLURM_CPUS_PER_TASK   # to limit the number of tasks -->
+<!-- ~~~ -->
+
+Let's write a job submission script `distributed.sh`:
 
 ~~~ {.bash}
-$ module unload chapel-single
-$ module load chapel-multi-cedar/1.16.0
-$ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 \
-         --account=def-razoumov-ws_cpu --reservation=arazoumov-may17
-$ echo $SLURM_NODELIST          # print the list of nodes (should be four)
-$ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
-$ export HFI_NO_CPUAFFINITY=1   # to enable parallelism on each locale with OmniPath drivers
-$ export CHPL_RT_NUM_THREADS_PER_LOCALE=$SLURM_CPUS_PER_TASK   # to limit the number of tasks
+#!/bin/bash
+#SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
+#SBATCH --mem-per-cpu=1000   # in MB
+#SBATCH --nodes=4
+#SBATCH --cpus-per-task=2
+#SBATCH --output=solution.out
+./test -nl 4   # in this case the 'srun' launcher is already configured for our interconnect
 ~~~
 
-**Note**: On Graham currently there is no good Chapel installed centrally, so you'll have to load it from
-AR's home directory:
+<!-- **Note**: On Graham currently there is no good Chapel installed centrally, so you'll have to load it from -->
+<!-- AR's home directory: -->
 
-~~~ {.bash}
-$ . /home/razoumov/startMultiLocale.sh
-$ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 \
-         --account=def-razoumov-ws_cpu --reservation=arazoumov-may17
-$ echo $SLURM_NODELIST          # print the list of nodes (should be four)
-$ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3)
-~~~
+<!-- ~~~ {.bash} -->
+<!-- $ . /home/razoumov/startMultiLocale.sh -->
+<!-- $ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 \ -->
+<!--          --account=def-razoumov-ws_cpu --reservation=arazoumov-may17 -->
+<!-- $ echo $SLURM_NODELIST          # print the list of nodes (should be four) -->
+<!-- $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3) -->
+<!-- ~~~ -->
 
 <!-- Check: without `CHPL_RT_NUM_THREADS_PER_LOCALE`, will 32 tasks run on separate 32 cores -->
 <!-- or will they run on the 3 cores inside our Slurm job? -->
@@ -236,8 +267,10 @@ Let us test our multi-locale Chapel environment by launching the following code:
 writeln(Locales);
 ~~~
 ~~~ {.bash}
+$ . ~centos/startMultiLocale.sh
 $ chpl test.chpl -o test
-$ ./test -nl 4           # in this case the 'srun' launcher is already configured for OmniPath interconnect
+$ sbatch distributed.sh
+$ cat solution.out
 ~~~
 
 This code will print the built-in global array `Locales`. Running it on four locales will produce
@@ -251,16 +284,16 @@ We want to run some code on each locale (node). For that, we can cycle through l
 ~~~
 for loc in Locales do   // this is still a serial program
   on loc do             // run the next line on locale `loc`
-    writeln("this locale is named ", here.name[1..6]);   // `here` is the locale on which the node is running
+    writeln("this locale is named ", here.name[1..5]);   // `here` is the locale on which the node is running
 ~~~
 
 This will produce
 
 ~~~
-this locale is named cdr544
-this locale is named cdr552
-this locale is named cdr556
-this locale is named cdr692
+this locale is named node1
+this locale is named node3
+this locale is named node2
+this locale is named node4
 ~~~
 
 Here the built-in variable class `here` refers to the locale on which the code is running, and
@@ -275,17 +308,17 @@ To run this code in parallel, starting four simultaneous tasks, one per locale, 
 ~~~
 forall loc in Locales do   // now this is a parallel loop
   on loc do
-    writeln("this locale is named ", here.name[1..6]);
+    writeln("this locale is named ", here.name[1..5]);
 ~~~
 
 This starts four tasks in parallel, and the order in which the print statement is executed depends on the
 runtime conditions and can change from run to run:
 
 ~~~
-this locale is named cdr544
-this locale is named cdr692
-this locale is named cdr556
-this locale is named cdr552
+this locale is named node1
+this locale is named node4
+this locale is named node2
+this locale is named node3
 ~~~
 
 We can print few other attributes of each locale. Here it is actually useful to revert to the serial loop
@@ -304,29 +337,30 @@ for loc in Locales do
 ~~~
 ~~~ {.bash}
 $ chpl test.chpl -o test
-$ ./test -nl 4
+$ sbatch distributed.sh
+$ cat solution.out
 ~~~
 ~~~
 locale #0...
-  ...is named: cdr767.int.cedar.computecanada.ca
-  ...has 32 processor cores
-  ...has 125.802 GB of memory
-  ...has 3 maximum parallelism
+  ...is named: node1.andromeda.westgrid.ca
+  ...has 2 processor cores
+  ...has 2.77974 GB of memory
+  ...has 2 maximum parallelism
 locale #1...
-  ...is named: cdr785.int.cedar.computecanada.ca
-  ...has 32 processor cores
-  ...has 125.802 GB of memory
-  ...has 3 maximum parallelism
+  ...is named: node2.andromeda.westgrid.ca
+  ...has 2 processor cores
+  ...has 2.77974 GB of memory
+  ...has 2 maximum parallelism
 locale #2...
-  ...is named: cdr806.int.cedar.computecanada.ca
-  ...has 32 processor cores
-  ...has 125.802 GB of memory
-  ...has 3 maximum parallelism
+  ...is named: node4.andromeda.westgrid.ca
+  ...has 2 processor cores
+  ...has 2.77974 GB of memory
+  ...has 2 maximum parallelism
 locale #3...
-  ...is named: cdr808.int.cedar.computecanada.ca
-  ...has 32 processor cores
-  ...has 125.802 GB of memory
-  ...has 3 maximum parallelism
+  ...is named: node3.andromeda.westgrid.ca
+  ...has 2 processor cores
+  ...has 2.77974 GB of memory
+  ...has 2 maximum parallelism
 ~~~
 
 Note that while Chapel correctly determines the number of physical cores on each node and the number of
@@ -408,7 +442,8 @@ forall t in T do   // go in parallel through all n^2 elements of T
 ~~~
 ~~~ {.bash}
 $ chpl test.chpl -o test
-$ ./test -nl 4    # run on four locales
+$ sbatch distributed.sh
+$ cat solution.out
 ~~~
 ~~~
 (0.0, 0)
@@ -480,7 +515,7 @@ const distributedMesh: domain(2) dmapped Block(boundingBox=mesh) = mesh;
 var A: [distributedMesh] string; // block-distributed array mapped to locales
 forall a in A { // go in parallel through all n^2 elements in A
   // assign each array element on the locale that stores that index/element
-  a = a.locale.id + '-' + here.name[1..6] + '-' + here.maxTaskPar + '  ';
+  a = a.locale.id + '-' + here.name[1..5] + '-' + here.maxTaskPar + '  ';
 }
 writeln(A);
 ~~~~
@@ -499,14 +534,14 @@ but let us not worry about this for now.
 Running our code on four locales with three cores per locale produces the following output:
 
 ~~~
-0-cdr767-3   0-cdr767-3   0-cdr767-3   0-cdr767-3   1-cdr785-3   1-cdr785-3   1-cdr785-3   1-cdr785-3__
-0-cdr767-3   0-cdr767-3   0-cdr767-3   0-cdr767-3   1-cdr785-3   1-cdr785-3   1-cdr785-3   1-cdr785-3__
-0-cdr767-3   0-cdr767-3   0-cdr767-3   0-cdr767-3   1-cdr785-3   1-cdr785-3   1-cdr785-3   1-cdr785-3__
-0-cdr767-3   0-cdr767-3   0-cdr767-3   0-cdr767-3   1-cdr785-3   1-cdr785-3   1-cdr785-3   1-cdr785-3__
-2-cdr806-3   2-cdr806-3   2-cdr806-3   2-cdr806-3   3-cdr808-3   3-cdr808-3   3-cdr808-3   3-cdr808-3__
-2-cdr806-3   2-cdr806-3   2-cdr806-3   2-cdr806-3   3-cdr808-3   3-cdr808-3   3-cdr808-3   3-cdr808-3__
-2-cdr806-3   2-cdr806-3   2-cdr806-3   2-cdr806-3   3-cdr808-3   3-cdr808-3   3-cdr808-3   3-cdr808-3__
-2-cdr806-3   2-cdr806-3   2-cdr806-3   2-cdr806-3   3-cdr808-3   3-cdr808-3   3-cdr808-3   3-cdr808-3__
+0-node1-2   0-node1-2   0-node1-2   0-node1-2   1-node2-2   1-node2-2   1-node2-2   1-node2-2__
+0-node1-2   0-node1-2   0-node1-2   0-node1-2   1-node2-2   1-node2-2   1-node2-2   1-node2-2__
+0-node1-2   0-node1-2   0-node1-2   0-node1-2   1-node2-2   1-node2-2   1-node2-2   1-node2-2__
+0-node1-2   0-node1-2   0-node1-2   0-node1-2   1-node2-2   1-node2-2   1-node2-2   1-node2-2__
+2-node4-2   2-node4-2   2-node4-2   2-node4-2   3-node3-2   3-node3-2   3-node3-2   3-node3-2__
+2-node4-2   2-node4-2   2-node4-2   2-node4-2   3-node3-2   3-node3-2   3-node3-2   3-node3-2__
+2-node4-2   2-node4-2   2-node4-2   2-node4-2   3-node3-2   3-node3-2   3-node3-2   3-node3-2__
+2-node4-2   2-node4-2   2-node4-2   2-node4-2   3-node3-2   3-node3-2   3-node3-2   3-node3-2__
 ~~~
 
 As we see, the domain `distributedMesh` (along with the string array `A` on top of it) was decomposed
@@ -551,7 +586,8 @@ case) to fully utilize all three available cores on each node, so our output sho
 
 ~~~ {.bash}
 $ chpl test.chpl -o test
-$ ./test -nl 4
+$ sbatch distributed.sh
+$ cat solution.out
 ~~~
 ~~~
 actual number of threads = 12
@@ -587,23 +623,24 @@ const mesh: domain(2) = {1..n, 1..n};  // a 2D domain defined in shared memory o
 const m2: domain(2) dmapped Cyclic(startIdx=mesh.low) = mesh; // mesh.low is the first index (1,1)
 var A2: [m2] string;
 forall a in A2 {
-  a = a.locale.id + '-' + here.name[1..6] + '-' + here.maxTaskPar + '  ';
+  a = a.locale.id + '-' + here.name[1..5] + '-' + here.maxTaskPar + '  ';
 }
 writeln(A2);
 ~~~
 ~~~ {.bash}
 $ chpl -o test test.chpl
-$ ./test -nl 4
+$ sbatch distributed.sh
+$ cat solution.out
 ~~~
 ~~~
-0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3  
-2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3  
-0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3  
-2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3  
-0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3  
-2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3  
-0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3   0-cdr767-3   1-cdr785-3  
-2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3   2-cdr806-3   3-cdr808-3  
+0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2__
+2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2__
+0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2__
+2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2__
+0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2__
+2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2__
+0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2__
+2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2__
 ~~~
 
 As the name `CyclicDist` suggests, the domain was mapped to locales in a cyclic, round-robin pattern. We
@@ -691,7 +728,7 @@ assert(1>2);    // will halt if the condition is false
 ~~~
 ~~~ {.bash}
 $ chpl -o parallel3 parallel3.chpl
-$ ./parallel3 -nl 4 --rows=8 --cols=8
+$ ./parallel3 -nl 4 --rows=8 --cols=8   # run this from inside distributed.sh
 ~~~
 
 The outer perimeter in the partition below are the *ghost points*, with the inner 8x8 array:
@@ -790,14 +827,14 @@ $ chpl --fast parallel3.chpl -o parallel3
 First, let's try this on a smaller problem:
 
 ~~~ {.bash}
-$ ./parallel3 -nl 1 --rows=30 --cols=30 --niter=2000
+$ ./parallel3 -nl 1 --rows=30 --cols=30 --niter=2000   # run this from inside distributed.sh
 ...
 Temperature at iteration 1140: 2.58085
 Final temperature at the desired position [1,30] after 1148 iterations is: 2.58084
 The largest temperature difference was 9.9534e-05
 The simulation took 0.089845 seconds
 
-$ ./parallel3 -nl 4 --rows=30 --cols=30 --niter=2000
+$ ./parallel3 -nl 4 --rows=30 --cols=30 --niter=2000   # run this from inside distributed.sh
 ...
 Temperature at iteration 1140: 2.58085
 Final temperature at the desired position [1,30] after 1148 iterations is: 2.58084
@@ -878,7 +915,7 @@ This is the entire multi-locale, data-parallel, hybrid shared-/distributed-memor
 >> and add total to the temperature output. It is decreasing as energy is leaving the system:
 >> ~~~ {.bash}
 >> $ chpl --fast parallel3.chpl -o parallel3
->> $ ./parallel3 -nl 1 --rows=30 --cols=30 --niter=2000
+>> $ ./parallel3 -nl 1 --rows=30 --cols=30 --niter=2000   # run this from inside distributed.sh
 >> Temperature at iteration 0: 25.0
 >> Temperature at iteration 20: 3.49566   21496.5
 >> Temperature at iteration 40: 2.96535   21052.6
@@ -913,7 +950,7 @@ This is the entire multi-locale, data-parallel, hybrid shared-/distributed-memor
 >> Then run it
 >> ~~~ {.bash}
 >> $ chpl --fast parallel3.chpl -o parallel3
->> $ ./parallel3 -nl 4 --rows=8 --cols=8
+>> $ ./parallel3 -nl 4 --rows=8 --cols=8   # run this from inside distributed.sh
 >> ~~~
 
 
@@ -968,7 +1005,7 @@ myWritingChannel.close();   // close the channel
 ~~~
 ~~~ {.bash}
 $ chpl --fast parallel3.chpl -o parallel3
-$ ./parallel3 -nl 4 --rows=8 --cols=8
+$ ./parallel3 -nl 4 --rows=8 --cols=8   # run this from inside distributed.sh
 $ ls -l *dat
 -rw-rw-r-- 1 razoumov razoumov 659 Mar  9 18:04 output.dat
 ~~~

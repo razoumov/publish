@@ -209,7 +209,7 @@ writeln(Locales);
 ~~~ {.bash}
 $ chpl locales.chpl -o locales   # notice now we have two executables!
 $ nano job.sh
-  add line `#SBATCH --nodes=2` to 
+  add line `#SBATCH --nodes=2` to
   replace `./forall` with `./locales`
 $ sbatch job.sh
 $ squeue -u user01
@@ -267,7 +267,7 @@ running. For each of n^2 mesh points, let us print out
 
 1. m.locale.id = the ID of the locale holding that mesh point (should be 0)  
 1. here.id = the ID of the locale on which the code is running (should be 0)  
-1. here.maxTaskPar = the number of available cores (max parallelism with 1 task/core) (should be 3)  
+1. here.maxTaskPar = the number of available cores (max parallelism with 1 task/core) (should be 2)  
 
 ~~~
 config const n = 8;

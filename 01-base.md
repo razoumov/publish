@@ -50,9 +50,13 @@ On Compute Canada clusters Cedar and Graham we have two versions of Chapel, one 
 single-locale Chapel. If you are logged into Cedar or Graham, you'll need to load the single-locale
 Chapel module:
 
+<!-- ~~~ {.bash} -->
+<!-- $ module spider chapel     # list all Chapel modules -->
+<!-- $ module load gcc chapel-single/1.15.0 -->
+<!-- ~~~ -->
+
 ~~~ {.bash}
-$ module spider chapel     # list all Chapel modules
-$ module load gcc chapel-single/1.15.0
+$ . ~centos/startSingleLocale.sh
 ~~~
 
 On Cedar, let's write a simple Chapel code, compile and run it.
@@ -81,17 +85,30 @@ Depending on the code, it might utilize one / several / all cores on the current
 implies that you are allowed to utilize all cores. This might not be the case on an HPC cluster, where a
 login node is shared by many people at the same time, and where it might not be a good idea to occupy all
 cores on a login node with CPU-intensive tasks. Therefore, we'll be running test Chapel codes inside
-submitted jobs on compute nodes. We'll start by submitting a single-core interactive job:
+submitted jobs on compute nodes.
+
+<!-- We'll start by submitting a single-core interactive job: -->
+<!-- ~~~ {.bash} -->
+<!-- $ salloc --time=0:30:0 --mem-per-cpu=1000 --account=def-razoumov-ws_cpu --reservation=arazoumov-may17 -->
+<!-- ~~~ -->
+<!-- and then inside that job compile and run the test code -->
+
+Let's write the job script `serial.sh`:
 
 ~~~ {.bash}
-$ salloc --time=0:30:0 --mem-per-cpu=1000 --account=def-razoumov-ws_cpu --reservation=arazoumov-may17
+#!/bin/bash
+#SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
+#SBATCH --mem-per-cpu=1000   # in MB
+./test
 ~~~
 
-and then inside that job compile and run the test code
+and then submit it:
 
 ~~~ {.bash}
 $ chpl test.chpl -o test
-$ ./test
+$ sbatch serial.sh
+$ squeue -u $USER
+$ cat slurm-jobID.out
 ~~~
 
 ### Case study: solving the **_Heat transfer_** problem
@@ -271,11 +288,22 @@ writeln('Temperature at iteration ', count, ': ', T[iout,jout]);
 Note that when only one instruction will be executed, there is no need to use the curly brackets. `%`
 returns the remainder after the division (i.e. it returns zero when `count` is multiple of 20).
 
-Let's compile and execute our code to see what we get until now
+Let's compile and execute our code to see what we get until now, using the job script `serial.sh`:
+
+~~~ {.bash}
+#!/bin/bash
+#SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
+#SBATCH --mem-per-cpu=3500   # in MB
+#SBATCH --output=solution.out
+./baseSolver
+~~~
+
+and then submitting it:
 
 ~~~ {.bash}
 $ chpl baseSolver.chpl -o baseSolver
-$ ./baseSolver
+$ sbatch serial.sh
+$ tail -f solution.out
 ~~~
 
 ~~~
@@ -324,7 +352,8 @@ Now let's compile and execute our code again:
 
 ~~~ {.bash}
 $ chpl baseSolver.chpl -o baseSolver
-$ ./baseSolver
+$ sbatch serial.sh
+$ tail -f solution.out
 ~~~
 
 ~~~
@@ -352,7 +381,8 @@ plate is cooling down.
 >> plate.
 >> ~~~ {.bash}
 >> $ chpl baseSolver.chpl -o baseSolver
->> $ ./baseSolver
+>> $ sbatch serial.sh
+>> $ tail -f solution.out
 >> ~~~
 >> ~~~
 >> Temperature at iteration 0: 25.0
@@ -385,7 +415,8 @@ plate is cooling down.
 >> integers, we must have 80 as real so that the result is not truncated.
 >> ~~~ {.bash}
 >> $ chpl baseSolver.chpl -o baseSolver
->> $ ./baseSolver
+>> $ sbatch serial.sh
+>> $ tail -f solution.out
 >> ~~~
 >> ~~~
 >> Temperature at iteration 0: 25.0
@@ -419,7 +450,8 @@ plate is cooling down.
 >> update `delta` if we find a greater one.
 >> ~~~ {.bash}
 >> $ chpl baseSolver.chpl -o baseSolver
->> $ ./baseSolver
+>> $ sbatch serial.sh
+>> $ tail -f solution.out
 >> ~~~
 >> ~~~
 >> Temperature at iteration 0: 25.0
@@ -443,7 +475,8 @@ and compile and execute our final code
 
 ~~~ {.bash}
 $ chpl baseSolver.chpl -o baseSolver
-$ ./baseSolver
+$ sbatch serial.sh
+$ tail -f solution.out
 ~~~
 ~~~
 Temperature at iteration 0: 25.0
