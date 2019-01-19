@@ -50,16 +50,19 @@ On Compute Canada clusters Cedar and Graham we have two versions of Chapel, one 
 single-locale Chapel. If you are logged into Cedar or Graham, you'll need to load the single-locale
 Chapel module:
 
-<!-- ~~~ {.bash} -->
-<!-- $ module spider chapel     # list all Chapel modules -->
-<!-- $ module load gcc chapel-single/1.15.0 -->
-<!-- ~~~ -->
+~~~ {.bash}
+$ module spider chapel     # list all Chapel modules
+$ module load gcc chapel-single/1.15.0
+~~~
+
+If you are working on the training cluster VM (Andromeda), please instead load Chapel from the admin's
+directory:
 
 ~~~ {.bash}
 $ . ~centos/startSingleLocale.sh
 ~~~
 
-On Cedar, let's write a simple Chapel code, compile and run it.
+Let's write a simple Chapel code, compile and run it:
 
 ~~~ {.bash}
 $ cd ~/tmp

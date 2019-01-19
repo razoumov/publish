@@ -86,7 +86,7 @@ Chapel jobs:
 ~~~
 
 ~~~ {.bash}
-$ . ~centos/startSingleLocale.sh
+$ . ~centos/startSingleLocale.sh     # on the training VM cluster (Andromeda)
 $ chpl forall.chpl -o forall
 $ sbatch shared.sh
 $ cat solution.out
@@ -267,7 +267,7 @@ Let us test our multi-locale Chapel environment by launching the following code:
 writeln(Locales);
 ~~~
 ~~~ {.bash}
-$ . ~centos/startMultiLocale.sh
+$ . ~centos/startMultiLocale.sh     # on the training VM cluster (Andromeda)
 $ chpl test.chpl -o test
 $ sbatch distributed.sh
 $ cat solution.out

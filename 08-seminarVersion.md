@@ -93,9 +93,9 @@ instructions inside the curly brackets, and then all tasks will synchronize at t
 
 ~~~
 var x = 10;
-config var numtasks = 2;
+config var numthreads = 2;
 writeln('This is the main task: x = ', x);
-coforall taskid in 1..numtasks do {
+coforall taskid in 1..numthreads do {
   var c = taskid**2;
   writeln('this is task ', taskid, ': my value of c is ', c, ' and x is ', x);
 }
@@ -111,7 +111,7 @@ $ squeue -u user01
 Let's modify the number of threads:
 
 ~~~ {.bash}
-$ sed -i -e 's|./coforall|./coforall --numtasks=5|' job.sh
+$ sed -i -e 's|./coforall|./coforall --numthreads=5|' job.sh
 $ sbatch job.sh
 $ squeue -u user01
 ~~~
@@ -121,13 +121,13 @@ right order, by writing from each thread into a string, and then printing this s
 
 ~~~ {.bash}
 2a3
-> var messages: [1..numtasks] string;
+> var messages: [1..numthreads] string;
 6c7
 <   writeln('this is task ', taskid, ': my value of c is ', c, ' and x is ', x);
 ---
 >   messages[taskid] = 'this is task ' + taskid + ': my value of c is ' + c + ' and x is ' + x;
 8a10,11
-> for i in 1..numtasks do  // serial loop, will be printed in sequential order
+> for i in 1..numthreads do  // serial loop, will be printed in sequential order
 >   writeln(messages[i]);
 ~~~
 
@@ -171,7 +171,7 @@ writeln('count = ', count);
 ~~~
 ~~~ {.bash}
 $ chpl forall.chpl -o forall
-$ sed -i -e 's|./coforall --numtasks=5|./forall|' job.sh
+$ sed -i -e 's|./coforall --numthreads=5|./forall|' job.sh
 $ sbatch job.sh
 $ squeue -u user01
 ~~~

@@ -87,8 +87,6 @@ scenario.
 
 ## Running on Cedar
 
-In this lesson, we'll be running on several cores on one node with a script `shared.sh`:
-
 <!-- ~~~ {.bash} -->
 <!-- $ module load gcc chapel-single/1.15.0 -->
 <!-- $ salloc --time=2:00:0 --ntasks=1 --cpus-per-task=3 --mem-per-cpu=1000 \ -->
@@ -96,6 +94,21 @@ In this lesson, we'll be running on several cores on one node with a script `sha
 <!-- $ echo $SLURM_NODELIST          # print the list of nodes (should be one) -->
 <!-- $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3) -->
 <!-- ~~~ -->
+
+If working on Cedar, please load the single-locale Chapel module:
+
+~~~ {.bash}
+$ module load gcc chapel-single/1.15.0
+~~~
+
+If you are working instead on the training VM, please load single-locale Chapel from the admin's
+directory:
+
+~~~ {.bash}
+$ . ~centos/startSingleLocale.sh
+~~~
+
+In this lesson, we'll be running on several cores on one node with a script `shared.sh`:
 
 ~~~ {.bash}
 #!/bin/bash
@@ -134,7 +147,6 @@ begin {
 writeln('This is the main thread, I am done ...');
 ~~~
 ~~~ {.bash}
-$ . ~centos/startSingleLocale.sh
 $ chpl begin.chpl -o begin
 $ sbatch shared.sh
 $ cat solution.out
@@ -238,9 +250,9 @@ for each particular task. Let's write `coforall.chpl`:
 
 ~~~
 var x = 10;
-config var numtasks = 2;
+config var numthreads = 2;
 writeln('This is the main task: x = ', x);
-coforall taskid in 1..numtasks do {
+coforall taskid in 1..numthreads do {
   var count = taskid**2;
   writeln('this is task ', taskid, ': my value of count is ', count, ' and x is ', x);
 }
@@ -248,7 +260,7 @@ writeln('This message will not appear until all tasks are done ...');
 ~~~
 ~~~ {.bash}
 $ chpl coforall.chpl -o coforall
-$ sed -i -e 's|cobegin|coforall --numtasks=5|' shared.sh
+$ sed -i -e 's|cobegin|coforall --numthreads=5|' shared.sh
 $ sbatch shared.sh
 $ cat solution.out
 ~~~ 
@@ -278,20 +290,20 @@ to the particular task.
 >> The following code is a possible solution:
 >> ~~~
 >> var x = 1;
->> config var numtasks = 2;
->> var messages: [1..numtasks] string;
+>> config var numthreads = 2;
+>> var messages: [1..numthreads] string;
 >> writeln('This is the main task: x = ', x);
->> coforall taskid in 1..numtasks do {
+>> coforall taskid in 1..numthreads do {
 >>   var c = taskid**2;
 >>   messages[taskid] = 'this is task ' + taskid + ': my value of c is ' + c + ' and x is ' + x;  // add to a string
 >> }
 >> writeln('This message will not appear until all tasks are done ...');
->> for i in 1..numtasks do  // serial loop, will be printed in sequential order
+>> for i in 1..numthreads do  // serial loop, will be printed in sequential order
 >>   writeln(messages[i]);
 >> ~~~
 >> ~~~
 >> $ chpl exercise1.chpl -o exercise1
->> $ sed -i -e 's|coforall --numtasks=5|exercise1 --numtasks=5|' shared.sh
+>> $ sed -i -e 's|coforall --numthreads=5|exercise1 --numthreads=5|' shared.sh
 >> $ sbatch shared.sh
 >> $ cat solution.out
 >> ~~~
@@ -319,31 +331,31 @@ to the particular task.
 > writeln('the maximum value in x is: ', gmax);
 > ~~~
 > Write a parallel code to find the maximum value in the array x. Be careful: the number of threads
-> should not be excessive. Best to use `numtasks` to organize parallel loops.
+> should not be excessive. Best to use `numthreads` to organize parallel loops.
 >
 >> ## Solution
 >> ~~~
->> config const numtasks = 12;     // let's pretend we have 12 cores
->> const n = nelem / numtasks;     // number of elements per task
->> const r = nelem - n*numtasks;   // these did not fit into the last task
->> var lmax: [1..numtasks] real;   // local maximum for each task
+>> config const numthreads = 12;     // let's pretend we have 12 cores
+>> const n = nelem / numthreads;     // number of elements per task
+>> const r = nelem - n*numthreads;   // these did not fit into the last task
+>> var lmax: [1..numthreads] real;   // local maximum for each task
 >>
->> coforall taskid in 1..numtasks do {   // each iteration processed by a separate task
+>> coforall taskid in 1..numthreads do {   // each iteration processed by a separate task
 >>   var start, finish: int;
 >>   start  = (taskid-1)*n + 1;
 >>   finish = (taskid-1)*n + n;
->>   if taskid == numtasks then finish += r;    // add r elements to the last task
+>>   if taskid == numthreads then finish += r;    // add r elements to the last task
 >>   for i in start..finish do
 >>     if x[i] > lmax[taskid] then lmax[taskid] = x[i];
 >>  }
 >>
->> for taskid in 1..numtasks do     // no need for a parallel loop here
+>> for taskid in 1..numthreads do     // no need for a parallel loop here
 >>   if lmax[taskid] > gmax then gmax = lmax[taskid];
 >>
 >> ~~~
 >> ~~~ {.bash}
 >> $ chpl --fast exercise2.chpl -o exercise2
->> $ sed -i -e 's|coforall --numtasks=5|exercise2|' shared.sh
+>> $ sed -i -e 's|coforall --numthreads=5|exercise2|' shared.sh
 >> $ sbatch shared.sh
 >> $ cat solution.out
 >> ~~~
@@ -360,7 +372,7 @@ to the particular task.
 > Run the code of last Exercise using different number of tasks, and different sizes of the array _x_ to
 > see how the execution time changes. For example:
 > ~~~ {.bash}
-> $ time ./exercise2 --nelem=3000 --numtasks=4
+> $ time ./exercise2 --nelem=3000 --numthreads=4
 > ~~~
 >
 > Discuss your observations. Is there a limit on how fast the code could run?
@@ -569,14 +581,14 @@ establish explicit synchronization between tasks, as shown in the next code `ato
 
 ~~~
 var lock: atomic int;
-const numtasks = 5;
+const numthreads = 5;
 
 lock.write(0);   // the main task set lock to zero
 
-coforall id in 1..numtasks {
+coforall id in 1..numthreads {
   writeln('greetings form task ', id, '... I am waiting for all tasks to say hello');
   lock.add(1);              // task id says hello and atomically adds 1 to lock
-  lock.waitFor(numtasks);   // then it waits for lock to be equal numtasks (which will happen when all tasks say hello)
+  lock.waitFor(numthreads);   // then it waits for lock to be equal numthreads (which will happen when all tasks say hello)
   writeln('task ', id, ' is done ...');
 }
 ~~~
@@ -600,7 +612,7 @@ task 4 is done...
 ~~~
 
 > ## Try this...
-> Comment out the line `lock.waitfor(numtasks)` in the code above to clearly observe the effect of the
+> Comment out the line `lock.waitfor(numthreads)` in the code above to clearly observe the effect of the
 > task synchronization.
 
 Finally, with all the material studied so far, we should be ready to parallelize our code for the
@@ -617,7 +629,7 @@ For the reduction of the grid we can simply use the `max reduce` statement, whic
 parallelized. Now, let's divide the grid into `rowtasks` * `coltasks` subgrids, and assign each subgrid
 to a task using the `coforall` loop (we will have `rowtasks * coltasks` tasks in total).
 
-Recall out code `exercise2.chpl` in which we broke the 1D array with 1e9 elements into `numtasks=12`
+Recall out code `exercise2.chpl` in which we broke the 1D array with 1e9 elements into `numthreads=12`
 blocks, and each task was processing elements `start..finish`. Now we'll do exactly the same in
 2D. First, let's write a quick serial code `test.chpl` to test the indices:
 
@@ -810,12 +822,12 @@ synchronization points inside the `coforall` loop.
 > Recall our earlier code `atomic.chpl`:
 > ~~~
 > var lock: atomic int;
-> const numtasks = 5;
+> const numthreads = 5;
 > lock.write(0);   // the main task set lock to zero
-> coforall id in 1..numtasks {
+> coforall id in 1..numthreads {
 >   writeln('greetings form task ', id, '... I am waiting for all tasks to say hello');
 >   lock.add(1);              // task id says hello and atomically adds 1 to lock
->   lock.waitFor(numtasks);   // then it waits for lock to be equal numtasks (which will happen when all tasks say hello)
+>   lock.waitFor(numthreads);   // then it waits for lock to be equal numthreads (which will happen when all tasks say hello)
 >   writeln('task ', id, ' is done ...');
 > }
 > ~~~
@@ -838,16 +850,16 @@ synchronization points inside the `coforall` loop.
 >> You need two separate locks, and for simplicity increase them both:
 >> ~~~
 >> var lock1, lock2: atomic int;
->> const numtasks = 5;
+>> const numthreads = 5;
 >> lock1.write(0);   // the main task set lock to zero
 >> lock2.write(0);   // the main task set lock to zero
->> coforall id in 1..numtasks {
+>> coforall id in 1..numthreads {
 >>   writeln('greetings form task ', id, '... I am waiting for all tasks to say hello');
 >>   lock1.add(1);              // task id says hello and atomically adds 1 to lock
->>   lock1.waitFor(numtasks);   // then it waits for lock to be equal numtasks (which will happen when all tasks say hello)
+>>   lock1.waitFor(numthreads);   // then it waits for lock to be equal numthreads (which will happen when all tasks say hello)
 >>   writeln('task ', id, ' is done ...');
 >>   lock2.add(1);
->>   lock2.waitFor(numtasks);
+>>   lock2.waitFor(numthreads);
 >>   writeln('task ', id, ' is really done ...');  
 >> }
 >> ~~~
