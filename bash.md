@@ -3,7 +3,7 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Introduction](#introduction)
-- [Remote lesson: logging in and exploring the remote filesystem](#remote-lesson-logging-in-and-exploring-the-remote-filesystem)
+- [**Remote lesson**: logging in and exploring the remote filesystem](#remote-lesson-logging-in-and-exploring-the-remote-filesystem)
 - [Getting help](#getting-help)
 - [Creating things](#creating-things)
 - [Moving and copying things](#moving-and-copying-things)
@@ -61,7 +61,7 @@ This lesson notes (this file) can be found at http://bit.ly/bashmd
     the basic Linux commands, working with the file system, how to remote-transfer files, and similar
     introductory things
 
-# Remote lesson: logging in and exploring the remote filesystem
+# **Remote lesson**: logging in and exploring the remote filesystem
 
 Let's log in to 206.12.89.134 using a username userXX (where XX=01..60):
 
