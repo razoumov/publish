@@ -32,7 +32,7 @@ me                                       | students
 (4) disable student names                |
 (5) start                                |
 
-This lesson notes (this file) can be found at http://bit.ly/bashmd
+These lesson notes (this file) can be found at http://bit.ly/bashmd
 
 <!-- - a mix of http://bit.ly/bashmd, http://bit.ly/gitcontrolmd, https://hpc-carpentry.github.io/hpc-shell, -->
 <!--   and maybe some https://hpc-carpentry.github.io/hpc-intro -->
