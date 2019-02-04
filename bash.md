@@ -8,8 +8,8 @@
 - [Creating things](#creating-things)
 - [Moving and copying things](#moving-and-copying-things)
 - [Working with `tar` and `gzip/gunzip`](#working-with-tar-and-gzipgunzip)
-- [Remote lesson: transferring files and folders with `scp`](#remote-lesson-transferring-files-and-folders-with-scp)
-- [Remote lesson: transferring files interactively with `sftp`](#remote-lesson-transferring-files-interactively-with-sftp)
+- [**Remote lesson**: transferring files and folders with `scp`](#remote-lesson-transferring-files-and-folders-with-scp)
+- [**Remote lesson**: transferring files interactively with `sftp`](#remote-lesson-transferring-files-interactively-with-sftp)
 - [Wildcards, redirection to files, and pipes](#wildcards-redirection-to-files-and-pipes)
 - [Loops](#loops)
 - [Shell Scripts](#shell-scripts)
@@ -199,7 +199,7 @@ $ /bin/rm -r data-shell/ bfiles.zip
 $ tar xvfz bfiles.tar.gz
 ~~~
 
-# Remote lesson: transferring files and folders with `scp`
+# **Remote lesson**: transferring files and folders with `scp`
 
 To copy a single file to/from the cluster, we can use `scp`:
 
@@ -225,7 +225,7 @@ With MobaXterm in Windows, you can actually copy files by dragging them between 
 pane when you are logged into the cluster (no need to type any commands), or you can click the
 download/upload buttons.
 
-# Remote lesson: transferring files interactively with `sftp`
+# **Remote lesson**: transferring files interactively with `sftp`
 
 `scp` is useful, but what if we don't know the exact location of what we want to transfer? Or perhaps
 we're simply not sure which files we want to transfer yet. `sftp` is an interactive way of downloading
