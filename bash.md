@@ -2,18 +2,24 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [0. Prerequisites](#0-prerequisites)
-- [1. Introduction to Unix shell](#1-introduction-to-unix-shell)
-- [2. Wildcards, redirection to files, and pipes](#2-wildcards-redirection-to-files-and-pipes)
-- [3. Loops](#3-loops)
-- [4. Shell Scripts](#4-shell-scripts)
+- [Introduction](#introduction)
+- [Remote lesson: logging in and exploring the remote filesystem](#remote-lesson-logging-in-and-exploring-the-remote-filesystem)
+- [Getting help](#getting-help)
+- [Creating things](#creating-things)
+- [Moving and copying things](#moving-and-copying-things)
+- [Working with `tar` and `gzip/gunzip`](#working-with-tar-and-gzipgunzip)
+- [Remote lesson: transferring files and folders with `scp`](#remote-lesson-transferring-files-and-folders-with-scp)
+- [Remote lesson: transferring files interactively with `sftp`](#remote-lesson-transferring-files-interactively-with-sftp)
+- [Wildcards, redirection to files, and pipes](#wildcards-redirection-to-files-and-pipes)
+- [Loops](#loops)
+- [Shell Scripts](#shell-scripts)
   - [Advanced topic: if statements](#advanced-topic-if-statements)
   - [Advanced topic: variables](#advanced-topic-variables)
   - [Advanced topic: functions](#advanced-topic-functions)
   - [Advanced topic: aliases](#advanced-topic-aliases)
-- [5. Finding things](#5-finding-things)
+- [Finding things](#finding-things)
   - [Advanced topic: running a command on the results of *find*](#advanced-topic-running-a-command-on-the-results-of-find)
-- [6. Text manipulation (DH part: the invisible man)](#6-text-manipulation-dh-part-the-invisible-man)
+- [Text manipulation (DH part: the invisible man)](#text-manipulation-dh-part-the-invisible-man)
 - [Other advanced bash topics](#other-advanced-bash-topics)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -26,28 +32,47 @@ me                                       | students
 (4) disable student names                |
 (5) start                                |
 
-# 0. Prerequisites
+This lesson notes (this file) can be found at https://github.com/razoumov/publish/blob/master/usask.md.
+- a mix of http://bit.ly/bashmd, http://bit.ly/gitcontrolmd, https://hpc-carpentry.github.io/hpc-shell,
+  and maybe some https://hpc-carpentry.github.io/hpc-intro
 
-Make sure you can start bash Unix shell.
+# Introduction
 
-* might use some form of https://sfu-os.syzygy.ca with github credentials
-* personal lesson notes (this file) http://bit.ly/bashmd
-
-# 1. Introduction to Unix shell
-
-* note to self: type "carpentry"
-* explain shell prompt (bash)
+* Why use a cluster: computing beyond the scale of a desktop (faster, bigger, cost, efficientcy)
+* Using HPC systems often involves the use of a shell
   * text-based interface to the OS (unlike a GUI): (1) command interpreter and mechanism to launch tools
     / utilities / compiled binaries / system calls / other scripts and (2) a way to connect standard I/O
     of these tools through pipes to form more complex commands
   * follows the classic UNIX philosophy of breaking complex projects into simpler subtasks and chaining
     together components and utilities
   * a shell around the kernel (coconut analogy), along with utilities and applications
+  * commands are often very cryptic (to avoid too much typing)
   * bash is one of many Unix shell implementations
-* why learn Unix shell: very powerful, great for automating workflows, necessary on bigger Unix systems
+* Why learn Unix shell: very powerful, great for automating workflows, necessary on bigger Unix systems
+* Connection to an HPC system is often done via SSH using a terminal on your laptop
+  * Linux and Mac laptops have built-in terminals
+  * on Windows many terminal emulators; we'll be using a free version of MobaXterm
+* We have set up a small cluster training cluster 206.12.89.134, that features the same software setup is
+  our real production clusters
+  * tomorrow we will learn the specifics of working on a cluster: software environment, scheduler,
+    compilers, etc.
+  * today -- using this cluster -- we will learn how to work with a remote Linux system using the shell,
+    the basic Linux commands, working with the file system, how to remote-transfer files, and similar
+    introductory things
+
+# Remote lesson: logging in and exploring the remote filesystem
+
+Let's log in to 206.12.89.134 using a username userXX (where XX=01..60):
 
 ~~~ {.bash}
-$ whoami   # explain what happens when you type a command
+[local]$ ssh userXX@206.12.89.134   # password supplied by the instructor
+~~~
+
+* those on Windows please use MobaXterm
+* how to tell the difference between the remote and local terminals
+
+~~~ {.bash}
+$ whoami   # explain what happens when you type a command: finds it, runs it, displays output, new prompt
 $ pwd   # explain /, root directory, path, why 'pwd' is so short (traces to early 1970s)
 $ ls
 $ ls someDirectory
@@ -64,16 +89,28 @@ $ cd   # go to home directory, the same as 'cd ~'
 $ cd -   # go to previous directory
 ~~~
 
-tab completion in bash
+# Getting help
 
-**Quiz 1:** If pwd displays /Users/thing, what will ls ../backup display?
+~~~ {.bash}
+$ man ls
+$ ls --help
+~~~
 
-**Quiz 2:** If pwd displays /Users/backup, and -r tells ls to display things in reverse order, what
-command will display: pnas-sub/ pnas-final/ original/
+> Question: Looking at `ls` documentation, what does the -h (--human-readable) option do?
 
-**Quiz 3:** What does the command cd without a directory name do?
+Explain tab completion in bash.
 
-Creating things:
+> **Quiz 1:** If pwd displays /Users/thing, what will ls ../backup display?
+
+> **Quiz 2:** If pwd displays /Users/backup, and -r tells ls to display things in reverse order, what
+> command will display: pnas-sub/ pnas-final/ original/
+
+> **Quiz 3:** What does the command `cd` without a directory name do?
+
+> **Quiz 4:** Multiple ways to return to the home directory.
+
+# Creating things
+
 ~~~ {.bash}
 $ mkdir thesis
 $ ls -F
@@ -91,7 +128,8 @@ $ rmdir thesis
 
 Also could do 'rm -r thesis' in lieu of the last two commands.
 
-Moving things:
+# Moving and copying things
+
 ~~~ {.bash}
 $ mkdir thesis
 $ nano thesis/draft.txt
@@ -104,7 +142,6 @@ $ ls
 $ ls quotes.txt
 ~~~
 
-Copying things:
 ~~~ {.bash}
 $ cp quotes.txt thesis/quotations.txt
 $ ls quotes.txt thesis/quotations.txt
@@ -121,21 +158,161 @@ $ ls
 $ ls thesis
 ~~~
 
-**Quiz 4:** Suppose that you created a .txt file in your current directory to contain a list of the
-statistical tests you will need to do to analyze your data, and named it: statstics.txt. After creating
-and saving this file you realize you misspelled the filename! You want to correct the mistake, which of
-the following commands could you use to do so?
+> **Quiz 5:** Suppose that you created a .txt file in your current directory to contain a list of the
+> statistical tests you will need to do to analyze your data, and named it: statstics.txt. After creating
+> and saving this file you realize you misspelled the filename! You want to correct the mistake, which of
+> the following commands could you use to do so?
 
-**Quiz 5:** What is the output of the closing ls command in the sequence shown below?
+> **Quiz 6:** What is the output of the closing `ls` command in the sequence shown below?
 
-# 2. Wildcards, redirection to files, and pipes
+# Working with `tar` and `gzip/gunzip`
 
-* open http://bit.ly/bashfile in your browser, it'll download the file bfiles.zip
-* unpack bfiles.zip to your Desktop; you should see ~/Desktop/data-shell
+Let's download some files in Windows' ZIP format:
 
 ~~~ {.bash}
-$ cd
-$ cd Desktop
+$ wget http://bit.ly/bashfile -O bfiles.zip
+$ unzip bfiles.zip
+$ rm bfiles.zip
+$ ls
+$ ls data-shell
+~~~
+
+Now let's archive this directory using Unix's TAR command:
+
+~~~ {.bash}
+$ tar cvf bfiles.tar data-shell/
+$ gzip bfiles.tar
+~~~
+
+Let's create a gzipped TAR file in one step:
+
+~~~ {.bash}
+$ rm bfiles.tar.gz
+$ tar cvfz bfiles.tar.gz data-shell/
+~~~
+
+Let's remove the directory and the original ZIP file, and extract directory from our new archive:
+
+~~~ {.bash}
+$ /bin/rm -r data-shell/ bfiles.zip
+$ tar xvfz bfiles.tar.gz
+~~~
+
+# Remote lesson: transferring files and folders with `scp`
+
+To copy a single file to/from the cluster, we can use `scp`:
+
+~~~ {.bash}
+[local]$ scp /path/to/local/file.txt userXX@206.12.89.134:/path/on/remote/computer
+[local]$ scp local-file.txt userXX@206.12.89.134:   # will put into your remote home
+[local]$ scp userXX@206.12.89.134:/path/on/remote/computer/file.txt /path/to/local/
+~~~
+
+To recursively copy a directory, we just add the `-r` (recursive) flag:
+
+~~~ {.bash}
+[local]$ scp -r some-local-folder/ userXX@206.12.89.134:target-directory/
+~~~
+
+You can also use wildcards to transfer multiple files:
+
+~~~ {.bash}
+[local]$ scp centos@206.12.89.134:start*.sh .
+~~~~
+
+With MobaXterm in Windows, you can actually copy files by dragging them between your desktop and the left
+pane when you are logged into the cluster (no need to type any commands), or you can click the
+download/upload buttons.
+
+# Remote lesson: transferring files interactively with `sftp`
+
+`scp` is useful, but what if we don't know the exact location of what we want to transfer? Or perhaps
+we're simply not sure which files we want to transfer yet. `sftp` is an interactive way of downloading
+and uploading files. Let's connect to a cluster with `sftp`:
+
+~~~ {.bash}
+[local]$ sftp userXX@206.12.89.134
+~~~
+
+This will start what appears to be a shell with the prompt `sftp>`. However, we only have access to a
+limited number of commands. We can see which commands are available with `help`:
+
+~~~ {.bash}
+sftp> help
+Available commands:
+bye                                Quit sftp
+cd path                            Change remote directory to 'path'
+chgrp grp path                     Change group of file 'path' to 'grp'
+chmod mode path                    Change permissions of file 'path' to 'mode'
+chown own path                     Change owner of file 'path' to 'own'
+df [-hi] [path]                    Display statistics for current directory or
+                                   filesystem containing 'path'
+exit                               Quit sftp
+get [-afPpRr] remote [local]       Download file
+reget [-fPpRr] remote [local]      Resume download file
+reput [-fPpRr] [local] remote      Resume upload file
+help                               Display this help text
+lcd path                           Change local directory to 'path'
+lls [ls-options [path]]            Display local directory listing
+lmkdir path                        Create local directory
+ln [-s] oldpath newpath            Link remote file (-s for symlink)
+lpwd                               Print local working directory
+ls [-1afhlnrSt] [path]             Display remote directory listing
+...
+~~~
+
+Notice the presence of multiple commands that make mention of local and remote. We are actually connected
+to two computers at once, with two working directories!
+
+~~~ {.bash}
+sftp> pwd    # show our remote working directory
+sftp> lpwd   # show our local working directory
+sftp> ls     # show the contents of our remote directory
+sftp> lls    # show the contents of our local directory
+sftp> cd     # change the remote directory
+sftp> lcd    # change the local directory
+sftp> put localFile    # upload a file
+sftp> get remoteFile   # download a file
+~~~
+
+And we can recursively put/get files by just adding `-r`. Note that the directory needs to be present
+beforehand:
+
+~~~ {.bash}
+sftp> mkdir content
+sftp> put -r content/
+~~~
+
+To quit, type `exit` or `bye`. 
+
+> **Exercise:** Using one of the above methods, try transferring files to and from the cluster. For
+> example, you can download bfiles.tar.gz to your laptop. Which method do you like best?
+
+**Note on Windows**:
+* When you transfer files to from a Windows system to a Unix system (Mac, Linux, BSD, Solaris, etc.) this
+  can cause problems. Windows encodes its files slightly different than Unix, and adds an extra character
+  to every line.
+* On a Unix system, every line in a file ends with a `\n` (newline). On Windows, every line in a file
+  ends with a `\r\n` (carriage return + newline). This causes problems sometimes.
+* You can identify if a file has Windows line endings with `cat -A filename`. A file with Windows line
+  endings will have `^M$` at the end of every line. A file with Unix line endings will have `$` at the
+  end of a line.
+* Though most modern programming languages and software handles this correctly, in some rare instances,
+  you may run into an issue. The solution is to convert a file from Windows to Unix encoding with the
+  `dos2unix filename` command. Conversely, to convert back to Windows format, you can run `unix2dos
+  filename`.
+
+**Note on syncing**: there also a command `rsync` for synching two directories. It is super useful,
+especially for work in progress. For example, you can use it the download all the latest PNG images from
+your working directory on the cluster.
+
+# Wildcards, redirection to files, and pipes
+
+<!-- * open http://bit.ly/bashfile in your browser, it'll download the file bfiles.zip -->
+<!-- * unpack bfiles.zip to your Desktop; you should see ~/Desktop/data-shell -->
+
+~~~ {.bash}
+$ cd <parentDirectoryOf`data-shell`>
 $ ls data-shell
 $ cd data-shell/molecules
 $ ls
@@ -152,17 +329,19 @@ $ wc -l *.pdb | sort -n | head -1   # three commands can be shortened to one - t
 
 Standard input of a process. Standard output of a process. Pipes connect the two.
 
-**Exercise:** build a single command to show the lenth of the longest (number of lines) file
+> **Exercise:** build a single command to show the lenth of the longest (number of lines) file
 
-**Exercise:** Try to to the difference between these two commands:
-echo hello > test.txt
-echo hello >> test.txt
+> **Exercise:** Try to explain the difference between these two commands:
+> ~~~ {.bash}
+> echo hello > test.txt
+> echo hello >> test.txt
+> ~~~
 
-**Quiz 6:** What code would you use to move all the .dat files into the analyzed sub-directory?
+> **Quiz 7:** What code would you use to move all the .dat files into the analyzed sub-directory?
 
-**Quiz 7:** Command to list the three files with the least number of lines.
+> **Quiz 8:** Command to list the three files with the least number of lines.
 
-# 3. Loops
+# Loops
 
 ~~~ {.bash}
 $ cd ~/Desktop/data-shell/creatures
@@ -216,9 +395,9 @@ $ for f in *.dat
 > done
 ~~~
 
-**Quiz 8:** Output of a loop.
+> **Quiz 9:** Output of a loop.
 
-**Quiz 9:** Write a loop.
+> **Quiz 10:** Write a loop.
 
 The general syntax is
 
@@ -244,12 +423,18 @@ $ seq 1 2 10      # step=2, so can use: for i in $(seq 1 2 10)
 $ for ((i=1; i<=5; i++)) do echo $i; done   # can use C-style loops
 ~~~
 
-# 4. Shell Scripts
+# Shell Scripts
+
+We now know a lot of UNIX commands! Wouldn't it be great if we could save certain commands so that we
+could run them later or not have to type them out again? As it turns out, this is extremely easy to
+do. Saving a list of commands to a file is called a "shell script". These shell scripts can be run
+whenever we want, and are a great way to automate our work.
 
 ~~~ {.bash}
 $ cd ~/Desktop/data-shell/molecules
 $ nano middle.sh
 	#!/bin/bash         # this is called sha-bang; can be omitted for generic (bash/csh/tcsh) commands
+	echo Looking into file octane.pdb
 	head -15 octane.pdb | tail -5       # what does it do?
 $ bash middle.sh   # the script ran!
 ~~~
@@ -264,9 +449,11 @@ $ ./middle.sh
 Let's pass an arbitrary file to it:
 ~~~ {.bash}
 $ nano middle.sh
-    head -15 $1 | tail -5                     # $1 means the first argument to the script
-$ bash middle.sh cubane.pdb
-$ bash middle.sh propane.pdb
+	#!/bin/bash
+	echo Looking into file $1       # $1 means the first argument to the script
+    head -15 $1 | tail -5
+$ ./middle cubane.pdb
+$ ./middle propane.pdb
 ~~~
 
 * head -15 "$1" | tail -5     # placing in double-quotes lets us pass filenames with spaces
@@ -274,11 +461,11 @@ $ bash middle.sh propane.pdb
 * $# holds the number of command-line arguments
 * $@ means all command-lines arguments to the script (words in a string)
 
-**Quiz 10:** script.sh in molecules Users/nelle/molecules.
+> **Quiz 11:** script.sh in molecules Users/nelle/molecules.
 
-**Exercise:** write a script that takes any number of filenames, e.g., "scriptName.sh cubane.pdb
-propane.pdb", for each file prints the number of lines and its first five lines, and separates the output
-from different files by an empty line.
+> **Exercise:** write a script that takes any number of filenames, e.g., "scriptName.sh cubane.pdb
+> propane.pdb", for each file prints the number of lines and its first five lines, and separates the
+> output from different files by an empty line.
 
 ## Advanced topic: if statements
 
@@ -325,7 +512,7 @@ Some examples of conditions (**make sure to have spaces around each bracket!**):
 * [ -f name ] checks if name is a file
 * [ -s name ] checks if file name has length greater than 0
 
-**Exercise:** write a script that complains when it does not receive arguments.
+> **Exercise:** write a script that complains when it does not receive arguments.
 
 ## Advanced topic: variables
 
@@ -349,6 +536,7 @@ variable. Try defining the variable *newvar* without/with 'export' and then runn
 
 ~~~ {.bash}
 $ nano middle.sh
+	#!/bin/bash
     echo $newvar
 ~~~
 
@@ -418,13 +606,13 @@ combine() {
 }
 ~~~
 
-**Exercise:** write a function to swap two file names. Add a check that both files exist, before renaming
-them.
+> **Exercise:** write a function to swap two file names. Add a check that both files exist, before
+> renaming them.
 
-**Exercise:** write a function archive() that takes a directory as an argument, packs it into a gzipped
-tar archive (often called *tarball*) and deletes the original directory.
+> **Exercise:** write a function archive() that takes a directory as an argument, packs it into a gzipped
+> tar archive (often called *tarball*) and deletes the original directory.
 
-**Exercise:** write the reverse function unarchive() that replaces a gzipped tarball with a directory.
+> **Exercise:** write the reverse function unarchive() that replaces a gzipped tarball with a directory.
 
 ## Advanced topic: aliases
 
@@ -439,7 +627,7 @@ $ alias cedar='ssh -Y cedar.computecanada.ca'
 $ alias weather='curl wttr.in/vancouver'
 ~~~
 
-# 5. Finding things
+# Finding things
 
 ~~~ {.bash}
 $ cd ~/Desktop/data-shell/writing
@@ -465,7 +653,7 @@ $ grep pattern file1 file2 file3   # all argument after the first one are assume
 $ grep pattern *.txt   # the last argument will expand to the list of *.txt files
 ~~~
 
-**Quiz 11:** grep command.
+> **Quiz 12:** grep command.
 
 Now on to finding files:
 ~~~ {.bash}
@@ -489,10 +677,10 @@ $ wc -l $(find . -name '*.txt')   # will expand to wc -l ./data/one.txt ./data/t
 $ grep elegant $(find . -name '*.txt')   # will look for 'elegant' inside all *.txt files
 ~~~
 
-**Quiz 12:** combining grep and find.
+> **Quiz 13:** combining grep and find.
 
-**Exercise:** write a function 'countFiles()' that counts the number of files in each directory that you
-pass to it and prints it after the directory name.
+> **Exercise:** write a function 'countFiles()' that counts the number of files in each directory that
+> you pass to it and prints it after the directory name.
 
 ## Advanced topic: running a command on the results of *find*
 
@@ -513,7 +701,7 @@ find . -name "*.txt" -exec command {} \;       # important to have spaces
 
 -- this will run the command on each item in the output of find.
 
-# 6. Text manipulation (DH part: the invisible man)
+# Text manipulation (DH part: the invisible man)
 
 In this section we'll use two tools for text manipulation: *sed* and *tr*. Our goal is to calculate the
 frequency of all dictionary words in the novel "The Invisible Man" by Herbert Wells (public
@@ -573,10 +761,10 @@ $ cat invisibleWords.txt | sort -gr > invisibleFrequencyList.txt   # use 'man so
 $ more invisibleFrequencyList.txt
 ~~~
 
-**Exercise:** write a script 'countWords.sh' that takes a text file as an argument, and returns the list
-of its 100 most common words, i.e. the script should be used as 'bash countWords.sh
-wellsInvisibleMan.txt'. The script should not leave any intermediate files. Or even better, write a
-function 'countWords()'.
+> **Exercise:** write a script 'countWords.sh' that takes a text file as an argument, and returns the
+> list of its 100 most common words, i.e. the script should be used as 'bash countWords.sh
+> wellsInvisibleMan.txt'. The script should not leave any intermediate files. Or even better, write a
+> function 'countWords()'.
 
 # Other advanced bash topics
 
