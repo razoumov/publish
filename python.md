@@ -380,6 +380,7 @@ print(n)
 a = list('computer')
 a.reverse()
 ''.join(a)      # convert the list to a string
+help(''.join)   # concatenate all strings in the iterable with the separator from the original string
 ~~~
 
 ***Answer 3:***
@@ -631,7 +632,7 @@ print('average of actual values:', a)
 
 ***Answer:***
 ~~~ {.python}
-def celcius(fs):
+def celsius(fs):
     c = []
     for f in fs:
         c.append((f-32.)*5./9.)
@@ -943,8 +944,9 @@ We can also plot directly from a Pandas data frame; underneath it still uses mat
 import pandas as pd
 data = pd.read_csv('data-python/gapminder_gdp_oceania.csv', index_col='country')
 data.loc['Australia'].plot()   # plot a single row
-plt.xticks(rotation=20)
 ~~~
+
+<!-- plt.xticks(rotation=20) -->
 
 The syntax dataframe.plot() produces one line for each column:
 
@@ -952,7 +954,6 @@ The syntax dataframe.plot() produces one line for each column:
 data.plot()   # plot for each year -- looks weird: one line for each column (=year)
 data.T.plot()   # now one line for each country
 plt.ylabel('GDP per capita')
-plt.xticks(rotation=20)
 plt.style.use('ggplot')   # use ggplot style
 data.T.plot(kind='bar')   # bar for each data point; also try 'hist', 'area'
 help(data.plot)   # learn all the options
