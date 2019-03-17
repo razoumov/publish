@@ -53,7 +53,7 @@ These lesson notes (this file) can be found at http://bit.ly/bashmd
 * Connection to an HPC system is often done via SSH using a terminal on your laptop
   * Linux and Mac laptops have built-in terminals
   * on Windows many terminal emulators; we'll be using a free version of MobaXterm
-* We have set up a small cluster training cluster 206.12.89.134, that features the same software setup is
+* We have set up a small cluster training cluster 206.12.90.125, that features the same software setup is
   our real production clusters
   * tomorrow we will learn the specifics of working on a cluster: software environment, scheduler,
     compilers, etc.
@@ -63,10 +63,10 @@ These lesson notes (this file) can be found at http://bit.ly/bashmd
 
 # **Remote lesson**: logging in and exploring the remote filesystem
 
-Let's log in to 206.12.89.134 using a username userXX (where XX=01..60):
+Let's log in to 206.12.90.125 using a username userXXX (where XXX=01..120):
 
 ~~~ {.bash}
-[local]$ ssh userXX@206.12.89.134   # password supplied by the instructor
+[local]$ ssh userXXX@206.12.90.125   # password supplied by the instructor
 ~~~
 
 * those on Windows please use MobaXterm
@@ -204,21 +204,21 @@ $ tar xvfz bfiles.tar.gz
 To copy a single file to/from the cluster, we can use `scp`:
 
 ~~~ {.bash}
-[local]$ scp /path/to/local/file.txt userXX@206.12.89.134:/path/on/remote/computer
-[local]$ scp local-file.txt userXX@206.12.89.134:   # will put into your remote home
-[local]$ scp userXX@206.12.89.134:/path/on/remote/computer/file.txt /path/to/local/
+[local]$ scp /path/to/local/file.txt userXXX@206.12.90.125:/path/on/remote/computer
+[local]$ scp local-file.txt userXXX@206.12.90.125:   # will put into your remote home
+[local]$ scp userXXX@206.12.90.125:/path/on/remote/computer/file.txt /path/to/local/
 ~~~
 
 To recursively copy a directory, we just add the `-r` (recursive) flag:
 
 ~~~ {.bash}
-[local]$ scp -r some-local-folder/ userXX@206.12.89.134:target-directory/
+[local]$ scp -r some-local-folder/ userXXX@206.12.90.125:target-directory/
 ~~~
 
 You can also use wildcards to transfer multiple files:
 
 ~~~ {.bash}
-[local]$ scp centos@206.12.89.134:start*.sh .
+[local]$ scp centos@206.12.90.125:start*.sh .
 ~~~~
 
 With MobaXterm in Windows, you can actually copy files by dragging them between your desktop and the left
@@ -232,7 +232,7 @@ we're simply not sure which files we want to transfer yet. `sftp` is an interact
 and uploading files. Let's connect to a cluster with `sftp`:
 
 ~~~ {.bash}
-[local]$ sftp userXX@206.12.89.134
+[local]$ sftp userXXX@206.12.90.125
 ~~~
 
 This will start what appears to be a shell with the prompt `sftp>`. However, we only have access to a
