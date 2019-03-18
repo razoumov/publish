@@ -53,7 +53,7 @@ These lesson notes (this file) can be found at http://bit.ly/bashmd
 * Connection to an HPC system is often done via SSH using a terminal on your laptop
   * Linux and Mac laptops have built-in terminals
   * on Windows many terminal emulators; we'll be using a free version of MobaXterm
-* We have set up a small cluster training cluster 206.12.90.125, that features the same software setup is
+* We have set up a small cluster training cluster 206.12.90.125, that features the same software setup as
   our real production clusters
   * tomorrow we will learn the specifics of working on a cluster: software environment, scheduler,
     compilers, etc.
