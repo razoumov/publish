@@ -284,7 +284,7 @@ We want to run some code on each locale (node). For that, we can cycle through l
 ~~~
 for loc in Locales do   // this is still a serial program
   on loc do             // run the next line on locale `loc`
-    writeln("this locale is named ", here.name[1..5]);   // `here` is the locale on which the node is running
+    writeln("this locale is named ", here.name[1..5]);   // `here` is the locale on which the code is running
 ~~~
 
 This will produce
