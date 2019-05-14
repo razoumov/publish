@@ -3,13 +3,14 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Introduction](#introduction)
-- [**Remote lesson**: logging in and exploring the remote filesystem](#remote-lesson-logging-in-and-exploring-the-remote-filesystem)
+- [**Remote part**: logging in](#remote-part-logging-in)
+- [Navigating directories](#navigating-directories)
 - [Getting help](#getting-help)
 - [Creating things](#creating-things)
 - [Moving and copying things](#moving-and-copying-things)
 - [Working with `tar` and `gzip/gunzip`](#working-with-tar-and-gzipgunzip)
-- [**Remote lesson**: transferring files and folders with `scp`](#remote-lesson-transferring-files-and-folders-with-scp)
-- [**Remote lesson**: transferring files interactively with `sftp`](#remote-lesson-transferring-files-interactively-with-sftp)
+- [**Remote part**: transferring files and folders with `scp`](#remote-part-transferring-files-and-folders-with-scp)
+- [**Remote part**: transferring files interactively with `sftp`](#remote-part-transferring-files-interactively-with-sftp)
 - [Wildcards, redirection to files, and pipes](#wildcards-redirection-to-files-and-pipes)
 - [Loops](#loops)
 - [Shell Scripts](#shell-scripts)
@@ -55,13 +56,13 @@ These lesson notes (this file) can be found at http://bit.ly/bashmd
   * on Windows many terminal emulators; we'll be using a free version of MobaXterm
 * We have set up a small cluster training cluster 206.12.90.125, that features the same software setup as
   our real production clusters
-  * tomorrow we will learn the specifics of working on a cluster: software environment, scheduler,
-    compilers, etc.
-  * today -- using this cluster -- we will learn how to work with a remote Linux system using the shell,
+  * in *"Intro to HPC"* we will learn the specifics of working on a cluster: software environment,
+    scheduler, compilers, etc.
+  * now -- using this cluster -- we will learn how to work with a remote Linux system using the shell,
     the basic Linux commands, working with the file system, how to remote-transfer files, and similar
-    introductory things
+    introductory topics
 
-# **Remote lesson**: logging in and exploring the remote filesystem
+# **Remote part**: logging in
 
 Let's log in to 206.12.90.125 using a username userXXX (where XXX=01..120):
 
@@ -71,6 +72,8 @@ Let's log in to 206.12.90.125 using a username userXXX (where XXX=01..120):
 
 * those on Windows please use MobaXterm
 * how to tell the difference between the remote and local terminals
+
+# Navigating directories
 
 ~~~ {.bash}
 $ whoami   # explain what happens when you type a command: finds it, runs it, displays output, new prompt
@@ -178,28 +181,33 @@ $ ls
 $ ls data-shell
 ~~~
 
-Now let's archive this directory using Unix's TAR command:
+ZIP is a compression format from Windows, and it is not very popular in the Unix world. Let's archive the
+directory `data-shell` using Unix's native `tar` command:
 
 ~~~ {.bash}
 $ tar cvf bfiles.tar data-shell/
 $ gzip bfiles.tar
 ~~~
 
-Let's create a gzipped TAR file in one step:
+You can also create a gzipped TAR file in one step:
 
 ~~~ {.bash}
 $ rm bfiles.tar.gz
 $ tar cvfz bfiles.tar.gz data-shell/
 ~~~
 
-Let's remove the directory and the original ZIP file, and extract directory from our new archive:
+Let's remove the directory and the original ZIP file (if still there), and extract directory from our new
+archive:
 
 ~~~ {.bash}
 $ /bin/rm -r data-shell/ bfiles.zip
 $ tar xvfz bfiles.tar.gz
 ~~~
 
-# **Remote lesson**: transferring files and folders with `scp`
+> **Exercise:** Let's create a new subdirectory `~/tmp` with 1000 files inside using `touch a{000..999}`
+> and then gzip-archive that subdirectory.
+
+# **Remote part**: transferring files and folders with `scp`
 
 To copy a single file to/from the cluster, we can use `scp`:
 
@@ -225,7 +233,10 @@ With MobaXterm in Windows, you can actually copy files by dragging them between 
 pane when you are logged into the cluster (no need to type any commands), or you can click the
 download/upload buttons.
 
-# **Remote lesson**: transferring files interactively with `sftp`
+> **Exercise:** try to transfer a file from your laptop to the cluster. Then try moving another file in
+> the opposite direction.
+
+# **Remote part**: transferring files interactively with `sftp`
 
 `scp` is useful, but what if we don't know the exact location of what we want to transfer? Or perhaps
 we're simply not sure which files we want to transfer yet. `sftp` is an interactive way of downloading
@@ -262,8 +273,8 @@ ls [-1afhlnrSt] [path]             Display remote directory listing
 ...
 ~~~
 
-Notice the presence of multiple commands that make mention of local and remote. We are actually connected
-to two computers at once, with two working directories!
+Notice the presence of multiple commands that make mention of local and remote. We are actually browsing
+two filesystems at once, with two working directories!
 
 ~~~ {.bash}
 sftp> pwd    # show our remote working directory
