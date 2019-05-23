@@ -25,7 +25,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-me                                       | students
+instructor                               | students
 ---------------------------------------- | ----------------------------------------
 (1) log in to socrative.com as a teacher | (1) log in to socrative.com as a student
 (2) start a quiz, select 'bash quiz'     | (2) enter provided room name

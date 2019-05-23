@@ -9,6 +9,10 @@
   - [Local domains](#local-domains)
   - [Distributed domains](#distributed-domains)
   - [Heat transfer solver on distributed domains](#heat-transfer-solver-on-distributed-domains)
+  - [Benchmarking](#benchmarking)
+      - [On the training VM:](#on-the-training-vm)
+      - [On Graham (faster interconnect):](#on-graham-faster-interconnect)
+  - [Final parallel code](#final-parallel-code)
 - [I/O](#io)
 - [Ideas for future topics](#ideas-for-future-topics)
 
@@ -819,49 +823,119 @@ with the **inner-only** update
   T[1..rows,1..cols] = Tnew[1..rows,1..cols];   // uses parallel `forall` underneath
 ~~~
 
+## Benchmarking
+
+Let's compile both serial and data-parallel versions using the same multi-locale compiler (and we will
+need `-nl` flag when running both):
+
 ~~~ {.bash}
+$ which chpl
+~/c3/chapel-1.19.0/bin/linux64-x86_64/chpl
 $ chpl --fast baseSolver.chpl -o baseSolver
 $ chpl --fast parallel3.chpl -o parallel3
 ~~~
 
-First, let's try this on a smaller problem:
+First, let's try this on a smaller problem. Let's write two job submission scripts:
 
 ~~~ {.bash}
-$ ./parallel3 -nl 1 --rows=30 --cols=30 --niter=2000   # run this from inside distributed.sh
-...
-Temperature at iteration 1140: 2.58085
-Final temperature at the desired position [1,30] after 1148 iterations is: 2.58084
-The largest temperature difference was 9.9534e-05
-The simulation took 0.089845 seconds
-
-$ ./parallel3 -nl 4 --rows=30 --cols=30 --niter=2000   # run this from inside distributed.sh
-...
-Temperature at iteration 1140: 2.58085
-Final temperature at the desired position [1,30] after 1148 iterations is: 2.58084
-The largest temperature difference was 9.9534e-05
-The simulation took 2.126 seconds
+#!/bin/bash     # this is baseSolver.sh
+#SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
+#SBATCH --mem-per-cpu=1000   # in MB
+#SBATCH --output=baseSolver.out
+./baseSolver -nl 1 --rows=30 --cols=30 --niter=2000
 ~~~
 
-As you can see, the parallel code on 4 nodes (with 3 cores each) ran slower than a parallel code on a
-single node. This is a **_fine-grained_** parallel code that needs lots of communication between tasks,
-and relatively little computing. So, we are seeing the **communication overhead**.
+~~~ {.bash}
+#!/bin/bash     # this is parallel3.sh
+#SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
+#SBATCH --mem-per-cpu=1000   # in MB
+#SBATCH --nodes=4
+#SBATCH --cpus-per-task=2
+#SBATCH --output=parallel3.out
+./parallel3 -nl 4 --rows=30 --cols=30 --niter=2000
+~~~
+
+Let's run them both:
+
+~~~ {.bash}
+sbatch baseSolver.sh
+sbatch parallel3.sh
+~~~
+
+Wait for the jobs to finish and then check the results:
+
+~~~ {.bash}
+$ tail -3 baseSolver.out
+Final temperature at the desired position [1,30] after 1148 iterations is: 2.58084
+The largest temperature difference was 9.9534e-05
+The simulation took 0.008524 seconds
+
+$ tail -3 parallel3.out
+Final temperature at the desired position [1,30] after 1148 iterations is: 2.58084
+The largest temperature difference was 9.9534e-05
+The simulation took 193.279 seconds
+~~~
+
+As you can see, on the training VM cluster the parallel code on 4 nodes (with 2 cores each) ran ~22,675
+times slower than a serial code on a single node ... What is going on here!? Shouldn't the parallel code
+run ~8X faster, since we have 8X as many processors?
+
+This is a **_fine-grained_** parallel code that needs lots of communication between tasks, and relatively
+little computing. So, we are seeing the **communication overhead**. The training cluster has a very slow
+network, so the problem is exponentially worse there ...
 
 If we increase the problem size, there will be more computation (scaling O(n^2)) in between
-communications (scaling O(n)), and at some point parallel code should start running faster.
+communications (scaling O(n)), and at some point parallel code should catch up to the serial code and
+eventually run faster. Let's try these problem sizes:
 
 ~~~
---rows=650 --cols=650 --tolerance=0.002  
-convergence after 7750 iterations  
--nl 1 took 53.2077 seconds  
--nl 4 took 51.0749 seconds  
+--rows=650 --cols=650 --niter=9500 --tolerance=0.002
+Final temperature at the desired position [1,650] after 7750 iterations is: 0.125606
+The largest temperature difference was 0.00199985
+
+--rows=2000 --cols=2000 --niter=9500 --tolerance=0.002
+Final temperature at the desired position [1,2000] after 9140 iterations is: 0.04301
+The largest temperature difference was 0.00199989
+
+--rows=8000 --cols=8000 --niter=9800 --tolerance=0.002
+Final temperature at the desired position [1,8000] after 9708 iterations is: 0.0131638
+The largest temperature difference was 0.00199974
+
+./baseSolver -nl 1 --rows=16000 --cols=16000 --niter=9900 --tolerance=0.002
+Final temperature at the desired position [1,16000] after 9806 iterations is: 0.00818861
+The largest temperature difference was 0.00199975
 ~~~
 
-~~~
---rows=2000 --cols=2000 --tolerance=0.002  
-convergence after 9140 iterations  
--nl 1 took 11.6 minutes  
--nl 4 took 5.0 minutes  
-~~~
+
+#### On the training VM:
+
+| | 30^2 | 650^2 | 2,000^2 |
+| ----- | ----- | ----- | ----- |
+| baseSolver | 0.00852s | 59s | 745s |
+| parallel3 --nodes=4 --cpus-per-task=2 | 193s | 2,208s | 5,876s |
+| slowdown | ~22,700 | ~38 | ~8 |
+
+#### On Graham (faster interconnect):
+
+| | 30^2 | 650^2 | 2,000^2 | 8,000^2 |
+| ----- | ----- | ----- | ----- | ----- |
+| baseSolver | 0.0203s | 56s | 565s | 11,140s | 
+| parallel3 --nodes=4 --cpus-per-task=2 | 105s | 802s | 1,627s | 13,975s |
+| slowdown | ~5,170 | ~14 | ~2.9 | ~1.25 |
+| parallel3 --nodes=4 --cpus-per-task=4 | | | | 7,157s |
+| parallel3 --nodes=8 --cpus-per-task=4 | | | | 4,096s |
+
+<!-- 16,000^2 on Graham: baseSolver 41,482s; parallel3 --nodes=4 --cpus-per-task=2 61,052s -->
+
+<!-- on Cedar at 650^2 we have ~60X slowdown: 27.5408 seconds and 1658.34 seconds, respectively (bad Chapel build over OmniPath?) -->
+
+<!-- with Chapel 1.17.0 on Graham 650^2 took 21.1198 seconds and 907.352 seconds, respectively -->
+
+<!-- on Cedar 2000^2 baseSolver: The simulation took 469.298 seconds -->
+
+<!-- on Graham 5000^2 took 3697.65 seconds and 6015.98 seconds, respectively -->
+
+## Final parallel code
 
 Here is the final version of the entire code, minus the comments:
 
