@@ -24,10 +24,6 @@
     - [Scatter plots](#scatter-plots-1)
     - [Graphs](#graphs)
     - [3D functions](#3d-functions)
-    - [NetCDF data](#netcdf-data)
-      - [2D slices through a 3D dataset](#2d-slices-through-a-3d-dataset)
-      - [Orthogonal 2D slices](#orthogonal-2d-slices)
-  - [Animation](#animation)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -173,14 +169,14 @@ py.iplot(data)
 Let's go back to the offline version of the code:
 
 ~~~ {.python}
-import plotly.plotly as py   # offline plotting
+import plotly.offline as py   # offline plotting
 import plotly.graph_objs as go
 from numpy import linspace, sin
 x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')   # dataset
 data = [trace1]     # a list of datasets
-py.plot(data,auto_open=False)
+py.plot(data,filename='lines.html',auto_open=False)
 ~~~
 
 Let's print the dataset `trace1`: it is a plotly object which is actually a Python dictionary, with all
@@ -192,13 +188,13 @@ the plotting routine.
 In fact, we can rewrite this routine with dictionaries:
 
 ~~~ {.python}
-import plotly.plotly as py   # offline plotting
+import plotly.offline as py   # offline plotting
 from numpy import linspace, sin
 x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = dict(type='scatter', x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
-py.plot(data,auto_open=False)
+py.plot(data,filename='lines.html',auto_open=False)
 ~~~
 
 > ## Exercise 1
@@ -233,17 +229,17 @@ dir(go)
 Let's try a Bar plot, constructing `data` directly in one line from the dictionary:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 data = [go.Bar(x=['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax'],
                y=[2463431, 1392609, 5928040, 4098927, 403131])]
-py.plot(data,auto_open=False)
+py.plot(data,filename='population.html',auto_open=False)
 ~~~
 
 Let's plot inner city population vs. greater metro area for each city:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
 proper = [631486, 1239220, 2731571, 1704694, 316701]
@@ -251,13 +247,13 @@ metro = [2463431, 1392609, 5928040, 4098927, 403131]
 bar1 = go.Bar(x=cities, y=proper, name='inner city')
 bar2 = go.Bar(x=cities, y=metro, name='greater area')
 data = [bar1,bar2]
-py.plot(data,auto_open=False)   # we get a grouped bar chart
+py.plot(data,filename='population.html',auto_open=False)   # we get a grouped bar chart
 ~~~
 
 Let's now do a stacked plot, with *outer city* population on top of *inner city* population:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
 proper = [631486, 1239220, 2731571, 1704694, 316701]
@@ -268,7 +264,7 @@ bar2 = go.Bar(x=cities, y=outside, name='outer city')
 data = [bar1,bar2]
 layout = go.Layout(barmode='stack')         # new element!
 fig = go.Figure(data=data, layout=layout)   # new element!
-py.plot(fig,auto_open=False)   # we get a stacked bar chart
+py.plot(fig,filename='population.html',auto_open=False)   # we get a stacked bar chart
 ~~~
 
 What else can we modify in the layout?
@@ -292,7 +288,7 @@ layout = go.Layout(barmode='stack', title='Population', plot_bgcolor = 'rgb(153,
 Let's plot a heatmap of monthly temperatures at the South Pole:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Year']
 recordHigh = [-14.4,-20.6,-26.7,-27.8,-25.1,-28.8,-33.9,-32.8,-29.3,-25.1,-18.9,-12.3,-12.3]
@@ -304,7 +300,7 @@ trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow]
                    x=months,
                    y=['record high', 'aver.high', 'daily mean', 'aver.low', 'record low'])
 data = [trace]
-py.plot(data,auto_open=False)
+py.plot(data,filename='heatmap.html',auto_open=False)
 ~~~
 
 ### Contour maps
@@ -328,7 +324,7 @@ Let's change to a different colourmap:
 Now let's do a scatterplot on top of a geographical map:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 import pandas as pd
 from math import log10
@@ -360,7 +356,7 @@ layout = go.Layout(title = 'City populations',
                            subunitwidth = 1, subunitcolor = "rgb(255,255,255)",   # province border
 						   countrywidth = 2, countrycolor = "rgb(255,255,255)"))  # country border
 fig = go.Figure(data=[cities], layout=layout)
-py.plot(fig,auto_open=False)
+py.plot(fig,filename='citiesByPopulation.html',auto_open=False)
 ~~~
 
 > ## Exercise 5
@@ -370,7 +366,7 @@ Recall how we combined several scatter plots in one figure before. You can combi
 of a single map -- let's **combine scattergeo + choropleth**:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 import pandas as pd
 df = pd.read_csv('cities.csv')
@@ -400,7 +396,7 @@ countries = go.Choropleth(locations = gdp['CODE'],
                           colorbar = dict(tickprefix = '$',title = 'GDP<br>Billions US$'))
 layout = go.Layout(hovermode = "x", showlegend = False)  # do not show legend for first plot
 fig = go.Figure(data=[cities,countries], layout=layout)
-py.plot(fig,auto_open=False)
+py.plot(fig,filename='combine.html',auto_open=False)
 ~~~
 
 ## 3D plots
@@ -410,7 +406,7 @@ py.plot(fig,auto_open=False)
 Let's plot some tabulated topographic elevation data:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 import pandas as pd
 table = pd.read_csv('mt_bruno_elevation.csv')
@@ -419,7 +415,7 @@ layout = go.Layout(title='Mt Bruno Elevation',
                    width=800, height=800,    # image size
                    margin=dict(l=65, r=10, b=65, t=90))   # margins around the plot
 fig = go.Figure(data=[data], layout=layout)
-py.plot(fig,auto_open=False)
+py.plot(fig,filename='elevation.html',auto_open=False)
 ~~~
 
 ### Elevated 2D functions
@@ -431,7 +427,7 @@ Let's define a different colourmap by adding `colorscale='Viridis'` inside `go.S
 current code:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 from numpy import *
 n = 100   # plot resolution
@@ -442,7 +438,7 @@ F = (1-Y)*sin(pi*X) + Y*(sin(2*pi*X))**2   # array operation
 data = go.Surface(z=F, colorscale='Viridis')
 layout = go.Layout(width=1000, height=1000, scene=go.Scene(zaxis=go.ZAxis(range=[-1,2])));
 fig = go.Figure(data=[data], layout=layout)
-py.plot(fig,auto_open=False)
+py.plot(fig,filename='elevation.html',auto_open=False)
 ~~~
 
 ### Lighting control
@@ -465,7 +461,7 @@ In plotly documentation you can find quite a lot of
 but it still uses `go.Surface(x,y,z)`:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 from numpy import pi, sin, cos, mgrid
 dphi, dtheta = pi/250, pi/250    # 0.72 degrees
@@ -478,7 +474,7 @@ z = r*sin(phi)*sin(theta)   # z is also (252,502)
 surface = go.Surface(x=x, y=y, z=z, colorscale='Viridis')
 layout = go.Layout(title='parametric plot')
 fig = go.Figure(data=[surface], layout=layout)
-py.plot(fig,auto_open=False)
+py.plot(fig,filename='parametric.html',auto_open=False)
 ~~~
 
 ### Scatter plots
@@ -487,7 +483,7 @@ Let's take a look at a 3D scatter plot using the `country index` data from http:
 for 142 countries:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 import pandas as pd
 df = pd.read_csv('legatum2015.csv')
@@ -510,7 +506,7 @@ layout = go.Layout(height=900, width=900,
                                 yaxis=dict(title='entrepreneurshipOpportunity'),
                                 zaxis=dict(title='governance')))
 fig = go.Figure(data=[spheres], layout=layout)
-py.plot(fig,auto_open=False)
+py.plot(fig,filename='bubbles.html',auto_open=False)
 ~~~
 
 ### Graphs
@@ -520,12 +516,12 @@ edge from the previous generation yields a new node, and the new graph can be ma
 three previous-generation graphs*.
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 import networkx as nx
 from forceatlas import forceatlas2_layout
 import sys
-generation = int(sys.argv[1])
+generation = 5
 H = nx.dorogovtsev_goltsev_mendes_graph(generation)
 print(H.number_of_nodes(), 'nodes and', H.number_of_edges(), 'edges')
 # Force Atlas 2 graph layout from https://github.com/tpoisot/nxfa2.git
@@ -561,13 +557,7 @@ layout = go.Layout(
                    zaxis=go.ZAxis(axis)),
     margin=go.Margin(t=100))
 fig = go.Figure(data=[edges,nodes], layout=layout)
-py.plot(fig,auto_open=False)
-~~~
-
-~~~ {.bash}
-$ python test.py 2
-$ python test.py 3
-$ python test.py 4
+py.plot(fig,filename='network.html',auto_open=False)
 ~~~
 
 ### 3D functions
@@ -577,7 +567,7 @@ polygons, and for plotting polygons in plotly we need to use `plotly.figure_fact
 which replaces `plotly.graph_objs.Figure()`:
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
 from plotly import figure_factory as FF
 from numpy import mgrid
 from skimage import measure
@@ -585,118 +575,125 @@ X,Y,Z = mgrid[-1.2:1.2:30j, -1.2:1.2:30j, -1.2:1.2:30j] # three 30^3 grids, each
 F = ((X*X+Y*Y-0.64)**2 + (Z*Z-1)**2) * \
     ((Y*Y+Z*Z-0.64)**2 + (X*X-1)**2) * \
     ((Z*Z+X*X-0.64)**2 + (Y*Y-1)**2)
-vertices, triangles, normals, values = measure.marching_cubes(F, 0.03)  # create an isosurface
+vertices, triangles, normals, values = measure.marching_cubes_lewiner(F, 0.03)  # create an isosurface
 x,y,z = zip(*vertices)   # zip(*...) is opposite of zip(...): unzips a list of tuples
 fig = FF.create_trisurf(x=x, y=y, z=z, plot_edges=False,
                         simplices=triangles, title="Isosurface", height=900, width=900)
-py.plot(fig,auto_open=False)
+py.plot(fig,filename='isosurface.html',auto_open=False)
 ~~~
 
 Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual polygons!
 
-### NetCDF data
-#### 2D slices through a 3D dataset
 
-How about processing real data?
 
-~~~ {.python}
-import plotly.plotly as py
-import plotly.graph_objs as go
-from netCDF4 import Dataset
-dataset = Dataset('sineEnvelope.nc')
-name = list(dataset.variables.keys())[0]   # variable name
-print(name)
-var = dataset.variables[name]
-print(var.shape)
-image = go.Heatmap(z=var[:,:,49])   # use layer 50 (in the middle)
-layout = go.Layout(width=800, height=800, margin=dict(l=65,r=10,b=65,t=90))
-fig = go.Figure(data=[image], layout=layout)
-py.plot(fig,auto_open=False)
-~~~
 
-> ## Exercise 7
-> Use the last two codes to plot an isosurface of `sineEnvelope.nc` dataset at f=0.5.
 
-#### Orthogonal 2D slices
+<!-- ### NetCDF data -->
+<!-- #### 2D slices through a 3D dataset -->
 
-Let's do three orthogonal slices through our dataset:
+<!-- How about processing real data? -->
 
-~~~ {.python}
-import numpy as np
-import plotly.plotly as py
-import plotly.graph_objs as go
-from netCDF4 import Dataset
-dataset = Dataset('sineEnvelope.nc')
-name = list(dataset.variables.keys())[0]   # variable name
-var = dataset.variables[name]   # dataset variable
-vmin, vmax = np.min(var), np.max(var)   # global dataset min/max
-x, y, z = np.linspace(0.005,0.995,100), np.linspace(0.005,0.995,100), np.linspace(0.005,0.995,100)
-slicePosition = [0,0,0]   # indices 0..99
-print('slices through the point', x[slicePosition[0]], y[slicePosition[1]], z[slicePosition[2]])
+<!-- ~~~ {.python} -->
+<!-- import plotly.offline as py -->
+<!-- import plotly.graph_objs as go -->
+<!-- from netCDF4 import Dataset    # Note:  -->
+<!-- dataset = Dataset('sineEnvelope.nc') -->
+<!-- name = list(dataset.variables.keys())[0]   # variable name -->
+<!-- print(name) -->
+<!-- var = dataset.variables[name] -->
+<!-- print(var.shape) -->
+<!-- image = go.Heatmap(z=var[:,:,49])   # use layer 50 (in the middle) -->
+<!-- layout = go.Layout(width=800, height=800, margin=dict(l=65,r=10,b=65,t=90)) -->
+<!-- fig = go.Figure(data=[image], layout=layout) -->
+<!-- py.plot(fig,auto_open=False) -->
+<!-- ~~~ -->
 
-# --- create the XY-slice
-X, Y = np.meshgrid(x,y)   # each is a 100x100 mesh covering [0,1] in each dimension
-Z = z[slicePosition[2]] * np.ones((100,100))   # 100x100 array of constant value
-surfz = var[:,:,slicePosition[2]]   # 100x100 array of function values
-slicez = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfz, cmin=vmin, cmax=vmax, showscale=False)
+<!-- > ## Exercise 7 -->
+<!-- > Use the last two codes to plot an isosurface of `sineEnvelope.nc` dataset at f=0.5. -->
 
-# --- create the YZ-slice
-Y, Z = np.meshgrid(y,z)   # each is a 100x100 mesh covering [0,1] in each dimension
-X = x[slicePosition[0]] * np.ones((100,100))   # 100x100 array of constant value
-surfx = var[slicePosition[0],:,:]   # 100x100 array of function values
-slicex = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfx, cmin=vmin, cmax=vmax, showscale=True)
+<!-- #### Orthogonal 2D slices -->
 
-# --- create the XZ-slice
-X, Z = np.meshgrid(x,z)
-Y = y[slicePosition[1]] * np.ones((100,100))   # 100x100 array of constant value
-surfy = var[:,slicePosition[1],:]
-slicey = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfy, cmin=vmin, cmax=vmax, showscale=False)
+<!-- Let's do three orthogonal slices through our dataset: -->
 
-# --- plot the three slices
-axis = dict(showbackground=True,  backgroundcolor="rgb(230, 230,230)",
-            gridcolor="rgb(255, 255, 255)", zerolinecolor="rgb(255, 255, 255)")
-layout = go.Layout(title='Orthogonal slices through volumetric data', 
-                   width=900, height=900,
-                   scene=go.Scene(xaxis=go.XAxis(axis),
-                               yaxis=go.YAxis(axis), 
-                               zaxis=go.ZAxis(axis), 
-                               aspectratio=dict(x=1, y=1, z=1)))
-fig = go.Figure(data=[slicez,slicey,slicex], layout=layout)
-py.plot(fig,auto_open=False)
-~~~
+<!-- ~~~ {.python} -->
+<!-- import numpy as np -->
+<!-- import plotly.offline as py -->
+<!-- import plotly.graph_objs as go -->
+<!-- from netCDF4 import Dataset -->
+<!-- dataset = Dataset('sineEnvelope.nc') -->
+<!-- name = list(dataset.variables.keys())[0]   # variable name -->
+<!-- var = dataset.variables[name]   # dataset variable -->
+<!-- vmin, vmax = np.min(var), np.max(var)   # global dataset min/max -->
+<!-- x, y, z = np.linspace(0.005,0.995,100), np.linspace(0.005,0.995,100), np.linspace(0.005,0.995,100) -->
+<!-- slicePosition = [0,0,0]   # indices 0..99 -->
+<!-- print('slices through the point', x[slicePosition[0]], y[slicePosition[1]], z[slicePosition[2]]) -->
 
-## Animation
+<!-- # --- create the XY-slice -->
+<!-- X, Y = np.meshgrid(x,y)   # each is a 100x100 mesh covering [0,1] in each dimension -->
+<!-- Z = z[slicePosition[2]] * np.ones((100,100))   # 100x100 array of constant value -->
+<!-- surfz = var[:,:,slicePosition[2]]   # 100x100 array of function values -->
+<!-- slicez = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfz, cmin=vmin, cmax=vmax, showscale=False) -->
 
-For animations, you need to pass the third (`frames`) argument to `go.Figure()`:
+<!-- # --- create the YZ-slice -->
+<!-- Y, Z = np.meshgrid(y,z)   # each is a 100x100 mesh covering [0,1] in each dimension -->
+<!-- X = x[slicePosition[0]] * np.ones((100,100))   # 100x100 array of constant value -->
+<!-- surfx = var[slicePosition[0],:,:]   # 100x100 array of function values -->
+<!-- slicex = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfx, cmin=vmin, cmax=vmax, showscale=True) -->
 
-~~~ {.python}
-import plotly.plotly as py
-import plotly.graph_objs as go
-import numpy as np
-t = np.linspace(0,10,100)
-x, y = t/3*np.cos(t), t/3*np.sin(t)
-line1 = go.Scatter(x=x, y=y, mode='lines', line=dict(width=10, color='blue'))
-line2 = go.Scatter(x=x, y=y, mode='lines', line=dict(width=2, color='blue'))
-layout = go.Layout(title='Moving dot',
-                   xaxis=dict(range=[-10,10]),
-                   yaxis=dict(scaleanchor="x", scaleratio=1),   # 1:1 aspect ratio
-                   showlegend = False,
-                   updatemenus= [{'type': 'buttons',
-                                  'buttons': [{'label': 'Replay',
-                                               'method': 'animate',
-                                               'args': [None]}]}])
-nframes = 20
-s = np.linspace(0,10,nframes)
-xdot, ydot = s/3*np.cos(s), s/3*np.sin(s)
-frames = [dict(data=[go.Scatter(x=[xdot[k]], y=[ydot[k]],
-                                mode='markers', marker=dict(color='red', size=30))])
-          for k in range(nframes)]
-# line1 will be shown before the first frame, line2 will be shown in each frame
-fig = go.Figure(data=[line1,line2], layout=layout, frames=frames)
-py.plot(fig,auto_open=False)
-~~~
+<!-- # --- create the XZ-slice -->
+<!-- X, Z = np.meshgrid(x,z) -->
+<!-- Y = y[slicePosition[1]] * np.ones((100,100))   # 100x100 array of constant value -->
+<!-- surfy = var[:,slicePosition[1],:] -->
+<!-- slicey = go.Surface(x=X, y=Y, z=Z, surfacecolor=surfy, cmin=vmin, cmax=vmax, showscale=False) -->
 
-I could not find how to control the animation speed. Obviously, it should be via a keyword to either
-`go.Figure()` or `py.plot`.
+<!-- # --- plot the three slices -->
+<!-- axis = dict(showbackground=True,  backgroundcolor="rgb(230, 230,230)", -->
+<!--             gridcolor="rgb(255, 255, 255)", zerolinecolor="rgb(255, 255, 255)") -->
+<!-- layout = go.Layout(title='Orthogonal slices through volumetric data',  -->
+<!--                    width=900, height=900, -->
+<!--                    scene=go.Scene(xaxis=go.XAxis(axis), -->
+<!--                                yaxis=go.YAxis(axis),  -->
+<!--                                zaxis=go.ZAxis(axis),  -->
+<!--                                aspectratio=dict(x=1, y=1, z=1))) -->
+<!-- fig = go.Figure(data=[slicez,slicey,slicex], layout=layout) -->
+<!-- py.plot(fig,auto_open=False) -->
+<!-- ~~~ -->
+
+<!-- ## Animation -->
+
+<!-- For animations, you need to pass the third (`frames`) argument to `go.Figure()`: -->
+
+<!-- ~~~ {.python} -->
+<!-- import plotly.offline as py -->
+<!-- import plotly.graph_objs as go -->
+<!-- import numpy as np -->
+<!-- t = np.linspace(0,10,100) -->
+<!-- x, y = t/3*np.cos(t), t/3*np.sin(t) -->
+<!-- line1 = go.Scatter(x=x, y=y, mode='lines', line=dict(width=10, color='blue')) -->
+<!-- line2 = go.Scatter(x=x, y=y, mode='lines', line=dict(width=2, color='blue')) -->
+<!-- layout = go.Layout(title='Moving dot', -->
+<!--                    xaxis=dict(range=[-10,10]), -->
+<!--                    yaxis=dict(scaleanchor="x", scaleratio=1),   # 1:1 aspect ratio -->
+<!--                    showlegend = False, -->
+<!--                    updatemenus= [{'type': 'buttons', -->
+<!--                                   'buttons': [{'label': 'Replay', -->
+<!--                                                'method': 'animate', -->
+<!--                                                'args': [None]}]}]) -->
+<!-- nframes = 20 -->
+<!-- s = np.linspace(0,10,nframes) -->
+<!-- xdot, ydot = s/3*np.cos(s), s/3*np.sin(s) -->
+<!-- frames = [dict(data=[go.Scatter(x=[xdot[k]], y=[ydot[k]], -->
+<!--                                 mode='markers', marker=dict(color='red', size=30))]) -->
+<!--           for k in range(nframes)] -->
+<!-- # line1 will be shown before the first frame, line2 will be shown in each frame -->
+<!-- fig = go.Figure(data=[line1,line2], layout=layout, frames=frames) -->
+<!-- py.plot(fig,auto_open=False) -->
+<!-- ~~~ -->
+
+<!-- I could not find how to control the animation speed. Obviously, it should be via a keyword to either -->
+<!-- `go.Figure()` or `py.plot`. -->
+
+
+
 
 &nbsp;
