@@ -15,6 +15,7 @@
     - [Bar plots](#bar-plots)
     - [Heatmaps](#heatmaps)
     - [Contour maps](#contour-maps)
+    - [Downloading data](#downloading-data)
     - [Geographical scatterplot](#geographical-scatterplot)
   - [3D plots](#3d-plots)
     - [Topographic elevation](#topographic-elevation)
@@ -129,16 +130,23 @@ By default this will auto-open the file, but you can also use `auto_open=False` 
 
 ## Plotting inside a Jupyter notebook
 
+**(Option 1)** If you have installed jupyter, run it locally on your notebook:
+
 ~~~ {.bash}
 $ jupyter notebook
 ~~~
 
+**(Option 2)** Log in to \url{https://sfu.syzygy.ca} with your university ID. This website is maintained/hosted
+by PIMS, Compute Canada, and Cybera.
+
 1. start a new Python 3 notebook
-1. in the first line switch back to plotly.plotly
-1. in the last line change py.plot() to py.iplot()
+1. in the first line use `import plotly.offline as py`
+1. specify `py.init_notebook_mode(connected=True)`
+1. in the last line change `py.plot()` to `py.iplot()`
 
 ~~~ {.python}
-import plotly.plotly as py
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 from numpy import linspace, sin
 x1 = linspace(0.01,1,100)
@@ -148,17 +156,6 @@ data = [trace1]
 py.iplot(data)   # create a unique URL and open the plot inline in a Jupyter Notebook
 ~~~
 
-For this one, an online plot will also be created -- you can see the URL by clicking `Edit Chart` button.
-
-For offline plotting in Jupyter, you need to use:
-
-~~~ {.python}
-import plotly.plotly as py
-py.init_notebook_mode(connected=True)
-...
-py.iplot(data)
-~~~
-
 * `connected=True` will use the online plotly.js library inside the notebook (smaller notebook file sizes)
 * `connected=False` will include plotly.js into the notebook for complete offline work (larger files
   sizes, also need to modify some notebook settings before it works)
@@ -166,18 +163,20 @@ py.iplot(data)
 # 2D plots: deeper dive
 ## Scatter plots
 
-Let's go back to the offline version of the code:
+We'll start with the Jupyter Notebook version of the code.
 
-~~~ {.python}
-import plotly.offline as py   # offline plotting
-import plotly.graph_objs as go
-from numpy import linspace, sin
-x1 = linspace(0.01,1,100)
-y1 = sin(1/x1)
-trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')   # dataset
-data = [trace1]     # a list of datasets
-py.plot(data,filename='lines.html',auto_open=False)
-~~~
+<!-- Let's go back to the offline version of the code: -->
+<!-- ~~~ {.python} -->
+<!-- import plotly.offline as py   # offline plotting -->
+<!-- py.init_notebook_mode(connected=True) -->
+<!-- import plotly.graph_objs as go -->
+<!-- from numpy import linspace, sin -->
+<!-- x1 = linspace(0.01,1,100) -->
+<!-- y1 = sin(1/x1) -->
+<!-- trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')   # dataset -->
+<!-- data = [trace1]     # a list of datasets -->
+<!-- py.plot(data,filename='lines.html',auto_open=False) -->
+<!-- ~~~ -->
 
 Let's print the dataset `trace1`: it is a plotly object which is actually a Python dictionary, with all
 elements clearly identified (plot type, x numpy array, y numpy array, line type, legend line name). So,
@@ -188,13 +187,14 @@ the plotting routine.
 In fact, we can rewrite this routine with dictionaries:
 
 ~~~ {.python}
-import plotly.offline as py   # offline plotting
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
 from numpy import linspace, sin
 x1 = linspace(0.01,1,100)
 y1 = sin(1/x1)
 trace1 = dict(type='scatter', x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
 data = [trace1]
-py.plot(data,filename='lines.html',auto_open=False)
+py.iplot(data)
 ~~~
 
 > ## Exercise 1
@@ -230,16 +230,18 @@ Let's try a Bar plot, constructing `data` directly in one line from the dictiona
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 data = [go.Bar(x=['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax'],
                y=[2463431, 1392609, 5928040, 4098927, 403131])]
-py.plot(data,filename='population.html',auto_open=False)
+py.iplot(data)
 ~~~
 
 Let's plot inner city population vs. greater metro area for each city:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
 proper = [631486, 1239220, 2731571, 1704694, 316701]
@@ -247,13 +249,14 @@ metro = [2463431, 1392609, 5928040, 4098927, 403131]
 bar1 = go.Bar(x=cities, y=proper, name='inner city')
 bar2 = go.Bar(x=cities, y=metro, name='greater area')
 data = [bar1,bar2]
-py.plot(data,filename='population.html',auto_open=False)   # we get a grouped bar chart
+py.iplot(data)
 ~~~
 
 Let's now do a stacked plot, with *outer city* population on top of *inner city* population:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
 proper = [631486, 1239220, 2731571, 1704694, 316701]
@@ -264,7 +267,7 @@ bar2 = go.Bar(x=cities, y=outside, name='outer city')
 data = [bar1,bar2]
 layout = go.Layout(barmode='stack')         # new element!
 fig = go.Figure(data=data, layout=layout)   # new element!
-py.plot(fig,filename='population.html',auto_open=False)   # we get a stacked bar chart
+py.iplot(fig)   # we get a stacked bar chart
 ~~~
 
 What else can we modify in the layout?
@@ -289,6 +292,7 @@ Let's plot a heatmap of monthly temperatures at the South Pole:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Year']
 recordHigh = [-14.4,-20.6,-26.7,-27.8,-25.1,-28.8,-33.9,-32.8,-29.3,-25.1,-18.9,-12.3,-12.3]
@@ -300,7 +304,7 @@ trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow]
                    x=months,
                    y=['record high', 'aver.high', 'daily mean', 'aver.low', 'record low'])
 data = [trace]
-py.plot(data,filename='heatmap.html',auto_open=False)
+py.iplot(data)
 ~~~
 
 ### Contour maps
@@ -319,21 +323,35 @@ Let's change to a different colourmap:
 >                    colorscale='Jet')
 ~~~
 
+### Downloading data
+
+Open a terminal window inside Jupyter (New-Terminal) and run these commands:
+
+~~~ {.bash}
+wget http://bit.ly/paraviewzip
+unzip paraviewzip
+mv data/*.csv .
+mv data/*.nc .
+~~~
+
 ### Geographical scatterplot
 
-Now let's do a scatterplot on top of a geographical map:
+Go back to your Python Jupyter Notebook. Now let's do a scatterplot on top of a geographical map:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 import pandas as pd
 from math import log10
 df = pd.read_csv('cities.csv')   # lists name,pop,lat,lon for 254 Canadian cities and towns
 df['text'] = df['name'] + '<br>Population ' + \
              (df['pop']/1e6).astype(str) +' million' # add new column for mouse-over
+
 largest, smallest = df['pop'].max(), df['pop'].min()
 def normalize(x):
     return log10(x/smallest)/log10(largest/smallest)   # x scaled into [0,1]
+
 df['logsize'] = round(df['pop'].apply(normalize)*255)   # new column
 cities = go.Scattergeo(
     lon = df['lon'], lat = df['lat'], text = df['text'],
@@ -356,7 +374,7 @@ layout = go.Layout(title = 'City populations',
                            subunitwidth = 1, subunitcolor = "rgb(255,255,255)",   # province border
 						   countrywidth = 2, countrycolor = "rgb(255,255,255)"))  # country border
 fig = go.Figure(data=[cities], layout=layout)
-py.plot(fig,filename='citiesByPopulation.html',auto_open=False)
+py.iplot(fig)
 ~~~
 
 > ## Exercise 5
@@ -367,6 +385,7 @@ of a single map -- let's **combine scattergeo + choropleth**:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 import pandas as pd
 df = pd.read_csv('cities.csv')
@@ -396,7 +415,7 @@ countries = go.Choropleth(locations = gdp['CODE'],
                           colorbar = dict(tickprefix = '$',title = 'GDP<br>Billions US$'))
 layout = go.Layout(hovermode = "x", showlegend = False)  # do not show legend for first plot
 fig = go.Figure(data=[cities,countries], layout=layout)
-py.plot(fig,filename='combine.html',auto_open=False)
+py.iplot(fig)
 ~~~
 
 ## 3D plots
@@ -407,6 +426,7 @@ Let's plot some tabulated topographic elevation data:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 import pandas as pd
 table = pd.read_csv('mt_bruno_elevation.csv')
@@ -415,7 +435,7 @@ layout = go.Layout(title='Mt Bruno Elevation',
                    width=800, height=800,    # image size
                    margin=dict(l=65, r=10, b=65, t=90))   # margins around the plot
 fig = go.Figure(data=[data], layout=layout)
-py.plot(fig,filename='elevation.html',auto_open=False)
+py.iplot(fig)
 ~~~
 
 ### Elevated 2D functions
@@ -428,6 +448,7 @@ current code:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 from numpy import *
 n = 100   # plot resolution
@@ -436,9 +457,9 @@ y = linspace(0,1,n)
 Y, X = meshgrid(x, y)   # meshgrid() returns two 2D arrays storing x/y respectively at each mesh point
 F = (1-Y)*sin(pi*X) + Y*(sin(2*pi*X))**2   # array operation
 data = go.Surface(z=F, colorscale='Viridis')
-layout = go.Layout(width=1000, height=1000, scene=go.Scene(zaxis=go.ZAxis(range=[-1,2])));
+layout = go.Layout(width=1000, height=1000, scene=go.Scene(zaxis=go.layout.scene.ZAxis(range=[-1,2])));
 fig = go.Figure(data=[data], layout=layout)
-py.plot(fig,filename='elevation.html',auto_open=False)
+py.iplot(fig)
 ~~~
 
 ### Lighting control
@@ -462,6 +483,7 @@ but it still uses `go.Surface(x,y,z)`:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 from numpy import pi, sin, cos, mgrid
 dphi, dtheta = pi/250, pi/250    # 0.72 degrees
@@ -474,7 +496,7 @@ z = r*sin(phi)*sin(theta)   # z is also (252,502)
 surface = go.Surface(x=x, y=y, z=z, colorscale='Viridis')
 layout = go.Layout(title='parametric plot')
 fig = go.Figure(data=[surface], layout=layout)
-py.plot(fig,filename='parametric.html',auto_open=False)
+py.iplot(fig)
 ~~~
 
 ### Scatter plots
@@ -484,6 +506,7 @@ for 142 countries:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 import pandas as pd
 df = pd.read_csv('legatum2015.csv')
@@ -506,7 +529,7 @@ layout = go.Layout(height=900, width=900,
                                 yaxis=dict(title='entrepreneurshipOpportunity'),
                                 zaxis=dict(title='governance')))
 fig = go.Figure(data=[spheres], layout=layout)
-py.plot(fig,filename='bubbles.html',auto_open=False)
+py.iplot(fig)
 ~~~
 
 ### Graphs
@@ -517,6 +540,7 @@ three previous-generation graphs*.
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 import networkx as nx
 from forceatlas import forceatlas2_layout
@@ -534,30 +558,32 @@ for edge in H.edges():
     Xe += [pos[edge[0]][0], pos[edge[1]][0], None]   # x-coordinates of all edge ends
     Ye += [pos[edge[0]][1], pos[edge[1]][1], None]   # y-coordinates of all edge ends
     Ze += [pos[edge[0]][2], pos[edge[1]][2], None]   # z-coordinates of all edge ends
+
 degree = [deg[1] for deg in H.degree()]   # list of degrees of all nodes
 labels = [str(i) for i in range(H.number_of_nodes())]
 edges = go.Scatter3d(x=Xe, y=Ye, z=Ze,
                      mode='lines',
-                     line=go.Line(color='rgb(160,160,160)', width=2),
+                     marker=dict(size=12,line=dict(color='rgba(217, 217, 217, 0.14)',width=0.5)),
                      hoverinfo='none')
 nodes = go.Scatter3d(x=Xn, y=Yn, z=Zn,
                      mode='markers',
-                     marker=go.Marker(sizemode = 'area',
-                                      sizeref = 0.01, size=degree,
-                                      color=degree, colorscale='Viridis',
-                                      line=go.Line(color='rgb(50,50,50)', width=0.5)),
+                     marker=dict(sizemode = 'area',
+                                 sizeref = 0.01, size=degree,
+                                 color=degree, colorscale='Viridis',
+                                 line=dict(color='rgb(50,50,50)', width=0.5)),
                      text=labels, hoverinfo='text')
-axis = dict(showbackground=False, showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
+
+axis = dict(showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
 layout = go.Layout(
     title = str(generation) + "-generation Dorogovtsev-Goltsev-Mendes graph",
     width=1000, height=1000,
     showlegend=False,
-    scene=go.Scene(xaxis=go.XAxis(axis),
-                   yaxis=go.YAxis(axis),
-                   zaxis=go.ZAxis(axis)),
+    scene=dict(xaxis=go.layout.scene.XAxis(axis),
+               yaxis=go.layout.scene.YAxis(axis),
+               zaxis=go.layout.scene.ZAxis(axis)),
     margin=go.Margin(t=100))
 fig = go.Figure(data=[edges,nodes], layout=layout)
-py.plot(fig,filename='network.html',auto_open=False)
+py.iplot(fig)
 ~~~
 
 ### 3D functions
@@ -568,6 +594,7 @@ which replaces `plotly.graph_objs.Figure()`:
 
 ~~~ {.python}
 import plotly.offline as py
+py.init_notebook_mode(connected=True)
 from plotly import figure_factory as FF
 from numpy import mgrid
 from skimage import measure
@@ -579,14 +606,10 @@ vertices, triangles, normals, values = measure.marching_cubes_lewiner(F, 0.03)  
 x,y,z = zip(*vertices)   # zip(*...) is opposite of zip(...): unzips a list of tuples
 fig = FF.create_trisurf(x=x, y=y, z=z, plot_edges=False,
                         simplices=triangles, title="Isosurface", height=900, width=900)
-py.plot(fig,filename='isosurface.html',auto_open=False)
+py.iplot(fig)
 ~~~
 
 Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual polygons!
-
-
-
-
 
 <!-- ### NetCDF data -->
 <!-- #### 2D slices through a 3D dataset -->
@@ -595,8 +618,9 @@ Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual p
 
 <!-- ~~~ {.python} -->
 <!-- import plotly.offline as py -->
+<!-- py.init_notebook_mode(connected=True) -->
 <!-- import plotly.graph_objs as go -->
-<!-- from netCDF4 import Dataset    # Note:  -->
+<!-- from netCDF4 import Dataset    # Note: need netCDF4 installed -->
 <!-- dataset = Dataset('sineEnvelope.nc') -->
 <!-- name = list(dataset.variables.keys())[0]   # variable name -->
 <!-- print(name) -->
@@ -605,7 +629,7 @@ Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual p
 <!-- image = go.Heatmap(z=var[:,:,49])   # use layer 50 (in the middle) -->
 <!-- layout = go.Layout(width=800, height=800, margin=dict(l=65,r=10,b=65,t=90)) -->
 <!-- fig = go.Figure(data=[image], layout=layout) -->
-<!-- py.plot(fig,auto_open=False) -->
+<!-- py.iplot(fig,auto_open=False) -->
 <!-- ~~~ -->
 
 <!-- > ## Exercise 7 -->
@@ -618,6 +642,7 @@ Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual p
 <!-- ~~~ {.python} -->
 <!-- import numpy as np -->
 <!-- import plotly.offline as py -->
+<!-- py.init_notebook_mode(connected=True) -->
 <!-- import plotly.graph_objs as go -->
 <!-- from netCDF4 import Dataset -->
 <!-- dataset = Dataset('sineEnvelope.nc') -->
@@ -656,7 +681,7 @@ Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual p
 <!--                                zaxis=go.ZAxis(axis),  -->
 <!--                                aspectratio=dict(x=1, y=1, z=1))) -->
 <!-- fig = go.Figure(data=[slicez,slicey,slicex], layout=layout) -->
-<!-- py.plot(fig,auto_open=False) -->
+<!-- py.iplot(fig,auto_open=False) -->
 <!-- ~~~ -->
 
 <!-- ## Animation -->
@@ -665,6 +690,7 @@ Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual p
 
 <!-- ~~~ {.python} -->
 <!-- import plotly.offline as py -->
+<!-- py.init_notebook_mode(connected=True) -->
 <!-- import plotly.graph_objs as go -->
 <!-- import numpy as np -->
 <!-- t = np.linspace(0,10,100) -->
@@ -687,11 +713,11 @@ Try switching `plot_edges=False` to `plot_edges=True` -- you'll see individual p
 <!--           for k in range(nframes)] -->
 <!-- # line1 will be shown before the first frame, line2 will be shown in each frame -->
 <!-- fig = go.Figure(data=[line1,line2], layout=layout, frames=frames) -->
-<!-- py.plot(fig,auto_open=False) -->
+<!-- py.iplot(fig,auto_open=False) -->
 <!-- ~~~ -->
 
 <!-- I could not find how to control the animation speed. Obviously, it should be via a keyword to either -->
-<!-- `go.Figure()` or `py.plot`. -->
+<!-- `go.Figure()` or `py.iplot`. -->
 
 
 
