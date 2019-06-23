@@ -136,8 +136,8 @@ By default this will auto-open the file, but you can also use `auto_open=False` 
 $ jupyter notebook
 ~~~
 
-**(Option 2)** Log in to \url{https://sfu.syzygy.ca} with your university ID. This website is maintained/hosted
-by PIMS, Compute Canada, and Cybera.
+**(Option 2)** Log in to https://syzygy.ca with your university ID. This website is maintained/hosted by
+PIMS, Compute Canada, and Cybera.
 
 1. start a new Python 3 notebook
 1. in the first line use `import plotly.offline as py`
