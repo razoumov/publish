@@ -581,7 +581,7 @@ layout = go.Layout(
     scene=dict(xaxis=go.layout.scene.XAxis(axis),
                yaxis=go.layout.scene.YAxis(axis),
                zaxis=go.layout.scene.ZAxis(axis)),
-    margin=go.Margin(t=100))
+    margin=go.layout.Margin(t=100))
 fig = go.Figure(data=[edges,nodes], layout=layout)
 py.iplot(fig)
 ~~~
