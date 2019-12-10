@@ -1,13 +1,11 @@
 # WestGrid Research Computing Winter School at UVic
 
-## Lecture notes and materials
-
 ### Tuesday morning: Introduction to bash command line
 
-- Bash command line http://bit.ly/bashmd
+- class notes http://bit.ly/bashmd
 - for quizzes log in to https://socrative.com as student and enter room MARDBQSUU
 
-<!-- Tuesday afternoon -->
+<!-- Tuesday afternoon: Introduction to HPC -->
 <!--   - Introduction to HPC http://bit.ly/introhpc -->
 
 <!-- Wednesday -->
