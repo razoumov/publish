@@ -18,8 +18,9 @@ account is for 2 hours, for each email validation request.
 - class notes http://bit.ly/bashmd
 - for quizzes log in to https://socrative.com as student and enter room MARDBQSUU
 
-<!-- Tuesday afternoon: Introduction to HPC -->
-<!--   - Introduction to HPC http://bit.ly/introhpc -->
+### Tuesday afternoon: Introduction to HPC
+
+- Introduction to HPC http://bit.ly/introhpc (slides and codes)
 
 <!-- Wednesday -->
 <!--   - ParaView slides, codes and sample datasets http://bit.ly/paraviewzip -->
