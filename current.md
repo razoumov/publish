@@ -1,5 +1,7 @@
 # WestGrid Research Computing Winter School at UVic
 
+this page http://bit.ly/wguvic2019
+
 ### Tuesday morning: Introduction to bash command line
 
 - class notes http://bit.ly/bashmd
