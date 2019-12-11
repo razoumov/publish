@@ -22,9 +22,10 @@ account is for 2 hours, for each email validation request.
 
 - Introduction to HPC http://bit.ly/introhpc (slides and codes)
 
-<!-- Wednesday -->
-<!--   - ParaView slides, codes and sample datasets http://bit.ly/paraviewzip -->
-<!--   - plotly notes http://bit.ly/plotlymd -->
+### Wednesday: Introduction to scientific visualization
+
+- ParaView slides, codes and sample datasets http://bit.ly/paraviewzip
+- Plotly notes http://bit.ly/plotlymd
 
 <!-- Thursday -->
 <!--   - Belaid's Virtualize and Dockerize -->
