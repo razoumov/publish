@@ -28,8 +28,8 @@ account is for 2 hours, for each email validation request.
 - Plotly notes http://bit.ly/plotlymd
 
 ### Thursday: Virtualize and Dockerize
-- slides https://github.com/razoumov/publish/raw/master/Dockrizeit.pdf
-- slides https://github.com/razoumov/publish/raw/master/Virtualizeit.pdf
+- [https://github.com/razoumov/publish/raw/master/Dockrizeit.pdf Dockerize slides]
+- [https://github.com/razoumov/publish/raw/master/Virtualizeit.pdf Virtualize slides]
 
 <!-- Friday -->
 <!--   - Chape base language https://github.com/razoumov/publish/blob/master/01-base.md -->
