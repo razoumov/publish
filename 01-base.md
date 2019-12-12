@@ -65,7 +65,7 @@ container (e.g., on your laptop, or inside an Ubuntu VM on Arbutus):
 ~~~ {.bash}
 docker pull chapel/chapel-gasnet   # will simulate a cluster with 4 cores/node
 mkdir -p ~/tmp
-docker run -v /home/ubuntu/tmp:/mnt -it -h chapel chapel/chapel-gasnet  # map container's /mnt to host's ~/tmp
+docker run -v /home/ubuntu/tmp:/mnt -it -h chapel chapel/chapel-gasnet  # map host's ~/tmp to container's /mnt
 cd /mnt
 apt-get update
 apt-get install nano    # install nano inside the Docker container
