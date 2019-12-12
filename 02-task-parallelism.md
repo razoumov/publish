@@ -105,7 +105,7 @@ If you are working instead on the training VM, please load single-locale Chapel 
 directory:
 
 ~~~ {.bash}
-$ . ~centos/startSingleLocale.sh
+$ . /project/shared/syncHPC/startSingleLocale.sh
 ~~~
 
 In this lesson, we'll be running on several cores on one node with a script `shared.sh`:

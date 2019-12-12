@@ -3,7 +3,9 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Chapel: basic language features](#chapel-basic-language-features)
-    - [Running Chapel codes](#running-chapel-codes)
+    - [Running Chapel codes on Cedar / Graham / Beluga](#running-chapel-codes-on-cedar--graham--beluga)
+    - [Running Chapel codes inside a Docker container](#running-chapel-codes-inside-a-docker-container)
+    - [Running Chapel codes on the training cluster `cassiopeia.c3.ca`](#running-chapel-codes-on-the-training-cluster-cassiopeiac3ca)
     - [Case study: solving the **_Heat transfer_** problem](#case-study-solving-the-_heat-transfer_-problem)
   - [Variables](#variables)
   - [Ranges and Arrays](#ranges-and-arrays)
@@ -43,7 +45,7 @@
 - compiled language
 - source code stored in text files with the extension **_.chpl_**
 
-### Running Chapel codes
+### Running Chapel codes on Cedar / Graham / Beluga
 
 On Compute Canada clusters Cedar and Graham we have two versions of Chapel, one is a single-locale
 (single-node) Chapel, and the other is a multi-locale (multi-node) Chapel. For now, we will start with
@@ -55,11 +57,30 @@ $ module spider chapel     # list all Chapel modules
 $ module load gcc chapel-single/1.15.0
 ~~~
 
+### Running Chapel codes inside a Docker container
+
+If you are familiar with Docker and have it installed, you can run multi-locale Chapel inside a Docker
+container (e.g., on your laptop, or inside an Ubuntu VM on Arbutus):
+
+~~~ {.bash}
+docker pull chapel/chapel-gasnet   # will simulate a cluster with 4 cores/node
+mkdir -p ~/tmp
+docker run -v /home/ubuntu/tmp:/mnt -it -h chapel chapel/chapel-gasnet  # map container's /mnt to host's ~/tmp
+cd /mnt
+apt-get update
+apt-get install nano    # install nano inside the Docker container
+nano test.chpl   # file is /mnt/test.chpl inside the container and ~ubuntu/tmp/test.chpl on the host VM
+chpl test.chpl -o test
+./test -nl 8
+~~~
+
+### Running Chapel codes on the training cluster `cassiopeia.c3.ca`
+
 If you are working on the training cluster VM (Andromeda), please instead load Chapel from the admin's
 directory:
 
 ~~~ {.bash}
-$ . ~centos/startSingleLocale.sh
+$ . /project/shared/syncHPC/startSingleLocale.sh
 ~~~
 
 Let's write a simple Chapel code, compile and run it:
