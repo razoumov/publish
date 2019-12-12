@@ -27,8 +27,8 @@ account is for 2 hours, for each email validation request.
 - ParaView slides, codes and sample datasets http://bit.ly/paraviewzip
 - Plotly notes http://bit.ly/plotlymd
 
-<!-- Thursday -->
-<!--   - Belaid's Virtualize and Dockerize -->
+### Thursday: Virtualize and Dockerize
+- slides 
 
 <!-- Friday -->
 <!--   - Chape base language https://github.com/razoumov/publish/blob/master/01-base.md -->
