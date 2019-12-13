@@ -63,7 +63,7 @@ If you are familiar with Docker and have it installed, you can run multi-locale 
 container (e.g., on your laptop, or inside an Ubuntu VM on Arbutus):
 
 ~~~ {.bash}
-docker pull chapel/chapel-gasnet   # will simulate a cluster with 4 cores/node
+docker pull chapel/chapel-gasnet   # will emulate a cluster with 4 cores/node
 mkdir -p ~/tmp
 docker run -v /home/ubuntu/tmp:/mnt -it -h chapel chapel/chapel-gasnet  # map host's ~/tmp to container's /mnt
 cd /mnt
