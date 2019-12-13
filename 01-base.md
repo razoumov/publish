@@ -146,12 +146,12 @@ plate as a grid of points, and to evaluate the temperature on each point at each
 the following **_finite difference equation_**:
 
 ```
-Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
+Tnew[i, j] = 0.25 * (T[i-1, j] + T[i+1, j] + T[i, j-1] + T[i, j+1]);
 ```
 
 - Tnew = new temperature computed at the current iteration
 - T = temperature calculated at the past iteration (or the initial conditions at the first iteration)
-- the indices (i,j) indicate the grid point located at the i-th row and the j-th column
+- the indices (i, j) indicate the grid point located at the i-th row and the j-th column
 
 So, our objective is to:
 
@@ -208,7 +208,7 @@ Of course, we can use both, the initial value and the type, when declaring a var
 ~~~
 const tolerance = 0.0001: real;   // temperature difference tolerance
 var count = 0: int;                // the iteration counter
-const nout = 20: int;             // the temperature at (iout,jout) will be printed every nout interations
+const nout = 20: int;             // the temperature at (iout, jout) will be printed every nout interations
 ~~~
 
 Lets print out our configuration after we set all parameters:
@@ -219,25 +219,25 @@ writeln('Working with a matrix ', rows, 'x', cols, ' to ', niter, ' iterations o
 
 ## Ranges and Arrays
 
-A series of integers (1,2,3,4,5, for example), is called a **_range_** in Chapel. Ranges are generated
+A series of integers (1, 2, 3, 4, 5 for example), is called a **_range_** in Chapel. Ranges are generated
 with the `..` operator, and are useful, among other things, to declare **_arrays_** of variables. For
 example, the following variables
 
 ~~~
-var T: [0..rows+1,0..cols+1] real;      // current temperatures
-var Tnew: [0..rows+1,0..cols+1] real;   // newly computed temperatures
+var T: [0..rows+1, 0..cols+1] real;      // current temperatures
+var Tnew: [0..rows+1, 0..cols+1] real;   // newly computed temperatures
 ~~~
 
 are 2D arrays (matrices) with (`rows + 2`) rows and (`cols + 2`) columns of real numbers, all initialized
 as 0.0. The ranges `0..rows+1` and `0..cols+1` used here, not only define the size and shape of the
 array, they stand for the indices with which we could access particular elements of the array using the
-`[ , ]` notation. For example, `T[0,0]` is the real variable located at the first row and first column of
-the array `T`, while `T[3,7]` is the one at the 4th row and 8th column; `T[2,3..15]` access columns 4th
-to 16th of the 3th row of `T`, and `T[0..3,4]` corresponds to the first 4 rows on the 5th column of
+`[ , ]` notation. For example, `T[0, 0]` is the real variable located at the first row and first column of
+the array `T`, while `T[3, 7]` is the one at the 4th row and 8th column; `T[2,3..15]` access columns 4th
+to 16th of the 3th row of `T`, and `T[0..3, 4]` corresponds to the first 4 rows on the 5th column of
 `T`. Similarly, with
 
 ~~~
-T[1..rows,1..cols] = 25;     // set the initial temperature
+T[1..rows, 1..cols] = 25;     // set the initial temperature
 ~~~
 
 we assign an initial temperature of 25 degrees across all points of our metal plate.
@@ -247,7 +247,7 @@ We must now be ready to start coding our simulations ... here is what we are goi
 - this simulation will consider a matrix of _rows_ by _cols_ elements
 - it will run up to _niter_ iterations, or until the largest difference in temperature between iterations
   is less than _tolerance_
-- at each iteration print out the temperature at the position (iout,jout)
+- at each iteration print out the temperature at the position (iout, jout)
 
 ## Conditional statements
 
@@ -275,7 +275,7 @@ while (count < niter && delta >= tolerance) do {
   Tnew = T;    // will be replaced: calculate Tnew from T
   // update delta, the greatest difference between Tnew and T
   T = Tnew;    // update T once all elements of Tnew are calculated
-  // print the temperature at [iout,jout] if the iteration is multiple of nout
+  // print the temperature at [iout, jout] if the iteration is multiple of nout
 }
 ~~~
 
@@ -300,13 +300,13 @@ else
 In our case we print the temperature at the desired position if the iteration is multiple of niter:
 
 ~~~
-if count%nout == 0 then writeln('Temperature at iteration ', count, ': ', T[iout,jout]);
+if count%nout == 0 then writeln('Temperature at iteration ', count, ': ', T[iout, jout]);
 ~~~
 
 To print 0th iteration, we can insert just before the time loop
 
 ~~~
-writeln('Temperature at iteration ', count, ': ', T[iout,jout]);
+writeln('Temperature at iteration ', count, ': ', T[iout, jout]);
 ~~~
 
 Note that when only one instruction will be executed, there is no need to use the curly brackets. `%`
@@ -367,7 +367,7 @@ We need to iterate both over all rows and all columns in order to access every s
 ~~~
 for i in 1..rows do {   // process row i
   for j in 1..cols do {   // process column j, row i
-    Tnew[i,j] = (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1])/4;
+    Tnew[i, j] = (T[i-1, j] + T[i+1, j] + T[i, j-1] + T[i, j+1])/4;
   }
 }
 ~~~
@@ -391,7 +391,7 @@ Temperature at iteration 480: 24.8883
 Temperature at iteration 500: 24.8595
 ~~~
 
-As we can see, the temperature in the middle of the plate (position 50,50) is slowly decreasing as the
+As we can see, the temperature in the middle of the plate (position 50, 50) is slowly decreasing as the
 plate is cooling down.
 
 > ## Exercise 1
@@ -430,9 +430,9 @@ plate is cooling down.
 >> ~~~
 >> // boundary conditions
 >> for i in 1..rows do
->>   T[i,cols+1] = i*80.0/rows;   // right side
+>>   T[i, cols+1] = i*80.0/rows;   // right side
 >> for j in 1..cols do
->>   T[rows+1,j] = j*80.0/cols;   // bottom side
+>>   T[rows+1,  j] = j*80.0/cols;   // bottom side
 >> ~~~
 >> Note that 80 degrees is written as a real
 >> number 80.0. The division of integers in Chapel returns an integer, then, as `rows` and `cols` are
@@ -465,7 +465,7 @@ plate is cooling down.
 >> delta = 0;
 >> for i in 1..rows do {
 >>   for j in 1..cols do {
->>     tmp = abs(Tnew[i,j] - T[i,j]);
+>>     tmp = abs(Tnew[i, j] - T[i, j]);
 >>     if tmp > delta then delta = tmp;
 >>   }
 >> }
@@ -491,7 +491,7 @@ Now, after Exercise 3 we should have a working program to simulate our heat tran
 just print some additional useful information:
 
 ~~~
-writeln('Final temperature at the desired position [', iout, ',', jout, '] after ', count, ' iterations is: ', T[iout,jout]);
+writeln('Final temperature at the desired position [', iout, ',', jout, '] after ', count, ' iterations is: ', T[iout, jout]);
 writeln('The largest temperature difference between the last two iterations was: ', delta);
 ~~~
 
@@ -507,7 +507,7 @@ Temperature at iteration 0: 25.0
 Temperature at iteration 20: 2.0859
 ...
 Temperature at iteration 500: 0.823152
-Final temperature at the desired position [1,100] after 500 iterations is: 0.823152
+Final temperature at the desired position [1, 100] after 500 iterations is: 0.823152
 The largest temperature difference between the last two iterations was: 0.0258874
 ~~~
 
@@ -517,7 +517,7 @@ From the last run of our code, we can see that 500 iterations is not enough to g
 state where the difference in temperature does not vary too much, i.e. `delta`<`tolerance`). Now, if we
 want to change the number of iterations we would need to modify `niter` in the code, and compile it
 again. What if we want to change the number of rows and columns in our grid to have more precision, or if
-we want to see the evolution of the temperature at a different point (iout,jout)? The answer would be the
+we want to see the evolution of the temperature at a different point (iout, jout)? The answer would be the
 same, modify the code and compile it again!
 
 No need to say that this would be very tedious and inefficient. A better scenario would be if we can pass
@@ -548,7 +548,7 @@ The greatest difference in temperatures between the last two iterations was: 0.0
 > code.
 >
 >> ## Solution
->> For example, lets use a 650 x 650 grid and observe the evolution of the temperature at the position (200,300) for 10000 iterations or until the difference of temperature between iterations is less than 0.002; also, let's print the temperature every 1000 iterations.
+>> For example, lets use a 650 x 650 grid and observe the evolution of the temperature at the position (200, 300) for 10000 iterations or until the difference of temperature between iterations is less than 0.002; also, let's print the temperature every 1000 iterations.
 >> ~~~ {.bash}
 >> $ chpl --fast baseSolver.chpl -o baseSolver
 >> $ ./baseSolver --rows=650 --cols=650 --iout=200 --jout=300 --niter=10000 --tolerance=0.002 --nout=1000
