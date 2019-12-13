@@ -32,10 +32,10 @@ account is for 2 hours, for each email validation request.
 - Virtualize slides https://github.com/razoumov/publish/raw/master/Virtualizeit.pdf
 - Dockerize slides https://github.com/razoumov/publish/raw/master/Dockrizeit.pdf
 
-<!-- ### Friday: Foundations of parallel programming: introduction to the Chapel programming language -->
+### Friday: Foundations of parallel programming: introduction to the Chapel programming language
 
-<!-- - slides http://bit.ly/chapeltop -->
-<!-- - lecture notes: -->
-<!--   - Chape base language https://github.com/razoumov/publish/blob/master/01-base.md -->
-<!--   - task parallelism https://github.com/razoumov/publish/blob/master/02-task-parallelism.md -->
-<!--   - data parallelism https://github.com/razoumov/publish/blob/master/03-domain-parallelism.md -->
+- slides http://bit.ly/chapeltop
+- lecture notes:
+  - Chape base language https://github.com/razoumov/publish/blob/master/01-base.md
+  - task parallelism https://github.com/razoumov/publish/blob/master/02-task-parallelism.md
+  - data parallelism https://github.com/razoumov/publish/blob/master/03-domain-parallelism.md
