@@ -32,7 +32,7 @@ account is for 2 hours, for each email validation request.
 - Virtualize slides https://github.com/razoumov/publish/raw/master/Virtualizeit.pdf
 - Dockerize slides https://github.com/razoumov/publish/raw/master/Dockrizeit.pdf
 
-### Friday: Foundations of parallel programming: introduction to the Chapel programming language
+### Friday: Introduction to the Chapel programming language
 
 - slides http://bit.ly/chapeltop
 - lecture notes:
