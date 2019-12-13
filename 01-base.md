@@ -432,7 +432,7 @@ plate is cooling down.
 >> for i in 1..rows do
 >>   T[i, cols+1] = i*80.0/rows;   // right side
 >> for j in 1..cols do
->>   T[rows+1,  j] = j*80.0/cols;   // bottom side
+>>   T[rows+1, j] = j*80.0/cols;   // bottom side
 >> ~~~
 >> Note that 80 degrees is written as a real
 >> number 80.0. The division of integers in Chapel returns an integer, then, as `rows` and `cols` are
