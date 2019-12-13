@@ -76,7 +76,7 @@ chpl test.chpl -o test
 
 ### Running Chapel codes on the training cluster `cassiopeia.c3.ca`
 
-If you are working on the training cluster VM (Andromeda), please instead load Chapel from the admin's
+If you are working on the training cluster VM (Cassiopeia), please instead load Chapel from the admin's
 directory:
 
 ~~~ {.bash}

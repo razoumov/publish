@@ -90,7 +90,7 @@ Chapel jobs:
 ~~~
 
 ~~~ {.bash}
-$ . /project/shared/syncHPC/startSingleLocale.sh     # on the training VM cluster (Andromeda)
+$ . /project/shared/syncHPC/startSingleLocale.sh     # on the training VM cluster (Cassiopeia)
 $ chpl forall.chpl -o forall
 $ sbatch shared.sh
 $ cat solution.out
@@ -271,7 +271,7 @@ Let us test our multi-locale Chapel environment by launching the following code:
 writeln(Locales);
 ~~~
 ~~~ {.bash}
-$ . /project/shared/syncHPC/startMultiLocale.sh     # on the training VM cluster (Andromeda)
+$ . /project/shared/syncHPC/startMultiLocale.sh     # on the training VM cluster (Cassiopeia)
 $ chpl test.chpl -o test
 $ sbatch distributed.sh
 $ cat solution.out
@@ -346,22 +346,22 @@ $ cat solution.out
 ~~~
 ~~~
 locale #0...
-  ...is named: node1.andromeda.westgrid.ca
+  ...is named: node1.cassiopeia.westgrid.ca
   ...has 2 processor cores
   ...has 2.77974 GB of memory
   ...has 2 maximum parallelism
 locale #1...
-  ...is named: node2.andromeda.westgrid.ca
+  ...is named: node2.cassiopeia.westgrid.ca
   ...has 2 processor cores
   ...has 2.77974 GB of memory
   ...has 2 maximum parallelism
 locale #2...
-  ...is named: node4.andromeda.westgrid.ca
+  ...is named: node4.cassiopeia.westgrid.ca
   ...has 2 processor cores
   ...has 2.77974 GB of memory
   ...has 2 maximum parallelism
 locale #3...
-  ...is named: node3.andromeda.westgrid.ca
+  ...is named: node3.cassiopeia.westgrid.ca
   ...has 2 processor cores
   ...has 2.77974 GB of memory
   ...has 2 maximum parallelism
