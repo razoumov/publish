@@ -146,7 +146,7 @@ plate as a grid of points, and to evaluate the temperature on each point at each
 the following **_finite difference equation_**:
 
 ```
-Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1])
+Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
 ```
 
 - Tnew = new temperature computed at the current iteration
