@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Quick review of the last week's session](#quick-review-of-the-last-weeks-session)
+- [Quick review of the previous session](#quick-review-of-the-previous-session)
 - [Task Parallelism with Chapel](#task-parallelism-with-chapel)
   - [Parallel programming in Chapel](#parallel-programming-in-chapel)
   - [Running on Cedar](#running-on-cedar)
@@ -18,7 +18,7 @@
 * Official lessons at https://hpc-carpentry.github.io/hpc-chapel.
 * These notes at https://github.com/razoumov/publish/blob/master/02-task-parallelism.md
 
-# Quick review of the last week's session
+# Quick review of the previous session
 
 * we wrote the serial version of the 2D heat transfer solver in Chapel `baseSolver.chpl`: initial T=25,
   zero boundary conditions on the left/upper sides, and linearly increasing temperature on the boundary
