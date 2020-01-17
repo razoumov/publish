@@ -1,3 +1,5 @@
+This page http://bit.ly/teccvis
+
 ## Links
 
 - User-facing visualization wiki https://docs.computecanada.ca/wiki/Visualization
@@ -45,5 +47,9 @@
 ## Remote visualization on Compute Canada systems
 
 - large-scale rendering workshops: included into ParaView slides, datasets, much prefer CPU rendering
-- prefer client-server or batch visualization
-  - no fans of X11 forwarding and VNC (if client-server available)
+- prefer client-server (interactive) or batch visualization
+- no fans of X11 forwarding (too slow) or remote desktop (only if necessary)
+- VNC https://docs.computecanada.ca/wiki/VNC (if client-server is not available)
+  - `/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/vncserver` only on compute node (security!)
+  - Graham's VDI Nodes
+- X2Go server on selected systems (handles user authentication)
