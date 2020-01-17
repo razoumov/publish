@@ -36,10 +36,14 @@
 
 ## Future training
 
-* Future training: Cinema databases, VTK-m, TTK (The Topology ToolKit), VTK.js and other web-based
-  visualization (May-13 webinar)
+* VTK.js and other web-based visualization (May-13 webinar)
+* Cinema databases
+* VTK-m
+* TTK (The Topology ToolKit)
+* VMD scripting
 
 ## Remote visualization on Compute Canada systems
 
-- large-scale rendering workshops: included in ParaView slides, datasets, much prefer CPU rendering
-- prefer client-server or batch visualization, no fans of X11 forwarding and VNC (if client-server available)
+- large-scale rendering workshops: included into ParaView slides, datasets, much prefer CPU rendering
+- prefer client-server or batch visualization
+  - no fans of X11 forwarding and VNC (if client-server available)
