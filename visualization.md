@@ -10,7 +10,8 @@ This page http://bit.ly/teccvis
   - meetings minutes posted on the wiki
   - team's mailing list viz@computecanada.ca
   - user-facing front page http://bit.ly/cctopviz
-- CC Slack visualization channel https://computecanada.slack.com/archives/C0KEL4V5Z
+  - CC Slack visualization channel https://computecanada.slack.com/archives/C0KEL4V5Z
+- OTRS visualization queue
 - Canada-wide fall *Visualize This!* competition https://computecanada.github.io/visualizeThis (last four years)
 - *Seeing Big* showcase 2015-2017 (@HPCS, no longer running)
 
@@ -19,7 +20,7 @@ This page http://bit.ly/teccvis
 * [ParaView full-day slides](https://westgrid.github.io/trainingMaterials/materials/paraviewWorkshop.pdf) (128
   pages, last updated December 2019)
   - introduction to sci-vis • ParaView architecture and GUI • importing data • filters • exporting
-    scenes (need to add Cinema) • Animation • Scripting • Remote visualization on CC clusters • more
+    scenes (need to add Cinema) • animation • scripting • remote visualization on CC clusters • more
     advanced topics in webinars
 
 * [VisIt full-day slides](https://westgrid.github.io/trainingMaterials/materials/visitWorkshop.pdf) (129 pages,
@@ -34,7 +35,8 @@ This page http://bit.ly/teccvis
 
 * 3D tools: VMD, VTK
 * Volumetric plotting and analysis: yt
-* Plotting: Plotly, Bokeh, Matplotlib, Gephi, Gnuplot, Xmgrace
+* Plotting: Plotly, Bokeh, Matplotlib, Gnuplot, Xmgrace
+* Graphs: Gephi
 
 ## Future training
 
