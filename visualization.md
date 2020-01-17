@@ -1,3 +1,17 @@
+## Links
+
+- User-facing visualization wiki https://docs.computecanada.ca/wiki/Visualization
+- WestGrid's visualization training materials https://westgrid.github.io/trainingMaterials/tools/visualization
+  - archive of 14 visualization webinars (since 2016)
+- National visualization team https://wiki.computecanada.ca/staff/Visualization
+  - meetings every third Monday of the month at 9am Pacific in TECC-Viz Vidyo room
+  - meetings minutes posted on the wiki
+  - team's mailing list viz@computecanada.ca
+  - user-facing front page http://bit.ly/cctopviz
+- CC Slack visualization channel https://computecanada.slack.com/archives/C0KEL4V5Z
+- Canada-wide fall *Visualize This!* competition https://computecanada.github.io/visualizeThis (last four years)
+- *Seeing Big* showcase 2015-2017 (@HPCS, no longer running)
+
 ## Scalable, general-purpose 3D tools
 
 * [ParaView full-day slides](https://westgrid.github.io/trainingMaterials/materials/paraviewWorkshop.pdf) (128
