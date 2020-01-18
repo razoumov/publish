@@ -15,36 +15,41 @@ This page http://bit.ly/teccvis
 - Canada-wide fall *Visualize This!* competition https://computecanada.github.io/visualizeThis (last four years)
 - *Seeing Big* showcase 2015-2017 (@HPCS, no longer running)
 
-## Scalable, general-purpose 3D tools
+## Scalable, general-purpose 3D tools (training/documentation available)
 
-* [ParaView full-day slides](https://westgrid.github.io/trainingMaterials/materials/paraviewWorkshop.pdf) (128
-  pages, last updated December 2019)
+* [ParaView full-day slides](https://westgrid.github.io/trainingMaterials/materials/paraviewWorkshop.pdf)
+  (128 pages, since 2010, last updated December 2019)
   - introduction to sci-vis • ParaView architecture and GUI • importing data • filters • exporting
     scenes (need to add Cinema) • animation • scripting • remote visualization on CC clusters • more
     advanced topics in webinars
 
-* [VisIt full-day slides](https://westgrid.github.io/trainingMaterials/materials/visitWorkshop.pdf) (129 pages,
-    last updated May 2017)
+* [VisIt full-day slides](https://westgrid.github.io/trainingMaterials/materials/visitWorkshop.pdf) (129
+  pages, since 2016, last updated May 2017)
   - introduction to sci-vis • VisIt architecture and GUI • importing data • operators • quantitative
     analysis • more controls: professional quality plots and animation • scripting • remote visualization
     on CC clusters • more advanced topics in webinars
 
-* DHSI "3D visualization for the humanities" workshop
+* DHSI "3D visualization for the humanities" workshop (since 2016)
 
-## Other tools
+## Other tools (training/documentation available)
 
 * 3D tools: VMD, VTK
 * Volumetric plotting and analysis: yt
-* Plotting: Plotly, Bokeh, Matplotlib, Gnuplot, Xmgrace
+* Plotting: [Plotly](https://github.com/razoumov/publish/blob/master/plotly.md), Bokeh, Matplotlib, Gnuplot, Xmgrace
 * Graphs: Gephi
 
 ## Future training
 
-* VTK.js and other web-based visualization (May-13 webinar)
-* Cinema databases
-* VTK-m
-* TTK (The Topology ToolKit)
+* VTK.js and other 3D web-based visualization (May-13 webinar)
+* Cinema databases / Cinema Science https://github.com/cinemascience
+* More of Python-based VTK
+* VTK-m (C++ only)
+* TTK (The Topology ToolKit, included into latest ParaView)
 * VMD scripting
+* In-situ visualization (Catalyst, LibSim)
+* Open-source photogrammetry
+* Open-source GIS
+* Other advanced topics in ParaView and VisIt (e.g., Programmable Filter)
 
 ## Remote visualization on Compute Canada systems
 
