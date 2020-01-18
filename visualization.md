@@ -60,3 +60,5 @@ This page http://bit.ly/teccvis
   - `/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/vncserver` only on compute node (security!)
   - Graham's VDI Nodes
 - X2Go server on selected systems (handles user authentication)
+
+## Package installation
