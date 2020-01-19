@@ -7,7 +7,7 @@ This page http://bit.ly/teccvis
   - archive of 14 visualization webinars (since 2016)
 - National visualization team https://wiki.computecanada.ca/staff/Visualization
   - meetings every third Monday of the month at 9am Pacific in TECC-Viz Vidyo room
-  - meetings minutes posted on the wiki
+  - meetings minutes posted on the wiki https://wiki.computecanada.ca/staff/Visualization/Meeting_minutes
   - team's mailing list viz@computecanada.ca
   - user-facing front page http://bit.ly/cctopviz
   - CC Slack visualization channel https://computecanada.slack.com/archives/C0KEL4V5Z
@@ -62,7 +62,7 @@ This page http://bit.ly/teccvis
     modify the paths, or
   - remotely via client-server (big workflows) and then upload the script
 - do not use X11 forwarding (too slow)
-- no big fans of remote desktop either: use them only if necessary
+- no big fans of remote desktops either: use them only if necessary
   - VNC https://docs.computecanada.ca/wiki/VNC (if client-server is not available)
     - use `/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/vncserver` only on compute nodes
       (security!) together with SSH port forwarding
