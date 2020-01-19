@@ -62,13 +62,14 @@ This page http://bit.ly/teccvis
     modify the paths, or
   - remotely via client-server (big workflows) and then upload the script
 - do not use X11 forwarding (too slow)
-- no big fans of remote desktop: use them only if necessary
+- no big fans of remote desktop either: use them only if necessary
   - VNC https://docs.computecanada.ca/wiki/VNC (if client-server is not available)
-    - `/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/vncserver` only on compute node (security!)
+    - use `/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/vncserver` only on compute nodes
+      (security!) together with SSH port forwarding
     - Graham's VDI Nodes
   - X2Go server on selected systems (handles user authentication)
 
-## Package
+## Packages
 
 Three types of ParaView modules installed on CC clusters:
 
