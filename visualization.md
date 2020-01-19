@@ -53,12 +53,35 @@ This page http://bit.ly/teccvis
 
 ## Remote visualization on Compute Canada systems
 
-- large-scale rendering workshops: included into ParaView slides, datasets, much prefer CPU rendering
-- prefer client-server (interactive) or batch visualization
-- no fans of X11 forwarding (too slow) or remote desktop (only if necessary)
-- VNC https://docs.computecanada.ca/wiki/VNC (if client-server is not available)
-  - `/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/vncserver` only on compute node (security!)
-  - Graham's VDI Nodes
-- X2Go server on selected systems (handles user authentication)
+- large-scale rendering workshops: included into ParaView slides, datasets
+- much prefer CPU rendering (many reasons!)
+- prefer client-server (interactive data exploration or when need a GUI) or batch visualization
+  (production work)
+- can use the Trace Tool to create a ParaView Python script and then debug it:
+  - either locally on your laptop (small workflows) and then upload the script to a cluster, making sure to
+    modify the paths, or
+  - remotely via client-server (big workflows) and then upload the script
+- do not use X11 forwarding (too slow)
+- no big fans of remote desktop: use them only if necessary
+  - VNC https://docs.computecanada.ca/wiki/VNC (if client-server is not available)
+    - `/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/vncserver` only on compute node (security!)
+    - Graham's VDI Nodes
+  - X2Go server on selected systems (handles user authentication)
 
-## Package installation
+## Package
+
+Three types of ParaView modules installed on CC clusters:
+
+```
+paraview-offscreen-gpu/5.4.1 (vis,D)    paraview-offscreen/5.5.2 (vis,D)    paraview/5.5.2 (vis,D)
+```
+
+Sometimes you will find that these do not include various 3rd-party tools, so you will need to
+recompile. Recent example: needed a ParaView server with OSPRay rendering (bunch of dependencies) and
+OSPRay materials built-in. In these cases compilation instructions can vary quite a bit -- please contact Alex.
+
+The module `visit/2.13.3` includes both
+`./2.13.3/2.13.3/linux-x86_64/bin/engine_{ser,par}`, but you will
+occasionally find limitations. The newer VisIt 3.x is not installed, as
+it proved to be very unstable on the clusters. Debugging it is on the long
+to-do list.
