@@ -53,16 +53,16 @@ This page http://bit.ly/teccvis
 
 ## Remote visualization on Compute Canada systems
 
-- large-scale rendering workshops: included into ParaView slides, datasets
-- much prefer CPU rendering (many reasons!)
-- prefer client-server (interactive data exploration or when need a GUI) or batch visualization
+- Large-scale rendering workshops: included into ParaView slides, datasets
+- Much prefer CPU rendering (many reasons!)
+- Recommendclient-server (interactive data exploration or when need a GUI) or batch visualization
   (production work)
-- can use the Trace Tool to create a ParaView Python script and then debug it:
+- Can use the Trace Tool to create a ParaView Python script and then debug it:
   - either locally on your laptop (small workflows) and then upload the script to a cluster, making sure to
     modify the paths, or
   - remotely via client-server (big workflows) and then upload the script
-- do not use X11 forwarding (too slow)
-- no big fans of remote desktops either: use them only if necessary
+- Do not use X11 forwarding (too slow)
+- No big fans of remote desktops either: use them only if necessary
   - VNC https://docs.computecanada.ca/wiki/VNC (if client-server is not available)
     - use `/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/vncserver` only on compute nodes
       (security!) together with SSH port forwarding
