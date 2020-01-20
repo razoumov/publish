@@ -2,7 +2,7 @@ This page http://bit.ly/teccvis
 
 ## Links
 
-- User-facing visualization wiki https://docs.computecanada.ca/wiki/Visualization
+- User-facing visualization wiki https://docs.computecanada.ca/wiki/Visualization (has all the links below)
 - WestGrid's visualization training materials https://westgrid.github.io/trainingMaterials/tools/visualization
   - archive of 14 visualization webinars (since 2016)
 - National visualization team https://wiki.computecanada.ca/staff/Visualization
@@ -48,12 +48,12 @@ This page http://bit.ly/teccvis
 * VMD scripting
 * In-situ visualization (Catalyst, LibSim)
 * Open-source photogrammetry
-* Open-source GIS
+* Open-source GIS (and maybe some ArcGIS: commercial)
 * Other advanced topics in ParaView and VisIt (e.g., Programmable Filter)
 
 ## Remote visualization on Compute Canada systems
 
-- Large-scale rendering workshops: included into ParaView slides
+- Large-scale rendering workshop: included into ParaView slides
   - 2019 contest (NACA airfoil) dataset {Cedar,Graham,Béluga}:/project/6003910/VisThis2019 and
   Niagara:/scinet/course/VisThis2019
   - deep ocean asteroid impact Cedar:/project/6003910/razoumov/ieeevis2018 (we have permission to use it for
@@ -61,8 +61,9 @@ This page http://bit.ly/teccvis
   - cloud layer over Europe Cedar:/project/6003910/razoumov/ieeevis2017  (we have permission to use it
     for training)
 - Much prefer CPU rendering (many reasons!)
-- Recommend **client-server** (interactive data exploration or when need a GUI) or **batch** visualization
-  (production work)
+- Recommend **client-server** (interactive data exploration or when need a GUI) or **batch**
+  visualization (production work)
+  - should we do a demo now? for batch rendering can use scripts from the latest webinar Cedar:/scratch/razoumov/01-photorealisticWebinar
 - Can use the Trace Tool to create/debug ParaView Python scripts:
   1. small workflows: locally on your laptop, then upload the script to a cluster, making sure to modify the paths
   1. big workflows: remotely via client-server, then upload the script
