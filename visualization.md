@@ -65,7 +65,7 @@ This page http://bit.ly/teccvis
   - if absolutely have to use it, ask users to re-enable INdirect GLX inside their X11 servers (disabled
   by default) to switch from cluster's CPU to laptop's GPU rendering, e.g. on a Mac:
 ```
-defaults write org.macosforge.xquartz.X11 enable_iglx -bool true   # re-enable INdirect GLX inside XQuartz
+defaults write org.macosforge.xquartz.X11 enable_iglx -bool true
 >>> restart XQuartz
 ssh -Y cedar
 export LIBGL_ALWAYS_INDIRECT=1
