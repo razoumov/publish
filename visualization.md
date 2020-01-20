@@ -53,15 +53,20 @@ This page http://bit.ly/teccvis
 
 ## Remote visualization on Compute Canada systems
 
-- Large-scale rendering workshops: included into ParaView slides, datasets
+- Large-scale rendering workshops: included into ParaView slides
+  - 2019 contest (NACA airfoil) dataset {Cedar,Graham,Béluga}:/project/6003910/VisThis2019 and
+  Niagara:/scinet/course/VisThis2019
+  - deep ocean asteroid impact Cedar:/project/6003910/razoumov/ieeevis2018 (we have permission to use it for
+  training)
+  - cloud layer over Europe Cedar:/project/6003910/razoumov/ieeevis2017  (we have permission to use it
+    for training)
 - Much prefer CPU rendering (many reasons!)
 - Recommend **client-server** (interactive data exploration or when need a GUI) or **batch** visualization
   (production work)
-- Can use the Trace Tool to create a ParaView Python script and then debug it:
-  1. either locally on your laptop (small workflows) and then upload the script to a cluster, making sure to
-    modify the paths, or
-  1. remotely via client-server (big workflows) and then upload the script
-  - watch the webinar "Batch visualization on Compute Canada clusters" (2019-Sep-18)
+- Can use the Trace Tool to create/debug ParaView Python scripts:
+  1. small workflows: locally on your laptop, then upload the script to a cluster, making sure to modify the paths
+  1. big workflows: remotely via client-server, then upload the script
+  - watch the webinar "Batch visualization on Compute Canada clusters" (2019-Sep-18) with demos
 - Do not use X11 forwarding (too slow)
   - if absolutely have to use it, ask users to re-enable INdirect GLX inside their X11 servers (disabled
   by default) to switch from cluster's CPU to laptop's GPU rendering, e.g. on a Mac:
