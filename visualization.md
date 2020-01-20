@@ -58,9 +58,9 @@ This page http://bit.ly/teccvis
 - Recommend **client-server** (interactive data exploration or when need a GUI) or **batch** visualization
   (production work)
 - Can use the Trace Tool to create a ParaView Python script and then debug it:
-  # either locally on your laptop (small workflows) and then upload the script to a cluster, making sure to
+  1. either locally on your laptop (small workflows) and then upload the script to a cluster, making sure to
     modify the paths, or
-  # remotely via client-server (big workflows) and then upload the script
+  1. remotely via client-server (big workflows) and then upload the script
   - watch the webinar "Batch visualization on Compute Canada clusters" (2019-Sep-18)
 - Do not use X11 forwarding (too slow)
   - if absolutely have to use it, ask users to re-enable INdirect GLX inside their X11 servers (disabled
