@@ -55,13 +55,22 @@ This page http://bit.ly/teccvis
 
 - Large-scale rendering workshops: included into ParaView slides, datasets
 - Much prefer CPU rendering (many reasons!)
-- Recommendclient-server (interactive data exploration or when need a GUI) or batch visualization
+- Recommend **client-server** (interactive data exploration or when need a GUI) or **batch** visualization
   (production work)
 - Can use the Trace Tool to create a ParaView Python script and then debug it:
   - either locally on your laptop (small workflows) and then upload the script to a cluster, making sure to
     modify the paths, or
   - remotely via client-server (big workflows) and then upload the script
 - Do not use X11 forwarding (too slow)
+  - if absolutely have to use it, ask users to re-enable INdirect GLX inside their X11 servers (disabled
+  by default) to switch from cluster's CPU to laptop's GPU rendering, e.g. on a Mac:
+```
+defaults write org.macosforge.xquartz.X11 enable_iglx -bool true   # re-enable INdirect GLX inside XQuartz
+>>> restart XQuartz
+ssh -Y cedar
+export LIBGL_ALWAYS_INDIRECT=1
+glxspheres64   # now uses laptop's GPU ~55fps from ~2fps
+```
 - No big fans of remote desktops either: use them only if necessary
   - VNC https://docs.computecanada.ca/wiki/VNC (if client-server is not available)
     - use `/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/vncserver` only on compute nodes
@@ -81,8 +90,6 @@ Sometimes you will find that these do not include various 3rd-party tools, so yo
 recompile. Recent example: needed a ParaView server with OSPRay rendering (bunch of dependencies) and
 OSPRay materials built-in. In these cases compilation instructions can vary quite a bit -- please contact Alex.
 
-The module `visit/2.13.3` includes both
-`./2.13.3/2.13.3/linux-x86_64/bin/engine_{ser,par}`, but you will
-occasionally find limitations. The newer VisIt 3.x is not installed, as
-it proved to be very unstable on the clusters. Debugging it is on the long
-to-do list.
+The module `visit/2.13.3` includes both `./2.13.3/2.13.3/linux-x86_64/bin/engine_{ser,par}`, but you will
+occasionally find limitations. The newer VisIt 3.x is not installed, as it proved to be very unstable on
+the clusters. Debugging it is on the long to-do list.
