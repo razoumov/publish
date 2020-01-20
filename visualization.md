@@ -60,16 +60,17 @@ This page http://bit.ly/teccvis
 - Can use the Trace Tool to create a ParaView Python script and then debug it:
   - either locally on your laptop (small workflows) and then upload the script to a cluster, making sure to
     modify the paths, or
-  - remotely via client-server (big workflows) and then upload the script
+	- remotely via client-server (big workflows) and then upload the script
+	- watch the webinar "Batch visualization on Compute Canada clusters" (2019-Sep-18)
 - Do not use X11 forwarding (too slow)
   - if absolutely have to use it, ask users to re-enable INdirect GLX inside their X11 servers (disabled
   by default) to switch from cluster's CPU to laptop's GPU rendering, e.g. on a Mac:
 ```
 defaults write org.macosforge.xquartz.X11 enable_iglx -bool true
 >>> restart XQuartz
-ssh -Y cedar
+ssh -Y cedar.computecanada.ca
 export LIBGL_ALWAYS_INDIRECT=1
-glxspheres64   # now uses laptop's GPU ~55fps from ~2fps
+glxspheres64   # now uses laptop's GPU ~55fps (up from ~2fps)
 ```
 - No big fans of remote desktops either: use them only if necessary
   - VNC https://docs.computecanada.ca/wiki/VNC (if client-server is not available)
