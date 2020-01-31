@@ -14,16 +14,28 @@
 - [Wildcards, redirection to files, and pipes](#wildcards-redirection-to-files-and-pipes)
 - [Loops](#loops)
 - [Shell Scripts](#shell-scripts)
-  - [Advanced topic: if statements](#advanced-topic-if-statements)
-  - [Advanced topic: variables](#advanced-topic-variables)
-  - [Advanced topic: functions](#advanced-topic-functions)
-  - [Advanced topic: aliases](#advanced-topic-aliases)
+  - [Advanced: if statements](#advanced-if-statements)
+  - [Advanced: variables](#advanced-variables)
+  - [Advanced: functions](#advanced-functions)
+  - [Advanced: aliases](#advanced-aliases)
 - [Finding things](#finding-things)
-  - [Advanced topic: running a command on the results of *find*](#advanced-topic-running-a-command-on-the-results-of-find)
+  - [Advanced: running a command on the results of *find*](#advanced-running-a-command-on-the-results-of-find)
 - [Text manipulation (DH part: the invisible man)](#text-manipulation-dh-part-the-invisible-man)
+- [Column-based text processing with `awk` scripting language](#column-based-text-processing-with-awk-scripting-language)
+- [Fuzzy finder `fzf`](#fuzzy-finder-fzf)
 - [Other advanced bash topics](#other-advanced-bash-topics)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+**UBC Feb-07 tentative program**
+
+- tar, gzip/gunzip, tar + g(un)zip
+- pipes? • loops? • aliases?  • scripts and functions • find • grep • find + grep (command substitution)
+- `find -exec` • invisible man • awk • permissions • fzf • other?
+
+This file can be found at http://bit.ly/bashmd
+
+**Quiz setup**
 
 instructor                               | students
 ---------------------------------------- | ----------------------------------------
@@ -33,7 +45,6 @@ instructor                               | students
 (4) disable student names                |
 (5) start                                |
 
-These lesson notes (this file) can be found at http://bit.ly/bashmd
 
 <!-- - a mix of http://bit.ly/bashmd, http://bit.ly/gitcontrolmd, https://hpc-carpentry.github.io/hpc-shell, -->
 <!--   and maybe some https://hpc-carpentry.github.io/hpc-intro -->
@@ -479,7 +490,7 @@ $ ./middle propane.pdb
 > propane.pdb", for each file prints the number of lines and its first five lines, and separates the
 > output from different files by an empty line.
 
-## Advanced topic: if statements
+## Advanced: if statements
 
 Let's write and run the following script:
 
@@ -526,7 +537,7 @@ Some examples of conditions (**make sure to have spaces around each bracket!**):
 
 > **Exercise:** write a script that complains when it does not receive arguments.
 
-## Advanced topic: variables
+## Advanced: variables
 
 We already saw variables that were specific to scripts ($1, $@, ...). Variables can be used outside of
 scripts:
@@ -573,7 +584,7 @@ $ echo $PS1
 It is best to define custom environment variables inside your ~/.bashrc file. It is loaded every time you
 start a new shell.
 
-## Advanced topic: functions
+## Advanced: functions
 
 Like in any programming language, in bash a function is a block of code that you can access by its
 name. The syntax is:
@@ -626,7 +637,7 @@ combine() {
 
 > **Exercise:** write the reverse function unarchive() that replaces a gzipped tarball with a directory.
 
-## Advanced topic: aliases
+## Advanced: aliases
 
 Aliases are one-line shortcuts/abbreviation to avoid typing a longer command, e.g.
 
@@ -694,7 +705,7 @@ $ grep elegant $(find . -name '*.txt')   # will look for 'elegant' inside all *.
 > **Exercise:** write a function 'countFiles()' that counts the number of files in each directory that
 > you pass to it and prints it after the directory name.
 
-## Advanced topic: running a command on the results of *find*
+## Advanced: running a command on the results of *find*
 
 You always can do something like this:
 
@@ -725,21 +736,21 @@ $ ls   # shows wellsInvisibleMan.txt
 $ wc wellsInvisibleMan.txt   # number of lines, words, characters
 $ grep invisible wellsInvisibleMan.txt   # see the invisible man
 $ grep invisible wellsInvisibleMan.txt | wc -l   # returns 60; adding -w gives the same count
-$ grep -i invisible wellsInvisibleMan.txt | wc -l   # returns 176 (most are upper case)
+$ grep -i invisible wellsInvisibleMan.txt | wc -l   # returns 176 (includes: invisible Invisible INVISIBLE)
 ~~~
 
 Let's use the "stream editor" sed:
 ~~~ {.bash}
-$ cat wellsInvisibleMan.txt | sed 's/[iI]nvisible/supervisible/g' > visibleMan.txt   # make him visible
-$ sed 's/[iI]nvisible/supervisible/g' wellsInvisibleMan.txt > visibleMan.txt   # exactly the same command
-$ man sed
+$ sed 's/[iI]nvisible/supervisible/g' wellsInvisibleMan.txt > visibleMan.txt   # make him visible
+$ cat wellsInvisibleMan.txt | sed 's/[iI]nvisible/supervisible/g' > visibleMan.txt   # this also works (standard input)
 $ grep supervisible visibleMan.txt   # see what happened to the now visible man
-$ grep invisible visibleMan.txt
+$ grep -i invisible visibleMan.txt   # see what was not converted
+$ man sed
 ~~~
 
 Now let's remove punctuation from the original file using "tr" (translate) command:
 ~~~ {.bash}
-$ cat wellsInvisibleMan.txt | tr -d "[:punct:]" > invisibleNoPunct.txt
+$ cat wellsInvisibleMan.txt | tr -d "[:punct:]" > invisibleNoPunct.txt    # tr only takes standard input
 $ tail wellsInvisibleMan.txt
 $ tail invisibleNoPunct.txt
 ~~~
@@ -773,10 +784,57 @@ $ cat invisibleWords.txt | sort -gr > invisibleFrequencyList.txt   # use 'man so
 $ more invisibleFrequencyList.txt
 ~~~
 
-> **Exercise:** write a script 'countWords.sh' that takes a text file as an argument, and returns the
-> list of its 100 most common words, i.e. the script should be used as 'bash countWords.sh
-> wellsInvisibleMan.txt'. The script should not leave any intermediate files. Or even better, write a
-> function 'countWords()'.
+> **Exercise:** write a script 'countWords.sh' that takes a text file name as an argument, and returns
+> the list of its 100 most common words, i.e. the script should be used as `./countWords.sh
+> wellsInvisibleMan.txt`. The script should not leave any intermediate files. Or even better, write a
+> function 'countWords()' taking a text file name as an argument.
+
+# Column-based text processing with `awk` scripting language
+
+~~~ {.bash}
+cd .../data-shell/writing
+cat haiku.txt   # 11 lines
+~~~
+
+You can define inline awk scripts with braces surrounded by single quotation:
+
+~~~ {.bash}
+awk '{print $1}' haiku.txt    # $1 is the first field (word) in each line => processing columns
+                              # $0 is the whole line
+awk -Fa '{print $1}' haiku.txt   # can specify another separator with -F ("a" in this case)
+~~~
+
+You can use multiple commands inside your awk script:
+
+~~~ {.bash}
+echo Hello Tom > hello.txt
+echo Hello John >> hello.txt
+awk '{$2="Adam"; print $0}' hello.txt       # output contains Adam as second word in each line
+~~~
+
+Most common `awk` usage is to postprocess output of other commands:
+
+~~~ {.bash}
+/bin/ps aux    # display all running processes in multi-columns output
+/bin/ps aux | awk '{print $2 " " $11}'     # print only the process number and the command
+~~~
+
+> **Exercise:** write a awk script to process `cities.csv` to print only town/city names and their
+> population and store it in a separate file `populations.csv`. Try to do everything in a single-line
+> command.
+
+# Fuzzy finder `fzf`
+
+* third-party tool, not installed by default
+* basic usage: interactive processing of standard input
+* advanced usage: key bindings and fuzzy completion
+
+On cassiopeia.c3.ca you can install it into your $HOME with:
+
+~~~ {.bash}
+$ /project/shared/fzf/install   # only once for your account (copies config files)
+$ source ~/.fzf.bash            # in each new shell, or put this into your ~/.bashrc
+~~~
 
 # Other advanced bash topics
 
@@ -786,5 +844,4 @@ $ more invisibleFrequencyList.txt
 - permissions
 - how to control processes
 - GNU_Parallel
-- tar, gzip/pigz
 - homebrew if enough Macs
