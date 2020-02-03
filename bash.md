@@ -733,13 +733,14 @@ domain). First, let's apply our knowledge of grep to this text:
 ~~~ {.bash}
 $ cd ~/Desktop/data-shell
 $ ls   # shows wellsInvisibleMan.txt
-$ wc wellsInvisibleMan.txt   # number of lines, words, characters
-$ grep invisible wellsInvisibleMan.txt   # see the invisible man
-$ grep invisible wellsInvisibleMan.txt | wc -l   # returns 60; adding -w gives the same count
+$ wc wellsInvisibleMan.txt                          # number of lines, words, characters
+$ grep invisible wellsInvisibleMan.txt              # see the invisible man
+$ grep invisible wellsInvisibleMan.txt | wc -l      # returns 60; adding -w gives the same count
 $ grep -i invisible wellsInvisibleMan.txt | wc -l   # returns 176 (includes: invisible Invisible INVISIBLE)
 ~~~
 
-Let's use the "stream editor" sed:
+Let's sidetrack for a second and see how we can use the "stream editor" `sed`:
+
 ~~~ {.bash}
 $ sed 's/[iI]nvisible/supervisible/g' wellsInvisibleMan.txt > visibleMan.txt   # make him visible
 $ cat wellsInvisibleMan.txt | sed 's/[iI]nvisible/supervisible/g' > visibleMan.txt   # this also works (standard input)
@@ -749,6 +750,7 @@ $ man sed
 ~~~
 
 Now let's remove punctuation from the original file using "tr" (translate) command:
+
 ~~~ {.bash}
 $ cat wellsInvisibleMan.txt | tr -d "[:punct:]" > invisibleNoPunct.txt    # tr only takes standard input
 $ tail wellsInvisibleMan.txt
@@ -756,29 +758,34 @@ $ tail invisibleNoPunct.txt
 ~~~
 
 Next convert all upper case to lower case:
+
 ~~~ {.bash}
 $ cat invisibleNoPunct.txt | tr '[:upper:]' '[:lower:]' > invisibleClean.txt
 $ tail invisibleClean.txt
 ~~~
 
 Next replace spaces with new lines:
+
 ~~~ {.bash}
 $ cat invisibleClean.txt | sed 's/ /\'$'\n/g' > invisibleList.txt   # \'$'\n is a shortcut for a new line
 $ more invisibleList.txt
 ~~~
 
 Next remove empty lines:
+
 ~~~ {.bash}
 $ sed '/^$/d' invisibleList.txt  > invisibleCompact.txt
 ~~~
 
 Next sort the list alphabetically, count each word's occurrence, and remove duplicate words:
+
 ~~~ {.bash}
 $ cat invisibleCompact.txt | sort | uniq -c > invisibleWords.txt
 $ more invisibleWords.txt
 ~~~
 
 Next sort the list into most frequent words:
+
 ~~~ {.bash}
 $ cat invisibleWords.txt | sort -gr > invisibleFrequencyList.txt   # use 'man sort'
 $ more invisibleFrequencyList.txt
@@ -820,7 +827,7 @@ awk '{$2="Adam"; print $0}' hello.txt       # we replaced the second word in eac
 Most common `awk` usage is to postprocess output of other commands:
 
 ~~~ {.bash}
-/bin/ps aux    # display all running processes in multi-columns output
+/bin/ps aux    # display all running processes as multi-column output
 /bin/ps aux | awk '{print $2 " " $11}'     # print only the process number and the command
 ~~~
 
