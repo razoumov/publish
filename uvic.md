@@ -1,6 +1,6 @@
 # WestGrid Research Computing Winter School at UVic
 
-You can find this page at http://bit.ly/wguvic2019.
+You can find this page at https://github.com/razoumov/publish/blob/master/uvic.md.
 
 ### Training cluster guest accounts
 
