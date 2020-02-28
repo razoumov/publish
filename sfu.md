@@ -18,7 +18,7 @@ If you don't have Eduroam or other SFU wireless account, please let us know.
 
 <!-- ### Monday afternoon: Advanced Bash and Introductory HPC -->
 
-- Introduction to HPC http://bit.ly/introhpc (slides and codes)
+<!-- - Introduction to HPC http://bit.ly/introhpc (slides and codes) -->
 
 <!-- ### Tuesday morning: HPC Workflows -->
 
