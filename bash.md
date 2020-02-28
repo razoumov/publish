@@ -27,11 +27,10 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-**UBC Feb-07 tentative program**
-
-- tar, gzip/gunzip, tar + g(un)zip
-- pipes? • loops? • aliases?  • scripts and functions • find • grep • find + grep (command substitution)
-- `find -exec` • invisible man • awk • permissions • fzf • other?
+<!-- **UBC Feb-07 tentative program** -->
+<!-- - tar, gzip/gunzip, tar + g(un)zip -->
+<!-- - pipes? • loops? • aliases?  • scripts and functions • find • grep • find + grep (command substitution) -->
+<!-- - `find -exec` • invisible man • awk • permissions • fzf • other? -->
 
 This file can be found at http://bit.ly/bashmd
 
@@ -75,10 +74,10 @@ instructor                               | students
 
 # **Remote part**: logging in
 
-Let's log in to cassiopeia.c3.ca using a username userXX (where XX=01..60):
+Let's log in to cassiopeia.c3.ca using a username userXXX (where XXX=001..118):
 
 ~~~ {.bash}
-[local]$ ssh userXX@cassiopeia.c3.ca   # password supplied by the instructor
+[local]$ ssh userXXX@cassiopeia.c3.ca   # password supplied by the instructor
 ~~~
 
 * those on Windows please use MobaXterm
@@ -223,15 +222,15 @@ $ tar xvfz bfiles.tar.gz
 To copy a single file to/from the cluster, we can use `scp`:
 
 ~~~ {.bash}
-[local]$ scp /path/to/local/file.txt userXX@cassiopeia.c3.ca:/path/on/remote/computer
-[local]$ scp local-file.txt userXX@cassiopeia.c3.ca:   # will put into your remote home
-[local]$ scp userXX@cassiopeia.c3.ca:/path/on/remote/computer/file.txt /path/to/local/
+[local]$ scp /path/to/local/file.txt userXXX@cassiopeia.c3.ca:/path/on/remote/computer
+[local]$ scp local-file.txt userXXX@cassiopeia.c3.ca:   # will put into your remote home
+[local]$ scp userXXX@cassiopeia.c3.ca:/path/on/remote/computer/file.txt /path/to/local/
 ~~~
 
 To recursively copy a directory, we just add the `-r` (recursive) flag:
 
 ~~~ {.bash}
-[local]$ scp -r some-local-folder/ userXX@cassiopeia.c3.ca:target-directory/
+[local]$ scp -r some-local-folder/ userXXX@cassiopeia.c3.ca:target-directory/
 ~~~
 
 You can also use wildcards to transfer multiple files:
@@ -254,7 +253,7 @@ we're simply not sure which files we want to transfer yet. `sftp` is an interact
 and uploading files. Let's connect to a cluster with `sftp`:
 
 ~~~ {.bash}
-[local]$ sftp userXX@cassiopeia.c3.ca
+[local]$ sftp userXXX@cassiopeia.c3.ca
 ~~~
 
 This will start what appears to be a shell with the prompt `sftp>`. However, we only have access to a
@@ -870,8 +869,9 @@ awk 'NR>1 && NR < 5' haiku.txt    # print lines 2-4
 On cassiopeia.c3.ca you can install it into your $HOME with:
 
 ~~~ {.bash}
-$ /project/shared/fzf/install   # only once for your account (copies config files)
-$ source ~/.fzf.bash            # in each new shell, or put this into your ~/.bashrc
+$ source /project/shared/fzf/.fzf.bash     # each user in each shell or put it into your ~/.bashrc
+$ fzf
+$ nano $(fzf --height 40%)
 ~~~
 
 # Other advanced bash topics
