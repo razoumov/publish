@@ -19,9 +19,10 @@ If you don't have Eduroam or other SFU wireless account, please let us know.
 - class notes http://bit.ly/bashmd
 - for quizzes log in to https://socrative.com as student and enter room MARDBQSUU
 
-<!-- ### Monday afternoon: Advanced Bash and Introductory HPC -->
+### Monday afternoon: Advanced Bash and Introductory HPC
 
-<!-- - Introduction to HPC http://bit.ly/introhpc (slides and codes) -->
+- bash: searching for things, scripts, couple of more advanced tools
+- Introduction to HPC http://bit.ly/introhpc (slides and codes)
 
 <!-- ### Tuesday morning: HPC Workflows -->
 
