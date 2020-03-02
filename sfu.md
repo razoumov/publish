@@ -21,7 +21,7 @@ If you don't have Eduroam or other SFU wireless account, please let us know.
 
 ### Monday afternoon: Advanced Bash and Introductory HPC
 
-- bash: searching for things, scripts, couple of more advanced tools
+- bash: searching for things, scripts (and functions), couple of more advanced tools
 - Introduction to HPC http://bit.ly/introhpc (ZIP file with slides and codes)
 
 <!-- ### Tuesday morning: HPC Workflows -->
