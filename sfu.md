@@ -1,6 +1,9 @@
 # WestGrid Research Computing Workshops at SFU
 
-You can find this page at http://bit.ly/wgsfu2020.
+* You can find this page at http://bit.ly/wgsfu2020
+* Program <a
+  href="https://www.eventbrite.ca/e/westgrid-research-computing-workshops-simon-fraser-university-registration-88799572913"
+  target="_blank">details</a>
 
 ### Training cluster guest accounts
 
@@ -23,6 +26,8 @@ If you don't have Eduroam or other SFU wireless account, please let us know.
 <!-- ### Tuesday morning: HPC Workflows -->
 
 <!-- ### Tuesday afternoon: Programming in Julia -->
+
+<!-- - workshop page https://westgrid-julia.netlify.com/workshops/julia.html -->
 
 <!-- ### Thursday: Parallel Programming in Chapel -->
 
