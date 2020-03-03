@@ -24,11 +24,13 @@ If you don't have Eduroam or other SFU wireless account, please let us know.
 - bash: searching for things, scripts (and functions), couple of more advanced tools (same notes http://bit.ly/bashmd)
 - Introduction to HPC http://bit.ly/introhpc (ZIP file with slides and codes)
 
-<!-- ### Tuesday morning: HPC Workflows -->
+### Tuesday morning: HPC Workflows
 
-<!-- ### Tuesday afternoon: Programming in Julia -->
+- Introduction to HPC http://bit.ly/introhpc (same ZIP file with slides and codes as yesterday)
 
-<!-- - workshop page https://westgrid-julia.netlify.com/workshops/julia.html -->
+### Tuesday afternoon: Programming in Julia
+
+- workshop page https://westgrid-julia.netlify.com/workshops/julia.html
 
 <!-- ### Thursday: Parallel Programming in Chapel -->
 
