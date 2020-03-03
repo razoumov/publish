@@ -30,7 +30,7 @@ If you don't have Eduroam or other SFU wireless account, please let us know.
 
 ### Tuesday afternoon: Programming in Julia
 
-- workshop page https://westgrid-julia.netlify.com/workshops/julia.html
+- <a href="https://westgrid-julia.netlify.com/workshops/julia.html" target="_blank">workshop page</a>
 
 <!-- ### Thursday: Parallel Programming in Chapel -->
 
