@@ -14,25 +14,25 @@ connect to our small training cluster `cassiopeia.c3.ca` via ssh.
 
 If you don't have Eduroam or other SFU wireless account, please let us know.
 
-### Monday morning: Bash Introduction
+### Bash Introduction (Monday morning)
 
 - class notes http://bit.ly/bashmd
 - for quizzes log in to https://socrative.com as student and enter room MARDBQSUU
 
-### Monday afternoon: Advanced Bash and Introductory HPC
+### Advanced Bash and Introductory HPC (Monday afternoon)
 
 - bash: searching for things, scripts (and functions), couple of more advanced tools (same notes http://bit.ly/bashmd)
 - Introduction to HPC http://bit.ly/introhpc (ZIP file with slides and codes)
 
-### Tuesday morning: HPC Workflows
+### HPC Workflows (Tuesday morning)
 
 - Introduction to HPC http://bit.ly/introhpc (same ZIP file with slides and codes as yesterday)
 
-### Tuesday afternoon: Programming in Julia
+### Programming in Julia (Tuesday afternoon)
 
 - <a href="https://westgrid-julia.netlify.com/workshops/julia.html" target="_blank">workshop page</a>
 
-### Thursday: Parallel Programming in Chapel
+### Parallel Programming in Chapel (Thursday)
 
 <!-- - slides http://bit.ly/chapeltop -->
 <!-- - lecture notes: -->
