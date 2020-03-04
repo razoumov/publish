@@ -7,7 +7,7 @@
   - [Parallel programming in Chapel](#parallel-programming-in-chapel)
   - [Running on Cedar](#running-on-cedar)
   - [Fire-and-forget tasks](#fire-and-forget-tasks)
-  - [Synchronization of tasks](#synchronization-of-tasks)
+  - [Synchronization of threads](#synchronization-of-threads)
     - [`sync` block](#sync-block)
     - [`sync` variables](#sync-variables)
     - [atomic variables](#atomic-variables)
@@ -34,9 +34,9 @@ $ ./baseSolver --rows=650 --cols=650 --iout=200 --jout=300 --niter=10000 --toler
 
 # Task Parallelism with Chapel
 
-The basic concept of parallel computing is simple to understand: we **divide our job in tasks that can be
-executed at the same time**, so that we finish the job in a fraction of the time that it would have taken
-if the tasks are executed one by one.
+The basic concept of parallel computing is simple to understand: we **divide our job into tasks that can
+be executed at the same time**, so that we finish the job in a fraction of the time that it would have
+taken if the tasks are executed one by one.
 
 >> ## Key idea
 >> **Task** is a unit of computation that can run in parallel with other tasks.
@@ -131,7 +131,7 @@ thread continues its normal execution. Let's start a new code `begin.chpl` with 
 
 ~~~
 var x = 100;
-writeln('This is the main thread starting first task');
+writeln('This is the main thread starting first thread');
 begin {
   var count = 0;
   while count < 10 {
@@ -139,7 +139,7 @@ begin {
     writeln('thread 1: ', x + count);
   }
 }
-writeln('This is the main thread starting second task');
+writeln('This is the main thread starting second thread');
 begin {
   var count = 0;
   while count < 10 {
@@ -155,8 +155,8 @@ $ sbatch shared.sh
 $ cat solution.out
 ~~~
 ~~~
-This is the main thread starting first task
-This is the main thread starting second task
+This is the main thread starting first thread
+This is the main thread starting second thread
 This is the main thread, I am done ...
 thread 2: 101
 thread 1: 101
@@ -205,10 +205,10 @@ screen.
 >> To maximize performance, start as many tasks as the number of available cores.
 
 A slightly more structured way to start concurrent tasks in Chapel is by using the `cobegin`
-statement. Here you can start a block of concurrent tasks, **one for each statement** inside the curly
+statement. Here you can start a block of concurrent threads, **one for each statement** inside the curly
 brackets. Another difference between the `begin`and `cobegin` statements is that with the `cobegin`, all
-the spawned tasks are synchronized at the end of the statement, i.e. the main thread won't continue its
-execution until all tasks are done. Let's start `cobegin.chpl`:
+the spawned threads are synchronized at the end of the statement, i.e. the main thread won't continue its
+execution until all threads are done. Let's start `cobegin.chpl`:
 
 ~~~
 var x = 0;
@@ -216,11 +216,11 @@ writeln('This is the main thread, my value of x is ', x);
 cobegin {
   {
     var x = 5;
-    writeln('This is task 1, my value of x is ', x);
+    writeln('This is thread 1, my value of x is ', x);
   }
-  writeln('This is task 2, my value of x is ', x);
+  writeln('This is thread 2, my value of x is ', x);
 }
-writeln('This message will not appear until all tasks are done ...');
+writeln('This message will not appear until all threads are done ...');
 ~~~
 ~~~ {.bash}
 $ chpl cobegin.chpl -o cobegin
@@ -230,13 +230,13 @@ $ cat solution.out
 ~~~ 
 ~~~
 This is the main thread, my value of x is 0
-This is task 2, my value of x is 0
-This is task 1, my value of x is 5
-This message will not appear until all tasks are done...
+This is thread 2, my value of x is 0
+This is thread 1, my value of x is 5
+This message will not appear until all threads are done...
 ~~~
 
-As you may have conclude from the Discussion exercise above, the variables declared inside a task are
-accessible only by the task, while those variables declared in the main task are accessible to all tasks.
+As you may have conclude from the Discussion exercise above, the variables declared inside a thread are
+accessible only by the thread, while those variables declared in the main thread are accessible to all threads.
 
 Another, and one of the most useful ways to start concurrent/parallel tasks in Chapel, is the `coforall`
 loop. This is a combination of the for-loop and the `cobegin`statements. The general syntax is:
@@ -246,20 +246,20 @@ coforall index in iterand
 {instructions}
 ```
 
-This will start **a new task for each iteration**. Each tasks will then perform all the instructions
-inside the curly brackets. Each task will have a copy of the loop variable **_index_** with the
+This will start **a new thread for each iteration**. Each thread will then perform all the instructions
+inside the curly brackets. Each thread will have a copy of the loop variable **_index_** with the
 corresponding value yielded by the iterand. This index allows us to _customize_ the set of instructions
-for each particular task. Let's write `coforall.chpl`:
+for each particular thread. Let's write `coforall.chpl`:
 
 ~~~
 var x = 10;
 config var numthreads = 2;
-writeln('This is the main task: x = ', x);
+writeln('This is the main thread: x = ', x);
 coforall taskid in 1..numthreads do {
   var count = taskid**2;
-  writeln('this is task ', taskid, ': my value of count is ', count, ' and x is ', x);
+  writeln('this is thread ', taskid, ': my value of count is ', count, ' and x is ', x);
 }
-writeln('This message will not appear until all tasks are done ...');
+writeln('This message will not appear until all threads are done ...');
 ~~~
 ~~~ {.bash}
 $ chpl coforall.chpl -o coforall
@@ -268,18 +268,18 @@ $ sbatch shared.sh
 $ cat solution.out
 ~~~ 
 ~~~
-This is the main task: x = 10
-this is task 1: my value of c is 1 and x is 10
-this is task 2: my value of c is 4 and x is 10
-this is task 4: my value of c is 16 and x is 10
-this is task 3: my value of c is 9 and x is 10
-this is task 5: my value of c is 25 and x is 10
-This message will not appear until all tasks are done ...
+This is the main thread: x = 10
+this is thread 1: my value of c is 1 and x is 10
+this is thread 2: my value of c is 4 and x is 10
+this is thread 4: my value of c is 16 and x is 10
+this is thread 3: my value of c is 9 and x is 10
+this is thread 5: my value of c is 25 and x is 10
+This message will not appear until all threads are done ...
 ~~~
 
 Notice the random order of the print statements. And notice how, once again, the variables declared
-outside the `coforall` can be read by all tasks, while the variables declared inside, are available only
-to the particular task.
+outside the `coforall` can be read by all threads, while the variables declared inside, are available
+only to the particular thread.
 
 > ## Exercise 1
 > Would it be possible to print all the messages in the right order? Modify the code in the last example
@@ -400,7 +400,7 @@ to the particular task.
 >> parallelized. Here is the full list of reduce operations: + &nbsp; * &nbsp; && &nbsp; || &nbsp; &
 >> &nbsp; | &nbsp; ^ &nbsp; min &nbsp; max.
 
-## Synchronization of tasks
+## Synchronization of threads
 ### `sync` block
 
 The keyword `sync` provides all sorts of mechanisms to synchronize tasks in Chapel. We can simply use
@@ -409,7 +409,7 @@ The keyword `sync` provides all sorts of mechanisms to synchronize tasks in Chap
 
 ~~~
 var x = 0;
-writeln('This is the main thread starting a synchronous task');
+writeln('This is the main thread starting a synchronous thread');
 sync {
   begin {
     var count = 0;
@@ -419,8 +419,8 @@ sync {
     }
   }
 }
-writeln('The first task is done ...');
-writeln('This is the main thread starting an asynchronous task');
+writeln('The first thread is done ...');
+writeln('This is the main thread starting an asynchronous thread');
 begin {
   var count = 0;
   while count < 10 {
@@ -437,7 +437,7 @@ $ sbatch shared.sh
 $ cat solution.out
 ~~~
 ~~~
-This is the main thread starting a synchronous task
+This is the main thread starting a synchronous thread
 thread 1: 1
 thread 1: 2
 thread 1: 3
@@ -448,8 +448,8 @@ thread 1: 7
 thread 1: 8
 thread 1: 9
 thread 1: 10
-The first task is done ...
-This is the main thread starting an asynchronous task
+The first thread is done ...
+This is the main thread starting an asynchronous thread
 This is the main thread, I am done ...
 thread 2: 1
 thread 2: 2
@@ -464,7 +464,7 @@ thread 2: 10
 ~~~
 
 > ## Discussion
-> What would happen if we swap `sync` and `begin` in the first task:
+> What would happen if we swap `sync` and `begin` in the first thread:
 > ~~~
 > begin {
 >   sync {
@@ -475,17 +475,17 @@ thread 2: 10
 >     }
 >   }
 > }
-> writeln('The first task is done ...');
+> writeln('The first thread is done ...');
 > ~~~
 > Discuss your observations.
 >
 > Answer: `sync` would have no effect on the rest of the program. We only pause the execution of the
-> first task, until all statements inside sync {} are completed -- but this does not affect the main and
+> first thread, until all statements inside sync {} are completed -- but this does not affect the main and
 > the second threads: they keep on running.
 
 > ## Exercise 3
 > Use `begin` and `sync` statements to reproduce the functionality of `cobegin` in cobegin.chpl, i.e.,
-> the main thread should not continue until both tasks 1 and 2 are completed.
+> the main thread should not continue until both threads 1 and 2 are completed.
 >
 >> ## Solution
 >> ~~~
@@ -495,12 +495,12 @@ thread 2: 10
 >> sync {
 >>   begin {
 >>      var x = 5;
->>      writeln('this is task 1, my value of x is ', x);
+>>      writeln('this is thread 1, my value of x is ', x);
 >>   }
->>   begin writeln('this is task 2, my value of x is ', x);
+>>   begin writeln('this is thread 2, my value of x is ', x);
 >> }
 >>
->> writeln('this message will not appear until all tasks are done...');
+>> writeln('this message will not appear until all threads are done...');
 >> ~~~
 
 ### `sync` variables
@@ -514,14 +514,14 @@ state must be _full_ (after the read operation is completed, the state will be s
 
 ~~~
 var x: sync int;
-writeln('this is the main task launching a new task');
+writeln('this is the main thread launching a new thread');
 begin {
   for i in 1..10 do
-    writeln('this is the new task working: ', i);
+    writeln('this is the new thread working: ', i);
   x = 2;
-  writeln('New task finished');
+  writeln('New thread finished');
 }
-writeln('this is the main task after launching new task ... I will wait until x is full');
+writeln('this is the main thread after launching new thread ... I will wait until x is full');
 x;   // not doing anything with a variable, not printing, just calling it
 writeln('and now it is done');
 ~~~
@@ -532,19 +532,19 @@ $ sbatch shared.sh
 $ cat solution.out
 ~~~
 ~~~
-this is main task launching a new task
-this is main task after launching new task ... I will wait until x is full
-this is new task working: 1
-this is new task working: 2
-this is new task working: 3
-this is new task working: 4
-this is new task working: 5
-this is new task working: 6
-this is new task working: 7
-this is new task working: 8
-this is new task working: 9
-this is new task working: 10
-New task finished
+this is main thread launching a new thread
+this is main thread after launching new thread ... I will wait until x is full
+this is new thread working: 1
+this is new thread working: 2
+this is new thread working: 3
+this is new thread working: 4
+this is new thread working: 5
+this is new thread working: 6
+this is new thread working: 7
+this is new thread working: 8
+this is new thread working: 9
+this is new thread working: 10
+New thread finished
 and now it is done
 ~~~
 
@@ -581,23 +581,23 @@ x.readXX()         // will return the value of x regardless its state; the state
 ### atomic variables
 
 Chapel also implements **_atomic_** operations with variables declared as `atomic`, and this provides
-another option to synchronize tasks. Atomic operations run *completely independently of any other thread
-or process*. This means that when several tasks try to write an atomic variable, only one will succeed at
+another option to synchronize threads. Atomic operations run *completely independently of any other thread
+or process*. This means that when several threads try to write an atomic variable, only one will succeed at
 a given moment, providing implicit synchronization between them. There is a number of methods defined for
 atomic variables, among them `sub()`, `add()`, `write()`, `read()`, and `waitfor()` are very useful to
-establish explicit synchronization between tasks, as shown in the next code `atomic.chpl`:
+establish explicit synchronization between threads, as shown in the next code `atomic.chpl`:
 
 ~~~
 var lock: atomic int;
 const numthreads = 5;
 
-lock.write(0);   // the main task set lock to zero
+lock.write(0);   // the main thread set lock to zero
 
 coforall id in 1..numthreads {
-  writeln('greetings form task ', id, '... I am waiting for all tasks to say hello');
+  writeln('greetings form thread ', id, '... I am waiting for all threads to say hello');
   lock.add(1);              // task id says hello and atomically adds 1 to lock
-  lock.waitFor(numthreads);   // then it waits for lock to be equal numthreads (which will happen when all tasks say hello)
-  writeln('task ', id, ' is done ...');
+  lock.waitFor(numthreads);   // then it waits for lock to be equal numthreads (which will happen when all threads say hello)
+  writeln('thread ', id, ' is done ...');
 }
 ~~~
 ~~~ {.bash}
@@ -607,16 +607,16 @@ $ sbatch shared.sh
 $ cat solution.out
 ~~~
 ~~~
-greetings form task 4... I am waiting for all tasks to say hello
-greetings form task 5... I am waiting for all tasks to say hello
-greetings form task 2... I am waiting for all tasks to say hello
-greetings form task 3... I am waiting for all tasks to say hello
-greetings form task 1... I am waiting for all tasks to say hello
-task 1 is done...
-task 5 is done...
-task 2 is done...
-task 3 is done...
-task 4 is done...
+greetings form thread 4... I am waiting for all threads to say hello
+greetings form thread 5... I am waiting for all threads to say hello
+greetings form thread 2... I am waiting for all threads to say hello
+greetings form thread 3... I am waiting for all threads to say hello
+greetings form thread 1... I am waiting for all threads to say hello
+thread 1 is done...
+thread 5 is done...
+thread 2 is done...
+thread 3 is done...
+thread 4 is done...
 ~~~
 
 > ## Try this...
@@ -628,38 +628,38 @@ simulation of the heat transfer equation.
 
 ## Parallelizing the heat transfer equation
 
-1. divide the entire grid of points into blocks and assign blocks to individual tasks
-1. each tasks should compute the new temperature of its assigned points
+1. divide the entire grid of points into blocks and assign blocks to individual threads
+1. each thread should compute the new temperature of its assigned points
 1. then we must perform a **_reduction_** over the whole grid, to update the greatest temperature
    difference between Tnew and T
 
 For the reduction of the grid we can simply use the `max reduce` statement, which is already
 parallelized. Now, let's divide the grid into `rowtasks` * `coltasks` subgrids, and assign each subgrid
-to a task using the `coforall` loop (we will have `rowtasks * coltasks` tasks in total).
+to a thread using the `coforall` loop (we will have `rowtasks * coltasks` threads in total).
 
 Recall out code `exercise2.chpl` in which we broke the 1D array with 1e9 elements into `numthreads=12`
-blocks, and each task was processing elements `start..finish`. Now we'll do exactly the same in
+blocks, and each thread was processing elements `start..finish`. Now we'll do exactly the same in
 2D. First, let's write a quick serial code `test.chpl` to test the indices:
 
 ~~~
 config const rows = 100, cols = 100;   // number of rows and columns in our matrix
 
 config const rowtasks = 3, coltasks = 4;   // number of blocks in x- and y-dimensions
-                                           // each block processed by a separate task
+                                           // each block processed by a separate thread
                                            // let's pretend we have 12 cores
-const nr = rows / rowtasks;   // number of rows per task
-const rr = rows % rowtasks; // remainder rows (did not fit into the last row of tasks)
-const nc = cols / coltasks;   // number of columns per task
-const rc = cols % coltasks; // remainder columns (did not fit into the last column of tasks)
+const nr = rows / rowtasks;   // number of rows per thread
+const rr = rows % rowtasks; // remainder rows (did not fit into the last row of threads)
+const nc = cols / coltasks;   // number of columns per thread
+const rc = cols % coltasks; // remainder columns (did not fit into the last column of threads)
 
 coforall taskid in 0..coltasks*rowtasks-1 do {
   var row1, row2, col1, col2: int;
   row1 = taskid/coltasks*nr + 1;
   row2 = taskid/coltasks*nr + nr;
-  if row2 == rowtasks*nr then row2 += rr; // add rr rows to the last row of tasks
+  if row2 == rowtasks*nr then row2 += rr; // add rr rows to the last row of threads
   col1 = taskid%coltasks*nc + 1;
   col2 = taskid%coltasks*nc + nc;
-  if col2 == coltasks*nc then col2 += rc; // add rc columns to the last column of tasks
+  if col2 == coltasks*nc then col2 += rc; // add rc columns to the last column of threads
   writeln('task ', taskid, ': rows ', row1, '-', row2, ' and columns ', col1, '-', col2);
 }
 ~~~
@@ -670,21 +670,21 @@ $ sbatch shared.sh
 $ cat solution.out
 ~~~
 ~~~
-task 0: rows 1-33 and columns 1-25
-task 1: rows 1-33 and columns 26-50
-task 2: rows 1-33 and columns 51-75
-task 3: rows 1-33 and columns 76-100
-task 4: rows 34-66 and columns 1-25
-task 5: rows 34-66 and columns 26-50
-task 6: rows 34-66 and columns 51-75
-task 7: rows 34-66 and columns 76-100
-task 8: rows 67-100 and columns 1-25
-task 9: rows 67-100 and columns 26-50
-task 10: rows 67-100 and columns 51-75
-task 11: rows 67-100 and columns 76-100
+thread 0: rows 1-33 and columns 1-25
+thread 1: rows 1-33 and columns 26-50
+thread 2: rows 1-33 and columns 51-75
+thread 3: rows 1-33 and columns 76-100
+thread 4: rows 34-66 and columns 1-25
+thread 5: rows 34-66 and columns 26-50
+thread 6: rows 34-66 and columns 51-75
+thread 7: rows 34-66 and columns 76-100
+thread 8: rows 67-100 and columns 1-25
+thread 9: rows 67-100 and columns 26-50
+thread 10: rows 67-100 and columns 51-75
+thread 11: rows 67-100 and columns 76-100
 ~~~
 
-As you can see, dividing `Tnew` computation between concurrent tasks could be cumbersome. Chapel provides
+As you can see, dividing `Tnew` computation between concurrent threads could be cumbersome. Chapel provides
 high-level abstractions for data parallelism that take care of all the data distribution for us. We will
 study data parallelism in the following lessons, but for now let's compare the benchmark solution
 (`baseSolver.chpl`) with our `coforall` parallelization to see how the performance improved.
@@ -696,10 +696,10 @@ then start editing the latter. We'll make the following changes in `parallel1.ch
 $ diff baseSolver.chpl parallel1.chpl
 18a19,24
 > config const rowtasks = 3, coltasks = 4;   // let's pretend we have 12 cores
-> const nr = rows / rowtasks;   // number of rows per task
-> const rr = rows - nr*rowtasks; // remainder rows (did not fit into the last task)
-> const nc = cols / coltasks;   // number of columns per task
-> const rc = cols - nc*coltasks; // remainder columns (did not fit into the last task)
+> const nr = rows / rowtasks;   // number of rows per thread
+> const rr = rows - nr*rowtasks; // remainder rows (did not fit into the last thread)
+> const nc = cols / coltasks;   // number of columns per thread
+> const rc = cols - nc*coltasks; // remainder columns (did not fit into the last thread)
 >
 31,32c37,46
 <   for i in 1..rows do {  // do smth for row i
@@ -708,14 +708,14 @@ $ diff baseSolver.chpl parallel1.chpl
 <     }
 <   }
 ---
->   coforall taskid in 0..coltasks*rowtasks-1 do { // each iteration processed by a separate task
+>   coforall taskid in 0..coltasks*rowtasks-1 do { // each iteration processed by a separate thread
 >     var row1, row2, col1, col2: int;
 >     row1 = taskid/coltasks*nr + 1;
 >     row2 = taskid/coltasks*nr + nr;
->     if row2 == rowtasks*nr then row2 += rr; // add rr rows to the last row of tasks
+>     if row2 == rowtasks*nr then row2 += rr; // add rr rows to the last row of threads
 >     col1 = taskid%coltasks*nc + 1;
 >     col2 = taskid%coltasks*nc + nc;
->     if col2 == coltasks*nc then col2 += rc; // add rc columns to the last column of tasks
+>     if col2 == coltasks*nc then col2 += rc; // add rc columns to the last column of threads
 >     for i in row1..row2 do {
 >       for j in col1..col2 do {
 >         Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
@@ -781,14 +781,14 @@ Both ran to 7750 iterations, with the same numerical results, but the parallel c
 
 To understand the reason, let's analyze the code. When the program starts, the main thread does all the
 declarations and initializations, and then, it enters the main loop of the simulation (the **_while_**
-loop). Inside this loop, the parallel tasks are launched for the first time. When these tasks finish
-their computations, the main task resumes its execution, it updates `delta` and T, and everything is
-repeated again. So, in essence, parallel tasks are launched and resumed 7750 times, which introduces a
+loop). Inside this loop, the parallel threads are launched for the first time. When these threads finish
+their computations, the main thread resumes its execution, it updates `delta` and T, and everything is
+repeated again. So, in essence, parallel threads are launched and resumed 7750 times, which introduces a
 significant amount of overhead (the time the system needs to effectively start and destroy threads in the
 specific hardware, at each iteration of the while loop).
 
-Clearly, a better approach would be to launch the parallel tasks just once, and have them execute all the
-time steps, before resuming the main task to print the final results.
+Clearly, a better approach would be to launch the parallel threads just once, and have them execute all the
+time steps, before resuming the main thread to print the final results.
 
 Let's copy `parallel1.chpl` into `parallel2.chpl` and then start editing the latter. We'll make the
 following changes:
@@ -796,55 +796,55 @@ following changes:
 (1) Move the rows
 
 ~~~
-  coforall taskid in 0..coltasks*rowtasks-1 do { // each iteration processed by a separate task
+  coforall taskid in 0..coltasks*rowtasks-1 do { // each iteration processed by a separate thread
     var row1, row2, col1, col2: int;
     row1 = taskid/coltasks*nr + 1;
     row2 = taskid/coltasks*nr + nr;
-    if row2 == rowtasks*nr then row2 += rr; // add rr rows to the last row of tasks
+    if row2 == rowtasks*nr then row2 += rr; // add rr rows to the last row of threads
     col1 = taskid%coltasks*nc + 1;
     col2 = taskid%coltasks*nc + nc;
-    if col2 == coltasks*nc then col2 += rc; // add rc columns to the last column of tasks
+    if col2 == coltasks*nc then col2 += rc; // add rc columns to the last column of threads
 ~~~
 
 and the corresponding closing bracket `}` of this `coforall` loop outside the `while` loop, so that
 `while` is now nested inside `coforall`.
 
-(2) Since now copying Tnew into T is a local operation for each task, i.e. we should replace `T = Tnew;`
+(2) Since now copying Tnew into T is a local operation for each thread, i.e. we should replace `T = Tnew;`
 with
 
 ~~~
 T[row1..row2,col1..col2] = Tnew[row1..row2,col1..col2];
 ~~~
 
-But this is not sufficient! We need to make sure we finish computing all elements of Tnew in all tasks
-before computing the greatest temperature difference `delta`. For that we need to synchronize all tasks,
-right after computing Tnew. We'll also need to synchronize tasks after computing `delta` and T from Tnew,
-as none of the tasks should jump into the new iteration without having `delta` and T! So, we need two
+But this is not sufficient! We need to make sure we finish computing all elements of Tnew in all threads
+before computing the greatest temperature difference `delta`. For that we need to synchronize all threads,
+right after computing Tnew. We'll also need to synchronize threads after computing `delta` and T from Tnew,
+as none of the threads should jump into the new iteration without having `delta` and T! So, we need two
 synchronization points inside the `coforall` loop.
 
 <!-- The synchronization must happen at two points:  -->
-<!-- 1. We need to be sure that all tasks have finished with the computations of their part of the grid `temp`, before updating `delta` and `past_temp` safely. -->
-<!-- 2. We need to be sure that all tasks use the updated value of `delta` to evaluate the condition of the while loop for the next iteration. -->
+<!-- 1. We need to be sure that all threads have finished with the computations of their part of the grid `temp`, before updating `delta` and `past_temp` safely. -->
+<!-- 2. We need to be sure that all threads use the updated value of `delta` to evaluate the condition of the while loop for the next iteration. -->
 
 > ## Exercise 4
 > Recall our earlier code `atomic.chpl`:
 > ~~~
 > var lock: atomic int;
 > const numthreads = 5;
-> lock.write(0);   // the main task set lock to zero
+> lock.write(0);   // the main thread set lock to zero
 > coforall id in 1..numthreads {
->   writeln('greetings form task ', id, '... I am waiting for all tasks to say hello');
->   lock.add(1);              // task id says hello and atomically adds 1 to lock
->   lock.waitFor(numthreads);   // then it waits for lock to be equal numthreads (which will happen when all tasks say hello)
->   writeln('task ', id, ' is done ...');
+>   writeln('greetings form thread ', id, '... I am waiting for all threads to say hello');
+>   lock.add(1);              // thread id says hello and atomically adds 1 to lock
+>   lock.waitFor(numthreads);   // then it waits for lock to be equal numthreads (which will happen when all threads say hello)
+>   writeln('thread ', id, ' is done ...');
 > }
 > ~~~
 > Suppose we want to add another synchronization point right after the last `writeln()` command. What is
 > wrong with adding the following at the end of the `coforall` loop?
 > ~~~
->   lock.sub(1);      // task id says hello and atomically subtracts 1 from lock
->   lock.waitFor(0);   // then it waits for lock to be equal 0 (which will happen when all tasks say hello)
->   writeln('task ', id, ' is really done ...');
+>   lock.sub(1);      // thread id says hello and atomically subtracts 1 from lock
+>   lock.waitFor(0);   // then it waits for lock to be equal 0 (which will happen when all threads say hello)
+>   writeln('thread ', id, ' is really done ...');
 > ~~~
 >
 >> ## Answer
@@ -859,16 +859,16 @@ synchronization points inside the `coforall` loop.
 >> ~~~
 >> var lock1, lock2: atomic int;
 >> const numthreads = 5;
->> lock1.write(0);   // the main task set lock to zero
->> lock2.write(0);   // the main task set lock to zero
+>> lock1.write(0);   // the main thread set lock to zero
+>> lock2.write(0);   // the main thread set lock to zero
 >> coforall id in 1..numthreads {
->>   writeln('greetings form task ', id, '... I am waiting for all tasks to say hello');
->>   lock1.add(1);              // task id says hello and atomically adds 1 to lock
->>   lock1.waitFor(numthreads);   // then it waits for lock to be equal numthreads (which will happen when all tasks say hello)
->>   writeln('task ', id, ' is done ...');
+>>   writeln('greetings form thread ', id, '... I am waiting for all threads to say hello');
+>>   lock1.add(1);              // thread id says hello and atomically adds 1 to lock
+>>   lock1.waitFor(numthreads);   // then it waits for lock=numthreads (which will happen when all threads say hello)
+>>   writeln('thread ', id, ' is done ...');
 >>   lock2.add(1);
 >>   lock2.waitFor(numthreads);
->>   writeln('task ', id, ' is really done ...');  
+>>   writeln('thread ', id, ' is really done ...');  
 >> }
 >> ~~~
 
@@ -881,21 +881,21 @@ var lock1, lock2: atomic int;
 and add after the (i,j)-loops to compute Tnew the following:
 
 ~~~
-    lock1.add(1);   // each task atomically adds 1 to lock
+    lock1.add(1);   // each thread atomically adds 1 to lock
     lock1.waitFor(coltasks*rowtasks*count);   // then it waits for lock to be equal coltasks*rowtasks
 ~~~
 
 and after `T[row1..row2,col1..col2] = Tnew[row1..row2,col1..col2];` the following:
 
 ~~~
-    lock2.add(1);   // each task atomically subtracts 1 from lock
+    lock2.add(1);   // each thread atomically subtracts 1 from lock
     lock2.waitFor(coltasks*rowtasks*count);   // then it waits for lock to be equal 0
 ~~~
 
 Notice that we have a product `coltasks*rowtasks*count`, since lock1/lock2 will be incremented by all
-tasks at all iterations.
+threads at all iterations.
 
-(4) Move `var count = 0: int;` into `coforall` so that it becomes a local variable for each task. Also,
+(4) Move `var count = 0: int;` into `coforall` so that it becomes a local variable for each thread. Also,
 remove `count` instance (in `writeln()`) after `coforall` ends.
 
 (5) Make `delta` atomic:
@@ -908,7 +908,7 @@ delta.write(tolerance*10);    // some safe initial large value
   while (count < niter && delta.read() >= tolerance) do {
 ~~~
 
-(6) Define an array of local delta's for each task and use it to compute delta:
+(6) Define an array of local delta's for each thread and use it to compute delta:
 
 ~~~
 var arrayDelta: [0..coltasks*rowtasks-1] real;

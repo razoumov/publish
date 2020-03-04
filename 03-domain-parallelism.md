@@ -25,8 +25,8 @@
 
 As we mentioned in the previous section, **Data Parallelism** is a style of parallel programming in which
 parallelism is driven by *computations over collections of data elements or their indices*. The main tool
-for this in Chapel is a `forall` loop -- it'll create an *appropriate* number of tasks to execute a loop,
-dividing the loop's iterations between them.
+for this in Chapel is a `forall` loop -- it'll create an *appropriate* number of threads to execute a
+loop, dividing the loop's iterations between them.
 
 ```
 forall index in iterand   # iterating over all elements of an array or over a range of indices
@@ -52,13 +52,13 @@ forall a in A do
 ~~~
 
 In this code we update all elements of the array `A`. The code will run on a single node, lauching as
-many tasks as the number of available cores.
+many threads as the number of available cores.
 
 * if we replace `forall` with `for`, we'll get a serial loop on a sigle core
-* if we replace `forall` with `coforall`, we'll create 1e6 tasks (definitely an overkill!)
+* if we replace `forall` with `coforall`, we'll create 1e6 threads (definitely an overkill!)
 
 Consider a simple code `forall.chpl` that we'll run inside a 3-core interactive job. We have a range of
-indices 1..1000, and they get broken into groups that are processed by different tasks:
+indices 1..1000, and they get broken into groups that are processed by different threads:
 
 ~~~
 var count = 0;
@@ -149,7 +149,7 @@ We finish this section by providing an example of how you can organize a data-pa
 config const rows = 100, cols = 100;
 const rowStride = 34, colStride = 25;    // each block has 34 rows and 25 columns => 3x4 blocks
 forall (r,c) in {1..rows,1..cols} by (rowStride,colStride) do {   // nested c-loop inside r-loop
-                                                                  // 12 iterations, up to 12 tasks
+                                                                  // 12 iterations, up to 12 threads
   for i in r..min(r+rowStride-1,rows) do {     // serial i-loop inside each block
     for j in c..min(c+colStride-1,cols) do {   // serial j-loop inside each block
       Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
@@ -162,7 +162,7 @@ forall (r,c) in {1..rows,1..cols} by (rowStride,colStride) do {   // nested c-lo
 
 So far we have been working with single-locale Chapel codes that may run on one or many cores on a single
 compute node, making use of the shared memory space and accelerating computations by launching parallel
-tasks on individual cores. Chapel codes can also run on multiple nodes on a compute cluster. In Chapel
+threads on individual cores. Chapel codes can also run on multiple nodes on a compute cluster. In Chapel
 this is referred to as *multi-locale* execution.
 
 >> ## Docker side note
@@ -260,7 +260,7 @@ Let's write a job submission script `distributed.sh`:
 <!-- $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3) -->
 <!-- ~~~ -->
 
-<!-- Check: without `CHPL_RT_NUM_THREADS_PER_LOCALE`, will 32 tasks run on separate 32 cores -->
+<!-- Check: without `CHPL_RT_NUM_THREADS_PER_LOCALE`, will 32 threads run on separate 32 cores -->
 <!-- or will they run on the 3 cores inside our Slurm job? -->
 
 # Simple multi-locale codes
@@ -598,7 +598,7 @@ actual number of threads = 12
 ~~~
 
 > ## Exercise 2
-> Try reducing the array size `n` to see if that changes the output (fewer tasks per locale), e.g.,
+> Try reducing the array size `n` to see if that changes the output (fewer threads per locale), e.g.,
 > setting n=3. Also try increasing the array size to n=20 and study the output. Does the output make sense?
 >
 >> Answer: run the code with

@@ -32,6 +32,12 @@ If you don't have Eduroam or other SFU wireless account, please let us know.
 
 - <a href="https://westgrid-julia.netlify.com/workshops/julia.html" target="_blank">workshop page</a>
 
-<!-- ### Thursday: Parallel Programming in Chapel -->
+### Thursday: Parallel Programming in Chapel
+
+<!-- - slides http://bit.ly/chapeltop -->
+<!-- - lecture notes: -->
+<!--   - Chape base language https://github.com/razoumov/publish/blob/master/01-base.md -->
+<!--   - task parallelism https://github.com/razoumov/publish/blob/master/02-task-parallelism.md -->
+<!--   - data parallelism https://github.com/razoumov/publish/blob/master/03-domain-parallelism.md -->
 
 <!-- ### Friday: Scientific Visualization -->
