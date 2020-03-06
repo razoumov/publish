@@ -28,7 +28,7 @@ If you don't have Eduroam or other SFU wireless account, please let us know.
 
 - Introduction to HPC http://bit.ly/introhpc (same ZIP file with slides and codes as yesterday)
 
-### Programming in Julia (Tuesday afternoon)
+### Programming in Julia (Tuesday afternoon and Wednesday webinar)
 
 - workshop https://westgrid-julia.netlify.com/workshops/julia.html
 - webinar https://westgrid-julia.netlify.com/webinars/hpc_julia.html
@@ -41,7 +41,7 @@ If you don't have Eduroam or other SFU wireless account, please let us know.
   - task parallelism https://github.com/razoumov/publish/blob/master/02-task-parallelism.md
   - data parallelism https://github.com/razoumov/publish/blob/master/03-domain-parallelism.md
 
-### Scientific Visualization (Friday 8:00am-12:30pm)
+### Scientific Visualization (Friday)
 
 - ParaView slides, codes and sample datasets http://bit.ly/paraviewzip
 - Plotly notes http://bit.ly/plotlymd
