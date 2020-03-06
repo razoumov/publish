@@ -430,7 +430,7 @@ py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 import pandas as pd
 table = pd.read_csv('/project/shared/astro/data/mt_bruno_elevation.csv')
-data = go.Surface(z=table.as_matrix())  # use 2D numpy array format
+data = go.Surface(z=table.values)  # use 2D numpy array format
 layout = go.Layout(title='Mt Bruno Elevation',
                    width=800, height=800,    # image size
                    margin=dict(l=65, r=10, b=65, t=90))   # margins around the plot
