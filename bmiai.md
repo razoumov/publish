@@ -17,10 +17,11 @@
 # Introduction
 
 Interactive hands-on workshop for BMIAI (Biomedical Imaging and Artificial Intelligence Research Cluster)
-@UBC (2020-Mar-09).
+@UBC (2020-Mar-09). You can find this file at http://bit.ly/wgbmiai. You can find our introductory HPC
+materials at http://bit.ly/introhpc (ZIP file with PDF slides and sample codes and scripts).
 
 * Overview of CC systems available and potential uses: computing, GPU, storage
-* Sockeye system
+* Sockeye system (Roman)
 * Explanation of accounts and the CCDB
 
 ## Cluster environment
@@ -192,12 +193,10 @@ fourbypi = 4.0/pi;
 np = 100;
 y(1:np) = pi/2.0;
 x(1:np) = linspace(-2.0*pi,2*pi,np)
-
 for k = 1:nterms
  twokm = 2*k-1;
  y = y - fourbypi*cos(twokm*x)/twokm^2;
 end
-
 plot(x,y)
 print -dpsc matlab_test_plot.ps
 quit
@@ -207,7 +206,7 @@ quit
 $ cd ~/scratch/bmiai
 $ salloc --time=0:30:0 --mem-per-cpu=3600 --account=...
 $ module load matlab/2018a    # will check the license
-$ matlab -nodisplay -singleCompThread -r "cosplot"
+$ matlab -nodisplay -singleCompThread -r cosplot
 ```
 
 All standard output from the last command will go to the terminal. It will also write its runtime
@@ -233,10 +232,10 @@ quit
 $ cd ~/scratch/bmiai
 $ salloc --time=0:30:0 --cpus-per-task=2 --mem-per-cpu=3600 --account=...
 $ module load matlab/2018a
-$ srun matlab -nodisplay -r "parallel"    #  here `srun` is optional, but it's a good practice to still use it
+$ srun matlab -nodisplay -r parallel    #  here `srun` is optional, but it's a good practice to still use it
 ```
 
-We can also run parallel code interactively in the shel, e.g. for the parallel code:
+We can also run parallel code interactively in the shell, e.g. for the parallel code:
 
 ```
 $ cd ~/scratch/bmiai
