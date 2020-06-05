@@ -90,7 +90,7 @@ Chapel jobs:
 ~~~
 
 ~~~ {.bash}
-$ . /project/shared/syncHPC/startSingleLocale.sh     # on the training VM cluster (Cassiopeia)
+$ . /project/shared/startSingleLocale.sh     # on the training VM cluster (Cassiopeia)
 $ chpl forall.chpl -o forall
 $ sbatch shared.sh
 $ cat solution.out
@@ -271,7 +271,7 @@ Let us test our multi-locale Chapel environment by launching the following code:
 writeln(Locales);
 ~~~
 ~~~ {.bash}
-$ . /project/shared/syncHPC/startMultiLocale.sh     # on the training VM cluster (Cassiopeia)
+$ . /project/shared/startMultiLocale.sh     # on the training VM cluster (Cassiopeia)
 $ chpl test.chpl -o test
 $ sbatch distributed.sh
 $ cat solution.out

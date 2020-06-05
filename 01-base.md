@@ -80,7 +80,7 @@ If you are working on the training cluster VM (Cassiopeia), please instead load 
 directory:
 
 ~~~ {.bash}
-$ . /project/shared/syncHPC/startSingleLocale.sh
+$ . /project/shared/startSingleLocale.sh
 ~~~
 
 Let's write a simple Chapel code, compile and run it:
