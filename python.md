@@ -20,7 +20,10 @@
   - [If we have time](#if-we-have-time)
 - [Part 2](#part-2)
   - [Libraries](#libraries)
-  - [Reading Tabular Data into Data Frames](#reading-tabular-data-into-data-frames)
+  - [Working with mathematical arrays in numpy](#working-with-mathematical-arrays-in-numpy)
+      - [Indexing, slicing, and reshaping](#indexing-slicing-and-reshaping)
+      - [Vectorized functions on array elements](#vectorized-functions-on-array-elements)
+  - [Reading tabular data into data frames](#reading-tabular-data-into-data-frames)
   - [Pandas Data Frames](#pandas-data-frames)
   - [Plotting](#plotting)
   - [Looping Over Data Sets](#looping-over-data-sets)
@@ -31,15 +34,23 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-Covered on Day 1: Running and Quitting, Variables and Assignment, Data Types and Type Conversion,
-Built-in Functions and Help, Libraries, Reading Tabular Data into Data Frames, Pandas Data Frames,
-Plotting
+**Course Description**: This six-hour introduction will walk you through the basics of programming in Python. We will
+cover the main language features -- variables and data types, conditionals, lists, for/while loops, list comprehensions,
+dictionaries, writing functions -- as well as working with external libraries such as pandas (data frames), numpy
+(mathematical arrays), and plotly (basic plotting).
+
+
+
+
+
+
 
 # Setup
 
-official lesson http://swcarpentry.github.io/python-novice-gapminder
+These notes started from the official SWC lesson http://swcarpentry.github.io/python-novice-gapminder, but then evolved
+quite a bit to include several other topics. You can find these notes at http://bit.ly/pythonmd.
 
-me                                            | students
+instructor                                    | students
 --------------------------------------------- | ----------------------------------------
 (1) log in to socrative.com as a teacher      | (1) log in to socrative.com as a student
 (2) start a quiz, select 'python quiz 1 or 2' | (2) enter provided room name
@@ -47,37 +58,35 @@ me                                            | students
 (4) disable student names                     |
 (5) start                                     |
 
-* note to self: type "carpentry"
-* personal lesson notes (this file) http://bit.ly/pythonmd
-
 # Part 1
 
 ## Running and Quitting
 
-Python pros:
-* elegant scripting language
-* powerful, compact constructs for many tasks
-* very popular across all fields
-* huge number of external libraries
-
-Python cons:
-* slow (interpreted language)
+Python pros                                 | Python cons
+--------------------------------------------|------------------------
+elegant scripting language                  | slow (interpreted language)
+powerful, compact constructs for many tasks |
+very popular across all fields              |
+huge number of external libraries           |
 
 Python programs are plain text files, stored with the .py extension.
 
 Many ways to run Python commands:
-* from the inside a Unix shell can start a Python shell and type commands
-* running Python scripts saved in *.py files
-* from Jupyter (formerly iPython) notebooks - stored as JSON files, displayed as HTML
 
-Start a Jupyter notebook from bash
-~~~ {.bash}
-jupyter notebook
-~~~
+1. from the inside a Unix shell can start a Python shell and type commands
+1. running Python scripts saved in *.py files
+1. from Jupyter (formerly iPython) notebooks - stored as JSON files, displayed as HTML
 
-This will open a browser page pointing to the local server. Click on New -> Python 3. The server runs on
-your local machine (no need for Internet). Tab completion. Can annotate code. Can display figures next to
-code.
+Today we will use a Jupyter notebook. You have several options:
+
+* if you have a university computer ID, go to https://syzygy.ca and under Launch select your institution, then fill in your credentials
+* if you have a Google account, go to https://syzygy.ca and under Launch select either Cybera or PIMS, then log in
+* if you have a GitHub account, go to https://westgrid.syzygy.ca
+* if you have Python+Jupyter installed locally on your machine, then you can start it locally from your shell by
+  typing `jupyter notebook`
+
+This will open a browser page pointing to the Jupyter server (remote except for the last option). Click on New ->
+Python 3. Explain: tab completion, annotating code, displaying figures inside the notebook.
 
 * Esc - leave the cell (border becomes blue) to the control mode
 * "A" - insert a cell above the current cell
@@ -103,6 +112,10 @@ print(1/2)   # to run all commands in the cell, either use the Run button, or pr
 age = 100
 firstName = 'Jason'
 print(firstName, 'is', age, 'years old')
+a = 1; b = 2    # can use ; to separate multiple commands in one line
+a, b = 1, 2   # assign variables in a tuple notation; same as last line
+a = b = 10    #  assign a value to multiple variables at the same time
+b = "now I am a string"    # variables can change their type on the fly
 ~~~
 
 * variables persist between cells
@@ -163,7 +176,7 @@ print(max(1,2,3,10))
 print(min(5,2,10))
 print(min('a', 'A', '0'))   # works with characters, the order is (0-9, A-Z, a-z)
 print(max(1, 'a'))    # can't compare these
-round(3.712)
+round(3.712)      # to the nearest integer
 round(3.712, 1)   # can specify the number of decimal places
 help(round)
 round?   # Jupyter Notebook's additional syntax
@@ -177,7 +190,8 @@ print('result of print is', result)   # what happened here? Answer: print return
 
 ## Conditionals
 
-Use an *if* statement to control whether some block of code is executed or not.
+Python implements conditionals via *if*, *elif* (short for "else if") and *else*. Use an *if* statement to control
+whether some block of code is executed or not.
 
 ~~~ {.python}
 mass = 3.54
@@ -320,8 +334,8 @@ a[1]         # should print 73
 
 ## For Loops
 
-A *for* loop tells Python to execute some statements once for each value in a list, a character string,
-or some other collection
+*For* loops are very common in Python and are similar to *for* in other languages, but one nice twist with Python is
+that you can iterate over any collection, e.g., a list, a character string, etc.
 
 ~~~ {.python}
 for number in [2, 3, 5]:    # number is the loop variable; [...] is a collection
@@ -402,8 +416,7 @@ for i in a2:
         print(i)
 ~~~
 
-**Exercise:** write a script to get the frequency of the elements in a list. You are allowed to google
-this problem :)
+**Exercise:** write a script to get the frequency of the elements in a list. You are allowed to google this problem :)
 
 ***Answer 1:***
 ~~~ {.python}
@@ -487,7 +500,7 @@ The syntax is:
 
 ***Answer***: one possible answer is sum([x**2 for x in range(1,101)])
 
-**Exercise:** Write a script to build a list of words that are longer than *n* from a given list of words
+**Exercise:** Write a script to build a list of words that are shorter than *n* from a given list of words
 ['red', 'green', 'white', 'black', 'pink', 'yellow'].
 
 ***Answer***: one possible answer is
@@ -499,9 +512,8 @@ n = 5
 
 ## Advanced topic: dictionaries
 
-Lists in Python are ordered sets of objects that you access via their position/index. Dictionaries are
-unordered sets in which the objects are accessed via their keys. In other words, dictionaries are
-unordered key-value pairs.
+**Lists** in Python are ordered sets of objects that you access via their position/index. **Dictionaries** are unordered
+sets in which the objects are accessed via their keys. In other words, dictionaries are unordered key-value pairs.
 
 ~~~ {.python}
 favs = {'mary': 'orange', 'john': 'green', 'eric': 'blue'}
@@ -700,13 +712,14 @@ arithmetic, then convert back to decimal with round-off.
 
 ## Libraries
 
-Most of the power of a programming language is in its libraries. This is especially true for Python which
-is a interpreted language and is therefore very slow (compared to compiled languages). However, the
-libraries are often compiled and therefore offer much faster performance than native Python code.
+Most of the power of a programming language is in its libraries. This is especially true for Python which is a
+interpreted language and is therefore very slow (compared to compiled languages). However, the libraries are often
+compiled (can be written in compiled languages such as C/C++) and therefore offer much faster performance than native
+Python code.
 
-A library is a collection of functions that can be used by other programs. Python's standard library
-includes many functions we worked with before (print, int, round, ...) and is included with Python. There
-are many other additional libraries such as math, numpy, scipy, etc.
+A library is a collection of functions that can be used by other programs. Python's *standard library* includes many
+functions we worked with before (print, int, round, ...) and is included with Python. There are many other additional
+libraries such as math, numpy, scipy, etc.
 
 ~~~ {.python}
 print('pi is', pi)
@@ -740,13 +753,181 @@ print m.pi
 
 ***Quiz 2.4:*** degree conversion with math
 
-## Reading Tabular Data into Data Frames
+## Working with mathematical arrays in numpy
+
+As you saw before, Python is not statically typed, i.e. variables can change their type on the fly:
+
+~~~
+a = 5
+a = 'apple'
+print(a)
+~~~
+
+This makes Python very flexible. Out of these variables you form 1D lists, and these can be inhomogeneous:
+
+~~~
+a = [1, 2, 'Vancouver', ['Earth', 'Moon'], {'list': 'an ordered collection of values'}]
+a[1] = 'Sun'
+a
+~~~
+
+Python lists are very general and flexible, which is great for high-level programming, but it comes at a cost. The
+Python interpreter can't make any assumptions about what will come next in a list, so it treats everything as a generic
+object with its own type. As lists get longer, eventually performance becomes too slow; e.g., to access the element
+\#1000 in a list, the interpreter needs to know how much space the first 999 elements are taking in memory, and that
+depends on their type.
+
+Python does not have any mechanism for a uniform/homogeneous list, where -- to jump to element #1000 -- you just take
+the memory address of the very first element and then increment it by (element size in bytes)*999. **Numpy** library
+fills this gap by adding the concept of homogenous collections to python -- `numpy.ndarray`s -- which are multidimensional,
+homogeneous arrays of fixed-size items (most commonly numbers).
+
+<!-- This brings large performance benefits! Let's time a simple Python code that sums the squares of integers from 0 to -->
+<!-- 999,999: -->
+
+<!-- ~~~ -->
+<!-- %%timeit        # this is a Jupyter Magic command to time code execution inside the cell, -->
+<!--                 # runs the cell ~7*10 times (picked automatically for best results) and computes the average -->
+<!-- sum = 0 -->
+<!-- for i in range(int(1e6)): -->
+<!--     sum += i*i -->
+<!-- ~~~ -->
+
+<!-- I get 180 ms for the cell, i.e. for the entire calculation. Now let's repeat with numpy. Here we are applying square element-wise -->
+
+<!-- ~~~ -->
+<!-- import numpy as np -->
+<!-- %timeit np.arange(int(1e6))**2                  # it ran ~7*100 times, computed the average -->
+<!-- ~~~ -->
+
+<!-- import numpy as np -->
+<!-- data = np.ones(shape=(1000, 1000), dtype=np.float) -->
+<!-- for i in range(5): -->
+<!--     data *= 1.0000001 -->
+
+<!-- Now the same calculation took 7.5 ms, which is a 24X speedup! -->
+
+1.  This brings large performance benefits!
+1. numpy lets you work with mathematical arrays.
+
+Lists ans numpy arrays behave very differently:
+
+~~~
+a = [1, 2, 3, 4]
+b = [5, 6, 7, 8]
+a + b              # this will concatenate two lists: [1,2,3,4,5,6,7,8]
+~~~
+
+~~~
+import numpy as np
+na = np.array([1, 2, 3, 4])
+nb = np.array([5, 6, 7, 8])
+na + nb            # this will sum two vectors element-wise: array([6,8,10,12])
+~~~
+
+Numpy arrays have the following attributes:
+
+- ndim = the number of dimensions
+- shape = a tuple giving the sizes of the dimensions
+- size = the total number of elements
+- dtype = the data type
+- itemsize = the size (bytes) of individual elements
+- nbytes = the total memory (bytes) occupied by the ndarray
+- strides = tuple of bytes to step in each dimension when traversing an array
+- data = memory address of the array
+
+~~~
+a = np.arange(10)      # 10 integer elements 0..9
+a.ndim      # 1
+a.shape     # (10,)
+a.nbytes    # 80
+a.dtype     # dtype('int64')
+b = np.arange(10, dtype=np.float)
+b.dtype     # dtype('float64')
+~~~
+
+In numpy there are many ways to create arrays:
+
+~~~
+np.arange(11,20)               # 9 integer elements 11..19
+np.linspace(0, 1, 100)         # 100 numbers uniformly spaced between 0 and 1 (inclusive)
+np.linspace(0, 1, 100).shape
+np.zeros(100, dtype=np.int)    # 1D array of 100 integer zeros
+np.zeros((5, 5), dtype=np.float64)     # 2D 5x5 array of floating zeros
+np.ones((3,3,4), dtype=np.float64)     # 3D 3x3x4 array of floating ones
+np.eye(5)            # 2D 5x5 identity/unit matrix (with ones along the main diagonal)
+~~~
+
+You can create random arrays:
+
+~~~
+np.random.randint(0, 10, size=(4,5))    # 4x5 array of random integers in the half-open interval [0,10)
+np.random.random(size=(4,3))            # 4x3 array of random floats in the half-open interval [0.,1.)
+~~~
+
+#### Indexing, slicing, and reshaping
+
+For 1D arrays:
+
+~~~
+a = np.linspace(0,1,100)
+a[0]        # first element
+a[-2]       # 2nd to last element
+a[5:12]     # values [5..12), also a numpy array
+a[5:12:3]   # every 3rd element in [5..12), i.e. elements 5,8,11
+a[::-1]     # array reversed
+~~~
+
+Similar for multi-dimensional arrays:
+
+~~~
+b = np.reshape(np.arange(100),(10,10))      # form a 10x10 array from 1D array
+b[0:2,1]      # first two rows, second column
+b[:,-1]       # last column
+b[5:7,5:7]    # 2x2 block
+~~~
+
+~~~
+a = np.array([1, 2, 3, 4])
+b = np.array([4, 3, 2, 1])
+np.vstack((a,b))   # stack them vertically into a 2x4 array (use a,b as rows)
+np.hstack((a,b))   # stack them horizontally into a 1x8 array
+np.column_stack((a,b))    # use a,b as columns
+~~~
+
+#### Vectorized functions on array elements
+
+One of the big reasons for using numpy is so you can do fast numerical operations on a large number of elements. The
+result is another `ndarray`.
+
+
+
+
+~~~
+a = np.reshape(np.arange(100))
+a**2          # each element is a square of the corresponding element of a
+np.log10(a+1)     # apply this operation to each element
+(a**2+a)/(a+1)    # the result should effectively be a floating-version copy of a
+~~~
+
+**Example**: Try to calculate the terms of this sum as an `ndarray`
+$$
+\sqrt{12}\sum_{k=0}^{10}\frac{(-3)^{-k}}{2k+1}
+$$
+abc
+
+
+
+
+
+
+## Reading tabular data into data frames
 
 * open http://bit.ly/pythfiles in your browser, it'll download the file pfiles.zip
 * unpack pfiles.zip to your Desktop; you should see ~/Desktop/data-python
 
-Pandas is a widely-used Python library for working with tabular data, borrows heavily from R's data
-frames.
+Pandas is a widely-used Python library for working with tabular data, borrows heavily from R's data frames, built on top
+of numpy.
 
 We will be reading data from the directory into which you unpack it. Note your current directory and
 proceed accordingly. To change and list directories in Jupyter Notebook, you can use bash commands with %
