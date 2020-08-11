@@ -40,15 +40,15 @@
   - [3D topographic elevation](#3d-topographic-elevation)
   - [3D parametric plot](#3d-parametric-plot)
   - [3D scatter plot](#3d-scatter-plot)
-    - [3D graph](#3d-graph)
-  - [Programming Style and Wrap-Up](#programming-style-and-wrap-up)
-  - [Other advanced Python topics](#other-advanced-python-topics)
+  - [3D graph](#3d-graph)
+- [Programming Style and Wrap-Up](#programming-style-and-wrap-up)
+- [Other advanced Python topics](#other-advanced-python-topics)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 <!-- **Course Description**: This six-hour introduction will walk you through the basics of programming in Python. We will -->
 <!-- cover the main language features -- variables and data types, conditionals, lists, for/while loops, list comprehensions, -->
-<!-- dictionaries, writing functions -- as well as working with external libraries such as pandas (data frames), numpy -->
+<!-- dictionaries, writing functions -- as well as working with external libraries such as pandas (dataframes), numpy -->
 <!-- (mathematical arrays), and plotly (basic plotting). -->
 
 # Setup
@@ -1016,7 +1016,6 @@ First, let's download the data. Open a terminal inside your Jupyter dashboard. I
 ~~~
 wget http://bit.ly/pythfiles -O pfiles.zip
 unzip pfiles.zip && rm pfiles.zip        # this should unpack into the directory data-python/
-
 ~~~
 
 You can now close the terminal panel. Let's switch back to our Python notebook and check our location:
@@ -1729,7 +1728,7 @@ fig = go.Figure(data=[spheres], layout=layout)
 py.iplot(fig)
 ~~~
 
-### 3D graph
+## 3D graph
 
 We can plot 3D graphs. Consider a Dorogovtsev-Goltsev-Mendes graph: *in each subsequent generation, every edge from the
 previous generation yields a new node, and the new graph can be made by connecting together three previous-generation
@@ -1745,8 +1744,7 @@ import sys
 generation = 5
 H = nx.dorogovtsev_goltsev_mendes_graph(generation)
 print(H.number_of_nodes(), 'nodes and', H.number_of_edges(), 'edges')
-# Force Atlas 2 graph layout from https://github.com/tpoisot/nxfa2.git
-pos = forceatlas2_layout(H, iterations=100, kr=0.001, dim=3)
+pos = nx.spectral_layout(H,scale=1,dim=3)
 Xn = [pos[i][0] for i in pos]   # x-coordinates of all nodes
 Yn = [pos[i][1] for i in pos]   # y-coordinates of all nodes
 Zn = [pos[i][2] for i in pos]   # z-coordinates of all nodes
@@ -1783,21 +1781,7 @@ fig = go.Figure(data=[edges,nodes], layout=layout)
 py.iplot(fig)
 ~~~
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Programming Style and Wrap-Up
+# Programming Style and Wrap-Up
 
 * comment your code as much as possible
 * use meaningful variable names
@@ -1848,16 +1832,10 @@ if n <= 0.:
 * SciPy is a rich collection of scientific utilities http://www.scipy.org/scipylib
 * Python Data Analysis Library http://pandas.pydata.org
 
-## Other advanced Python topics
+# Other advanced Python topics
 
 - list.sort() and list.index(value); heterogeneous lists
 - to/from matplotlib, to/from numpy
-- good exercise: write this code
-~~~ {.python}
-proper = [631486, 1239220, 2731571, 1704694, 316701]
-metro = [2463431, 1392609, 5928040, 4098927, 403131]
-outside = [m-p for p,m in zip(proper,metro)]   # subtract the two
-~~~
 
 <!-- https://www.w3resource.com/python-exercises/list -->
 <!-- https://www.google.ca/amp/s/zwischenzugs.com/2018/01/06/ten-things-i-wish-id-known-about-bash/amp/#ampshare=https://zwischenzugs.com/2018/01/06/ten-things-i-wish-id-known-about-bash -->
