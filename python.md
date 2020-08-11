@@ -1015,7 +1015,8 @@ First, let's download the data. Open a terminal inside your Jupyter dashboard. I
 
 ~~~
 wget http://bit.ly/pythfiles -O pfiles.zip
-unzip pfiles.zip        # this should unpack into the directory data-python/
+unzip pfiles.zip && rm pfiles.zip        # this should unpack into the directory data-python/
+
 ~~~
 
 You can now close the terminal panel. Let's switch back to our Python notebook and check our location:
