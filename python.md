@@ -3,47 +3,53 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Setup](#setup)
-- [Part 1](#part-1)
-  - [Running and Quitting](#running-and-quitting)
-  - [Variables and Assignment](#variables-and-assignment)
-  - [Data Types and Type Conversion](#data-types-and-type-conversion)
-  - [Built-in Functions and Help](#built-in-functions-and-help)
-  - [Conditionals](#conditionals)
-  - [Lists](#lists)
-  - [For Loops](#for-loops)
-  - [While Loops](#while-loops)
-  - [More on lists](#more-on-lists)
-  - [Advanced topic: list comprehensions](#advanced-topic-list-comprehensions)
-  - [Advanced topic: dictionaries](#advanced-topic-dictionaries)
-  - [Writing Functions](#writing-functions)
-  - [Variable Scope](#variable-scope)
-  - [If we have time](#if-we-have-time)
-- [Part 2](#part-2)
-  - [Libraries](#libraries)
+- [Running Jupyter notebooks](#running-jupyter-notebooks)
+- [Variables and Assignment](#variables-and-assignment)
+- [Data Types and Type Conversion](#data-types-and-type-conversion)
+- [Built-in Functions and Help](#built-in-functions-and-help)
+- [Conditionals](#conditionals)
+- [Lists](#lists)
+- [For Loops](#for-loops)
+- [While loops](#while-loops)
+- [More on lists](#more-on-lists)
+- [Advanced topic: list comprehensions](#advanced-topic-list-comprehensions)
+- [Advanced topic: dictionaries](#advanced-topic-dictionaries)
+- [Writing functions](#writing-functions)
+- [Variable scope](#variable-scope)
+- [If we have time](#if-we-have-time)
+- [Libraries](#libraries)
+- [Numpy](#numpy)
   - [Working with mathematical arrays in numpy](#working-with-mathematical-arrays-in-numpy)
-      - [Indexing, slicing, and reshaping](#indexing-slicing-and-reshaping)
-      - [Vectorized functions on array elements](#vectorized-functions-on-array-elements)
+  - [Indexing, slicing, and reshaping](#indexing-slicing-and-reshaping)
+  - [Vectorized functions on array elements](#vectorized-functions-on-array-elements)
+  - [Aggregate functions](#aggregate-functions)
+  - [Boolean indexing](#boolean-indexing)
+  - [More numpy functionality](#more-numpy-functionality)
+  - [External packages built on top of numpy](#external-packages-built-on-top-of-numpy)
+- [Pandas dataframes](#pandas-dataframes)
   - [Reading tabular data into data frames](#reading-tabular-data-into-data-frames)
-  - [Pandas Data Frames](#pandas-data-frames)
-  - [Plotting](#plotting)
-  - [Looping Over Data Sets](#looping-over-data-sets)
-  - [Advanced topic: using Python from the command line](#advanced-topic-using-python-from-the-command-line)
-  - [Very advanced topic: adding standard input support](#very-advanced-topic-adding-standard-input-support)
+  - [Subsetting](#subsetting)
+  - [Looping over data sets](#looping-over-data-sets)
+- [Advanced topic: running Python scripts from the command line](#advanced-topic-running-python-scripts-from-the-command-line)
+  - [Very advanced topic: adding standard input support to our scripts](#very-advanced-topic-adding-standard-input-support-to-our-scripts)
+- [Plotting](#plotting)
+  - [Simple line/scatter plots of gapminder data](#simple-linescatter-plots-of-gapminder-data)
+  - [Bar plots](#bar-plots)
+  - [Heatmaps](#heatmaps)
+  - [Geographical scatterplot](#geographical-scatterplot)
+  - [3D topographic elevation](#3d-topographic-elevation)
+  - [3D parametric plot](#3d-parametric-plot)
+  - [3D scatter plot](#3d-scatter-plot)
+    - [3D graph](#3d-graph)
   - [Programming Style and Wrap-Up](#programming-style-and-wrap-up)
   - [Other advanced Python topics](#other-advanced-python-topics)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-**Course Description**: This six-hour introduction will walk you through the basics of programming in Python. We will
-cover the main language features -- variables and data types, conditionals, lists, for/while loops, list comprehensions,
-dictionaries, writing functions -- as well as working with external libraries such as pandas (data frames), numpy
-(mathematical arrays), and plotly (basic plotting).
-
-
-
-
-
-
+<!-- **Course Description**: This six-hour introduction will walk you through the basics of programming in Python. We will -->
+<!-- cover the main language features -- variables and data types, conditionals, lists, for/while loops, list comprehensions, -->
+<!-- dictionaries, writing functions -- as well as working with external libraries such as pandas (data frames), numpy -->
+<!-- (mathematical arrays), and plotly (basic plotting). -->
 
 # Setup
 
@@ -58,9 +64,7 @@ instructor                                    | students
 (4) disable student names                     |
 (5) start                                     |
 
-# Part 1
-
-## Running and Quitting
+# Running Jupyter notebooks
 
 Python pros                                 | Python cons
 --------------------------------------------|------------------------
@@ -101,7 +105,7 @@ Python 3. Explain: tab completion, annotating code, displaying figures inside th
 print(1/2)   # to run all commands in the cell, either use the Run button, or press shift+return
 ~~~
 
-## Variables and Assignment
+# Variables and Assignment
 
 * possible names for variables
 * don't use built-in function names for variables, e.g. declaring *sum* won't let you use sum(), same for
@@ -127,7 +131,7 @@ age = age + 3   # another syntax: age += 3
 print('age in three years:', age)
 ~~~
 
-***Quiz 1.1:*** predicting values
+***Quiz 1:*** predicting values
 
 Use square brackets to get a substring:
 ~~~ {.python}
@@ -136,12 +140,12 @@ print(element[0])   # single character
 print(element[0:3])   # a substring
 ~~~
 
-***Quiz 1.2:*** getting the second digit of a number (not a string!)
+***Quiz 2:*** getting the second digit of a number (not a string!)
 
 * python is case-sensitive
 * use meaningful variable names
 
-## Data Types and Type Conversion
+# Data Types and Type Conversion
 
 ~~~ {.python}
 print(type(52))
@@ -161,7 +165,7 @@ print(str(1)+'a')   # this works
 print(1+int('2'))   # this works
 ~~~
 
-## Built-in Functions and Help
+# Built-in Functions and Help
 
 * Python comes with a number of built-in functions
 * a function may take zero or more arguments
@@ -188,7 +192,7 @@ result = print('example')
 print('result of print is', result)   # what happened here? Answer: print returns None
 ~~~
 
-## Conditionals
+# Conditionals
 
 Python implements conditionals via *if*, *elif* (short for "else if") and *else*. Use an *if* statement to control
 whether some block of code is executed or not.
@@ -241,7 +245,7 @@ elif grade >= 90:
     print('grade is A')
 ~~~
 
-## Lists
+# Lists
 
 A list stores many values in a single structure.
 
@@ -332,7 +336,7 @@ a.sort(reverse=True)
 a[1]         # should print 73
 ~~~
 
-## For Loops
+# For Loops
 
 *For* loops are very common in Python and are similar to *for* in other languages, but one nice twist with Python is
 that you can iterate over any collection, e.g., a list, a character string, etc.
@@ -379,7 +383,7 @@ for number in range(10):
 print(total)
 ~~~
 
-***Quiz 1.3:*** revert a string
+***Quiz 3:*** revert a string
 
 ***Answer 1:***
 ~~~ {.python}
@@ -434,7 +438,7 @@ import collections
 print(collections.Counter(a))
 ~~~
 
-## While Loops
+# While loops
 
 Since we talk about loops, we can also briefly mention *while* loops, e.g.
 
@@ -445,7 +449,7 @@ while x > 1.:
     print(x)
 ~~~
 
-## More on lists
+# More on lists
 
 You can also form a *zip* object of tuples from two lists of the same length:
 
@@ -465,7 +469,7 @@ for i, j in enumerate(b):    # creates a list of tuples with an iterator as the 
 <!-- input = [(2, 5), (1, 2), (4, 4), (2, 3), (2, 1)] should result in -->
 <!-- [(2, 1), (1, 2), (2, 3), (4, 4), (2, 5)]. -->
 
-## Advanced topic: list comprehensions
+# Advanced topic: list comprehensions
 
 It's a compact way to create new lists based on existing lists/collections. Let's list squares of numbers
 from 1 to 10:
@@ -496,7 +500,7 @@ The syntax is:
 [something(i) for i in list1 if i [not] in list2 if i [not] in list3 ...]
 ~~~
 
-***Quiz 1.4:*** sum up squares of numbers
+***Quiz 4:*** sum up squares of numbers
 
 ***Answer***: one possible answer is sum([x**2 for x in range(1,101)])
 
@@ -510,7 +514,7 @@ n = 5
 [x for x in input if len(x) < n]
 ~~~
 
-## Advanced topic: dictionaries
+# Advanced topic: dictionaries
 
 **Lists** in Python are ordered sets of objects that you access via their position/index. **Dictionaries** are unordered
 sets in which the objects are accessed via their keys. In other words, dictionaries are unordered key-value pairs.
@@ -593,7 +597,7 @@ for k in sorted(favs):
 sorted((v,k) for (k,v) in favs.items())      # works as sorted() acts on the first item in each tuple in the list
 ~~~
 
-## Writing Functions
+# Writing functions
 
 * functions encapsulate complexity so that we can treat it as a single thing
 * functions enable re-use: write one time, use many times
@@ -636,11 +640,11 @@ a = average([1, 3, 4])
 print('average of actual values:', a)
 ~~~
 
-***Quiz 1.5:*** convert from Fahrenheit to Celsius
+***Quiz 5:*** convert from Fahrenheit to Celsius
 
-***Quiz 1.6:*** convert from Celsius to Fahrenheit
+***Quiz 6:*** convert from Celsius to Fahrenheit
 
-***Quiz 1.7:*** convert temperature lists
+***Quiz 7:*** convert temperature lists
 
 ***Answer:***
 ~~~ {.python}
@@ -677,7 +681,7 @@ Any complex python function will have many optional arguments, for example:
 ?print
 ~~~
 
-## Variable Scope
+# Variable scope
 
 The scope of a variable is the part of a program that can see that variable.
 
@@ -692,7 +696,7 @@ adjust(10)   # what will be the outcome?
 * "a" is the global variable => visible everywhere
 * "b" and "sum" are local variables => visible only inside the function
 
-## If we have time
+# If we have time
 
 (1) How would you explain the following:
 
@@ -708,9 +712,7 @@ arithmetic, then convert back to decimal with round-off.
 (2) More challening: write a code to solve x^3+4x^2-10=0 with a bisection method in the interval
     [1.3, 1.4] with tolerance 1e-8.
 
-# Part 2
-
-## Libraries
+# Libraries
 
 Most of the power of a programming language is in its libraries. This is especially true for Python which is a
 interpreted language and is therefore very slow (compared to compiled languages). However, the libraries are often
@@ -745,15 +747,15 @@ import math as m
 print m.pi
 ~~~
 
-***Quiz 2.1:*** exploring the math library
+***Quiz 8:*** exploring the math library
 
-***Quiz 2.2:*** random numbers
+***Quiz 9:*** random numbers
 
-***Quiz 2.3:*** forgot to load the library
+***Quiz 10:*** forgot to load the library
 
-***Quiz 2.4:*** degree conversion with math
+***Quiz 11:*** degree conversion with math
 
-## Working with mathematical arrays in numpy
+# Numpy
 
 As you saw before, Python is not statically typed, i.e. variables can change their type on the fly:
 
@@ -825,6 +827,8 @@ nb = np.array([5, 6, 7, 8])
 na + nb            # this will sum two vectors element-wise: array([6,8,10,12])
 ~~~
 
+## Working with mathematical arrays in numpy
+
 Numpy arrays have the following attributes:
 
 - ndim = the number of dimensions
@@ -865,7 +869,7 @@ np.random.randint(0, 10, size=(4,5))    # 4x5 array of random integers in the ha
 np.random.random(size=(4,3))            # 4x3 array of random floats in the half-open interval [0.,1.)
 ~~~
 
-#### Indexing, slicing, and reshaping
+## Indexing, slicing, and reshaping
 
 For 1D arrays:
 
@@ -895,13 +899,11 @@ np.hstack((a,b))   # stack them horizontally into a 1x8 array
 np.column_stack((a,b))    # use a,b as columns
 ~~~
 
-#### Vectorized functions on array elements
+## Vectorized functions on array elements
 
 One of the big reasons for using numpy is so you can do fast numerical operations on a large number of elements. The
-result is another `ndarray`.
-
-
-
+result is another `ndarray`. In many calculations you can use replace the usual `for`/`while` loops with functions on
+numpy elements.
 
 ~~~
 a = np.reshape(np.arange(100))
@@ -910,39 +912,126 @@ np.log10(a+1)     # apply this operation to each element
 (a**2+a)/(a+1)    # the result should effectively be a floating-version copy of a
 ~~~
 
-**Example**: Try to calculate the terms of this sum as an `ndarray`
-$$
-\sqrt{12}\sum_{k=0}^{10}\frac{(-3)^{-k}}{2k+1}
-$$
-abc
+> **Exercise**: Let's verify the equation
+> <img src="https://raw.githubusercontent.com/razoumov/publish/master/eq001.png" height="80" />
+> using summation of elements of an `ndarray`.
+>
+> **Hint**: Start with the first ten terms `k = np.arange(1,11)`. Then try the first 50 terms.
 
+<!-- > **Solution**: -->
+<!-- > ~~~ -->
+<!-- > k = np.arange(1,11)   # let's try the first 10 terms: -->
+<!-- > sum(k**2/2**k)        # getting 5.857421875 -->
+<!-- > k = np.arange(1,51)   # the first 50 terms -->
+<!-- > sum(k**2/2**k)        # getting 5.999999999997597 -->
+<!-- > ~~~ -->
 
+## Aggregate functions
 
+Aggregate functions take an ndarray and reduce it along one (or more) axes. E.g., in 1D:
 
+~~~
+a = np.linspace(1, 2, 100)
+a.mean()     # arithmetic mean
+a.max()      # maximum value
+a.argmax()   # index of the maximum value
+a.sum()      # sum of all values
+a.prod()     # product of all values
+~~~
 
+Or in 2D:
 
+~~~
+b = np.arange(25).reshape(5,5)
+>>> b.sum()
+300
+b.sum(axis=0)   # add rows
+b.sum(axis=1)   # add columns
+~~~
+
+## Boolean indexing
+
+~~~
+a = np.linspace(1, 2, 100)
+a < 1.5
+a[a<1.5]    # will only return those elements that meet the condition
+a[a<1.5].shape
+a.shape
+~~~
+
+## More numpy functionality
+
+Numpy provides many standard linear algebra algorithms: matrix/vector products, decompositions, eigenvalues, solving
+linear equations, e.g.
+
+~~~
+a = np.array([[3,1], [1,2]])
+b = np.array([9,8])
+x = np.linalg.solve(a, b)
+x
+np.allclose(np.dot(a, x),b)    # check the solution
+~~~
+
+## External packages built on top of numpy
+
+A lot of other packages are built on top of numpy. E.g., there is a Python package for analysis and visualization of 3D
+multi-resolution volumetric data called [yt](https://yt-project.org) which is based on numpy. Check out [this
+visualization](https://raw.githubusercontent.com/razoumov/publish/master/grids.png) produced with yt.
+
+Many image-processing libraries use numpy data structures underneath, e.g.
+
+~~~
+import skimage.io        # collection of algorithms for image processing
+image = skimage.io.imread(fname="https://raw.githubusercontent.com/razoumov/publish/master/grids.png")
+image.shape       # it's a 1024^2 image, with (R,G,B,\alpha) channels
+~~~
+
+Let's plot this image using plotly:
+
+~~~
+import plotly.offline as py
+py.init_notebook_mode(connected=True)   # use the online plotly.js library inside the notebook (smaller file sizes)
+import plotly.graph_objs as go
+trace = go.Heatmap(z=image[:,:,2])   # plot the blue channel
+layout = go.Layout(height=800, width=800)
+fig = go.Figure(data=[trace], layout=layout)
+py.iplot(fig)
+~~~
+
+Using numpy, you can easily manipulate pixels:
+
+~~~
+image[:,:,2] = 255 - image[:,:,2]
+~~~
+
+and then rerun the previous (plotly) cell.
+
+Another example of a package built on top of numpy is **pandas**.
+
+# Pandas dataframes
 ## Reading tabular data into data frames
 
-* open http://bit.ly/pythfiles in your browser, it'll download the file pfiles.zip
-* unpack pfiles.zip to your Desktop; you should see ~/Desktop/data-python
+First, let's download the data. Open a terminal inside your Jupyter dashboard. Inside the terminal, type:
 
-Pandas is a widely-used Python library for working with tabular data, borrows heavily from R's data frames, built on top
-of numpy.
+~~~
+wget http://bit.ly/pythfiles -O pfiles.zip
+unzip pfiles.zip        # this should unpack into the directory data-python/
+~~~
 
-We will be reading data from the directory into which you unpack it. Note your current directory and
-proceed accordingly. To change and list directories in Jupyter Notebook, you can use bash commands with %
-prefix:
+You can now close the terminal panel. Let's switch back to our Python notebook and check our location:
 
 ~~~ {.python}
-%cd directoryName
-%pwd
+%pwd              # simply run a bash command with a prefix, make sure you see data-python/
 ~~~
+
+Pandas is a widely-used Python library for working with tabular data, borrows heavily from R's data frames, built on top
+of numpy. We will be reading the data we downloaded a minute ago into a pandas dataframe:
 
 ~~~ {.python}
 import pandas as pd
 data = pd.read_csv('data-python/gapminder_gdp_oceania.csv')
 print(data)
-data   # this prints out the table in Jupyter Notebook!
+data   # this prints out the table nicely in Jupyter Notebook!
 ~~~
 
 ~~~ {.python}
@@ -950,8 +1039,8 @@ data.shape   # shape is a *member variable inside data*
 data.info()    # info is a *member method inside data*
 ~~~
 
-Use dir(data) to list all member variables and methods. Then call that name without (), and if it's a
-method it'll tell you, so you'll need to use ().
+Use dir(data) to list all member variables and methods. Then call that name without (), and if it's a method it'll tell
+you, so you'll need to use ().
 
 Rows are observations, and columns are the observed variables. You can add new observations at any time.
 
@@ -969,7 +1058,7 @@ data.describe()   # will print some statistics of numerical columns (very useful
 
 Quick question: how to list all country names? (try data.T.columns)
 
-***Quiz 2.5:*** explore Americas
+***Quiz 12:*** explore Americas
 
 ***Answer:***
 ~~~ {.python}
@@ -977,7 +1066,7 @@ americas = pd.read_csv('data-python/gapminder_gdp_americas.csv', index_col='coun
 americas.info()
 ~~~
 
-***Quiz 2.6:*** first 3 rows and last 3 columns
+***Quiz 13:*** first 3 rows and last 3 columns
 
 ***Answer:***
 ~~~ {.python}
@@ -985,14 +1074,14 @@ americas.head(3)
 americas.T.tail(3).T
 ~~~
 
-***Quiz 2.7:*** navigating the filesystem from inside Jupyter Notebook
+***Quiz 14:*** navigating the filesystem from inside Jupyter Notebook
 
 ***Answer:***
 ~~~ {.python}
 microbes = pd.read_csv('../fieldData/microbes.csv')
 ~~~
 
-***Quiz 2.8:*** write data frame to disk
+***Quiz 15:*** write data frame to disk
 
 ***Answer:***
 ~~~ {.python}
@@ -1002,18 +1091,34 @@ help(data.to_csv)      # Ok, this works :)
 data.to_csv('data-python/processed.csv')
 ~~~
 
-## Pandas Data Frames
+## Subsetting
 
 ~~~ {.python}
 data = pd.read_csv('data-python/gapminder_gdp_europe.csv', index_col='country')
 data.head()
 ~~~
 
+Let's rename the columns:
+
+~~~
+data.rename(columns={'gdpPercap_1952': '1952'})   # this renames only one but does not change `data`
+~~~
+
+Let's go through all columns and assign the new names:
+
+~~~
+for col in data.columns:
+    print(col, col[-4:])
+    data = data.rename(columns={col: col[-4:]})
+
+data
+~~~
+
 Printing one element:
 
 ~~~ {.python}
 data.iloc[0,0]   # the very first element by position
-data.loc['Albania','gdpPercap_1952']    # exactly the same; the very first element by label
+data.loc['Albania','1952']    # exactly the same; the very first element by label
 ~~~
 
 Printing a row:
@@ -1027,32 +1132,34 @@ data.loc['Albania',]    # exactly the same
 Printing a column:
 
 ~~~ {.python}
-data.loc[:,'gdpPercap_1952']   # show all rows in that column
-data['gdpPercap_1952']   # exactly the same; single index refers to columns
-data.gdpPercap_1952      # exactly the same; most compact notation to access columns
+data.loc[:,'1952']   # show all rows in that column
+data['1952']   # exactly the same; single index refers to columns
+data.1952      # exactly the same; most compact notation to access columns; does not work with numerical column names ...
 ~~~
 
 Printing a range:
 
 ~~~ {.python}
-data.loc['Italy':'Poland','gdpPercap_1952':'gdpPercap_1967']   # select multiple rows/columns
+data.loc['Italy':'Poland','1952':'1967']   # select multiple rows/columns
 data.iloc[0:2,0:3]
 ~~~
 
 Result of slicing can be used in further operations:
+
 ~~~ {.python}
-data.loc['Italy':'Poland','gdpPercap_1952':'gdpPercap_1967'].max()   # max for each column
-data.loc['Italy':'Poland','gdpPercap_1952':'gdpPercap_1967'].min()   # min for each column
+data.loc['Italy':'Poland','1952':'1967'].max()   # max for each column
+data.loc['Italy':'Poland','1952':'1967'].min()   # min for each column
 ~~~
 
 Use comparisons to select data based on value:
+
 ~~~ {.python}
-subset = data.loc['Italy':'Poland', 'gdpPercap_1962':'gdpPercap_1972']
+subset = data.loc['Italy':'Poland', '1962':'1972']
 print(subset)
 print(subset > 1e4)
 ~~~
 
-Use a Boolean mask to print values or NaN:
+Use a Boolean mask to print values (meeting the condition) or NaN (not meeting the condition):
 
 ~~~ {.python}
 mask = subset > 1e4
@@ -1067,23 +1174,24 @@ subset[mask].describe()
 subset[mask].max()
 ~~~
 
-***Quiz 2.9:*** GDP of Serbia
+***Quiz 16:*** GDP of Serbia
 
 ***Answer:***
 ~~~ {.python}
-(1) df.loc['Serbia','gdpPercap_2007']
-(2) df.gdpPercap_2007['Serbia']
+(1) data.loc['Serbia','2007']
+(2) data['2007']['Serbia']
+(3) data.2007['Serbia']     # works only with non-numerical column names ... so not here
 ~~~
 
-***Quiz 2.10:*** study the script
+***Quiz 17:*** study the script
 
-***Answer:*** we read data for all countries, select only those in the Americas, remove the Puerto Rico
-row, remove the continent column, and save the result to a file result.csv.
+***Answer:*** we read data for all countries, select only those in the Americas, remove the Puerto Rico row, remove the
+continent column, and save the result to a file result.csv.
 
-***Quiz 2.11:*** study the script
+***Quiz 18:*** study the script
 
-***Answer:*** we read the data for all European countries and for each column (=year) print out the name
-of the poorest and richest country.
+***Answer:*** we read the data for all European countries and for each column (=year) print out the name of the poorest
+and richest country.
 
 How do you create a data frame from scratch? Many ways; the easiest by defining columns:
 
@@ -1098,98 +1206,7 @@ Let's index the rows by hand:
 pd.DataFrame({'a': col1, 'b': col2}, index=['a1','a2','a3'])
 ~~~
 
-## Plotting
-
-One of the most widely used Python plotting libraries is matplotlib.
-
-~~~ {.python}
-%matplotlib inline
-import matplotlib.pyplot as plt
-~~~
-
-~~~ {.python}
-x = [1, 2, 3, 4, 5]
-y = [2, 4, 6, 7, 5]
-plt.plot(x, y)       # without Jupyter Notebook will need to be followed by "plt.show()"
-plt.xlabel('x')
-plt.ylabel('y')
-~~~
-
-~~~ {.python}
-help(plt.plot)   # very useful!
-~~~
-
-We can also plot directly from a Pandas data frame; underneath it still uses matplotlib.pyplot:
-
-~~~ {.python}
-import pandas as pd
-data = pd.read_csv('data-python/gapminder_gdp_oceania.csv', index_col='country')
-data.loc['Australia'].plot()   # plot a single row
-~~~
-
-<!-- plt.xticks(rotation=20) -->
-
-The syntax dataframe.plot() produces one line for each column:
-
-~~~ {.python}
-data.plot()   # plot for each year -- looks weird: one line for each column (=year)
-data.T.plot()   # now one line for each country
-plt.ylabel('GDP per capita')
-plt.style.use('ggplot')   # use ggplot style
-data.T.plot(kind='bar')   # bar for each data point; also try 'hist', 'area'
-help(data.plot)   # learn all the options
-~~~
-
-Can also convert data frame to lists:
-
-~~~ {.python}
-years = []
-for col in data.columns:
-    years.append(col[-4:])   # extract last 4 digits from column's names
-print(years)
-gdpA = data.loc['Australia'].tolist()
-plt.plot(years, gdpA, 'bo')   # plot as blue dots
-plt.plot(years, gdpA, 'bo', label='Australia')   # plot as blue dots
-~~~
-
-~~~ {.python}
-gdpNZ = data.loc['New Zealand'].tolist()
-plt.plot(years, gdpNZ, 'g-', label='New Zealand')
-plt.legend(loc='upper left')
-plt.xlabel('Year')
-plt.ylabel('GDP per capita ($)')
-~~~
-
-Can do a scatter plot of Australia vs New Zealand:
-
-~~~ {.python}
-plt.scatter(gdpA,gdpNZ)
-plt.xlabel('Australia')
-plt.ylabel('New Zealand')
-~~~
-
-Let's create a plot showing the correlation between GDP and life expectancy for 2007, normalizing marker
-size by population:
-
-~~~ {.python}
-data = pd.read_csv('data-python/gapminder_all.csv')
-data.columns   # see the columns
-plt.figure(figsize=(10,8))
-plt.scatter(data.gdpPercap_2007,data.lifeExp_2007,s=data.pop_2007/1e6)   # first attempt
-~~~
-
-Let's change to log scale for the x-axis and make circle area proportional to the population:
-
-~~~ {.python}
-plt.figure(figsize=(10,8))
-from numpy import log10, sqrt   # these versions of log10/sqrt can operate on lists
-loggdp = log10(data.gdpPercap_2007.tolist())
-plt.scatter(loggdp,data.lifeExp_2007,s=sqrt(data.pop_2007/1e3))
-plt.xlabel('log10(GDP)')
-plt.ylabel('life expectancy')
-~~~
-
-## Looping Over Data Sets
+## Looping over data sets
 
 Let's say we want to read several files in data-python/. We can use **for** to loop through their list:
 
@@ -1214,12 +1231,12 @@ for filename in glob('data-python/*.csv'):
     data = pd.read_csv(filename)
     print(filename, data.gdpPercap_1952.min())
 ~~~
-	
-***Quiz 2.12:*** glob's wildmask
+
+***Quiz 19:*** glob's wildmask
 
 The right answer is A.
 
-***Quiz 2.13:*** find the file with fewest records
+***Quiz 20:*** find the file with fewest records
 
 ***Answer:***
 ~~~ {.python}
@@ -1229,53 +1246,38 @@ for filename in glob('data-python/*.csv'):
 print('smallest file has', fewest, 'records')
 ~~~
 
-***Quiz 2.14 :*** (more difficult) plot the average GDP vs. time in each region
+# Advanced topic: running Python scripts from the command line
 
-***Answer:***
-~~~ {.python}
-%matplotlib inline
-import matplotlib.pyplot as plt
-plt.figure(figsize=(10,8))
-for filename in glob('data-python/gapminder_gdp_*.csv'):
-    data = pd.read_csv(filename)
-    years=[]
-    cols = data.columns
-    c2 = cols[cols!='continent']  # get rid of continents element if present
-    c3 = c2[c2!='country']   # get rid of country element if present
-    for col in c3:
-        years.append(col[-4:])   # extract last 4 digits from column's names
-    average = data.loc[:,'gdpPercap_1952':'gdpPercap_2007'].mean().tolist()
-    plt.plot(years, average, label=filename[19:], linewidth=3)
-plt.legend(loc='upper left')
-~~~
-
-## Advanced topic: using Python from the command line
-
-In this lesson we'll work with bash command line, instead of the Jupyter notebook. We want to write a
-python script 'read.py' that takes a set of gapminder_gdp_*.csv files (one/few/many) as an argument and
-prints out various statistic (min, max, mean) for each year for all countries in that file:
+In this lesson we'll work with bash command line, instead of the Jupyter notebook. We want to write a python script
+'read.py' that takes a set of gapminder_gdp_*.csv files (one/few/many) as an argument and prints out various statistic
+(min, max, mean) for each year for all countries in that file:
 
 ~~~ {.bash}
-$ python read.py --min data-python/gapminder_gdp_{americas,europe}.csv   # minimum for each year
-$ python read.py --max data-python/gapminder_gdp_europe.csv              # maximum for each year
-$ python read.py --mean data-python/gapminder_gdp_europe.csv data-python/gapminder_gdp_asia.csv
+$ ./read.py --min data-python/gapminder_gdp_{americas,europe}.csv   # minimum for each year
+$ ./read.py --max data-python/gapminder_gdp_europe.csv              # maximum for each year
+$ ./read.py --mean data-python/gapminder_gdp_europe.csv data-python/gapminder_gdp_asia.csv
 ~~~
 
-It would be best to open two shells for the following programming, and keep nano always open in one
-shell.
+It would be best to open two shells for the following programming, and keep nano always open in one shell.
 
 Put the following into a file called read.py:
+
 ~~~ {.python}
+#!/usr/bin/env python
 import sys
 print('argument is', sys.argv)
 ~~~
+
 and then run it from bash:
+
 ~~~ {.bash}
-$ python read.py     # it'll produce: argument is ['read.py'] (the name of the script is always there)
-$ python read.py one two three     # it'll produce: argument is ['read.py', 'one', 'two', 'three']
+$ chmod u+x read.py
+$ ./read.py     # it'll produce: argument is ['read.py'] (the name of the script is always there)
+$ ./read.py one two three     # it'll produce: argument is ['read.py', 'one', 'two', 'three']
 ~~~
 
 Let's modify our script:
+
 ~~~ {.python}
 import sys
 print(sys.argv[1:])
@@ -1285,6 +1287,7 @@ $ python read.py one two three     # it'll produce ['one', 'two', 'three']
 ~~~
 
 Let's modify our script:
+
 ~~~ {.python}
 import sys
 for f in sys.argv[1:]:
@@ -1312,8 +1315,8 @@ $ python read.py data-python/gapminder_gdp_{americas,europe}.csv
 $ wc -l !$      # the output should be consistent
 ~~~
 
-Let's modify our script changing print(data.shape) -> print(data.mean()) to compute average per year for
-each file:
+Let's modify our script changing print(data.shape) -> print(data.mean()) to compute average per year for each file:
+
 ~~~ {.bash}
 $ python read.py data-python/gapminder_gdp_{americas,europe}.csv
 ~~~
@@ -1377,10 +1380,10 @@ for f in filenames:
     process(f, action)
 ~~~
 
-## Very advanced topic: adding standard input support
+## Very advanced topic: adding standard input support to our scripts
 
-Finally, let's add support for Unix standard input. Delete 'print('\n', f[26:-4].capitalize())' and
-change the last two lines to:
+Finally, let's add support for Unix standard input. Delete 'print('\n', f[26:-4].capitalize())' and change the last two
+lines to:
 
 ~~~ {.python}
 if len(filenames) == 0:
@@ -1430,6 +1433,368 @@ else:
         print('\n', f[26:-4].capitalize())
         process(f,action)
 ~~~
+
+
+
+
+
+# Plotting
+## Simple line/scatter plots of gapminder data
+
+One of the most widely used Python plotting libraries is matplotlib. Matplotlib produces static images. In this workshop
+we'll use plotly which is another open-source library that produces interactive HTML5 + JavaScript images.
+
+~~~
+import plotly.offline as py
+py.init_notebook_mode(connected=True)   # use the online plotly.js library inside the notebook (smaller file sizes)
+import plotly.graph_objs as go
+from numpy import linspace, sin
+x1 = linspace(0.01,1,300)
+y1 = sin(1/x1)
+trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
+data = [trace1]
+py.iplot(data)   # plot inline in a Jupyter notebook
+~~~
+
+Now let's add the layout, replacing the last line with:
+
+~~~
+layout = go.Layout(title='An oscillating function', xaxis=dict(title='x'), yaxis=dict(title='f(x)'))
+fig = go.Figure(data=data,layout=layout)
+py.iplot(fig)
+~~~
+
+Let's do a quick gapminder plot with pandas:
+
+~~~
+import pandas as pd
+import plotly.offline as py
+py.init_notebook_mode(connected=True)   # use the online plotly.js library inside the notebook (smaller file sizes)
+import plotly.graph_objs as go
+data = pd.read_csv('data-python/gapminder_gdp_oceania.csv', index_col='country')
+trace1 = go.Scatter(x=data.columns, y=data.loc['Australia'])
+layout = go.Layout(yaxis=dict(title='GDP'))
+fig = go.Figure(data=[trace1], layout=layout)
+py.iplot(fig)
+~~~
+
+**Exercise:** add a curve for New Zealand.
+
+**Answer:**
+~~~ {.python}
+...
+trace1 = go.Scatter(x=data.columns, y=data.loc['Australia'], name='Australia')
+trace2 = go.Scatter(x=data.columns, y=data.loc['New Zealand'], name='New Zealand')
+...
+fig = go.Figure(data=[trace1,trace2], layout=layout)
+...
+~~~
+
+**Exercise:** do a scatter plot of Australia vs. New Zealand.
+
+**Answer:**
+~~~ {.python}
+data = pd.read_csv('data-python/gapminder_gdp_oceania.csv', index_col='country')
+trace = go.Scatter(x=data.loc['Australia'], y=data.loc['New Zealand'], mode='markers')
+layout = go.Layout(xaxis=dict(title='Australia'), yaxis=dict(title='New Zealand'))
+fig = go.Figure(data=[trace], layout=layout)
+py.iplot(fig)
+~~~
+
+**Quiz 21 :** (more difficult) plot the average GDP vs. time in each region (each file)
+
+**Answer:** (omitting the first four lines loading modules)
+~~~ {.python}
+curves = []
+for filename in glob('data-python/gapminder_gdp_*.csv'):
+    data = pd.read_csv(filename)
+    cols = data.columns
+    c2 = cols[cols!='continent']       # get rid of continents element if present
+    c3 = c2[c2!='country']             # get rid of country element if present
+	years = [col[-4:] for col in c3]   # extract last 4 digits from column's names
+    average = data.loc[:,'gdpPercap_1952':'gdpPercap_2007'].mean()
+    name = filename[26:-4]
+    trace = go.Scatter(x=years, y=average, name=name)
+    curves.append(trace)
+
+layout = go.Layout(yaxis=dict(title='GDP'))
+fig = go.Figure(data=curves, layout=layout)
+py.iplot(fig)
+~~~
+
+Finally, let's create a plot showing the correlation between GDP and life expectancy in 2007, normalizing marker area by
+population, and adding the country name to the mouse-over popup:
+
+~~~ {.python}
+data = pd.read_csv('data-python/gapminder_all.csv')
+data.columns   # see the columns
+from numpy import log10, sqrt   # these versions of log10/sqrt can operate on lists
+loggdp = log10(data.gdpPercap_2007.tolist())
+trace = go.Scatter(x=loggdp, y=data.lifeExp_2007, mode='markers', text=data.country,
+                   marker=dict(sizemode = 'diameter', size = sqrt(data.pop_2007/1e5)))
+layout = go.Layout(xaxis=dict(title='log10(GDP)'), yaxis=dict(title='life expectancy'))
+fig = go.Figure(data=[trace], layout=layout)
+py.iplot(fig)
+~~~
+
+## Bar plots
+
+Let's try a Bar plot, constructing `data` directly in one line from the dictionary:
+
+~~~ {.python}
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+data = [go.Bar(x=['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax'],
+               y=[2463431, 1392609, 5928040, 4098927, 403131])]
+py.iplot(data)
+~~~
+
+Let's plot inner city population vs. greater metro area for each city:
+
+~~~ {.python}
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
+proper = [631486, 1239220, 2731571, 1704694, 316701]
+metro = [2463431, 1392609, 5928040, 4098927, 403131]
+bar1 = go.Bar(x=cities, y=proper, name='inner city')
+bar2 = go.Bar(x=cities, y=metro, name='greater area')
+data = [bar1,bar2]
+py.iplot(data)
+~~~
+
+Let's now do a stacked plot, with *outer city* population on top of *inner city* population:
+
+~~~ {.python}
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
+proper = [631486, 1239220, 2731571, 1704694, 316701]
+metro = [2463431, 1392609, 5928040, 4098927, 403131]
+outside = [m-p for p,m in zip(proper,metro)]   # need to subtract
+bar1 = go.Bar(x=cities, y=proper, name='inner city')
+bar2 = go.Bar(x=cities, y=outside, name='outer city')
+data = [bar1,bar2]
+layout = go.Layout(barmode='stack')         # new element!
+fig = go.Figure(data=data, layout=layout)   # new element!
+py.iplot(fig)   # we get a stacked bar chart
+~~~
+
+What else can we modify in the layout?
+
+~~~ {.python}
+import plotly.graph_objs as go
+help(go.Layout)
+~~~
+
+## Heatmaps
+
+Let's plot a heatmap of monthly temperatures at the South Pole:
+
+~~~ {.python}
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Year']
+recordHigh = [-14.4,-20.6,-26.7,-27.8,-25.1,-28.8,-33.9,-32.8,-29.3,-25.1,-18.9,-12.3,-12.3]
+averageHigh = [-26.0,-37.9,-49.6,-53.0,-53.6,-54.5,-55.2,-54.9,-54.4,-48.4,-36.2,-26.3,-45.8]
+dailyMean = [-28.4,-40.9,-53.7,-57.8,-58.0,-58.9,-59.8,-59.7,-59.1,-51.6,-38.2,-28.0,-49.5]
+averageLow = [-29.6,-43.1,-56.8,-60.9,-61.5,-62.8,-63.4,-63.2,-61.7,-54.3,-40.1,-29.1,-52.2]
+recordLow = [-41.1,-58.9,-71.1,-75.0,-78.3,-82.8,-80.6,-79.3,-79.4,-72.0,-55.0,-41.1,-82.8]
+trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow],
+                   x=months,
+                   y=['record high', 'aver.high', 'daily mean', 'aver.low', 'record low'])
+data = [trace]
+py.iplot(data)
+~~~
+
+## Geographical scatterplot
+
+Go back to your Python Jupyter Notebook. Now let's do a scatterplot on top of a geographical map:
+
+~~~ {.python}
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+import pandas as pd
+from math import log10
+df = pd.read_csv('data-python/cities.csv')   # lists name,pop,lat,lon for 254 Canadian cities and towns
+df['text'] = df['name'] + '<br>Population ' + \
+             (df['pop']/1e6).astype(str) +' million' # add new column for mouse-over
+largest, smallest = df['pop'].max(), df['pop'].min()
+def normalize(x):
+    return log10(x/smallest)/log10(largest/smallest)   # x scaled into [0,1]
+
+df['logsize'] = round(df['pop'].apply(normalize)*255)   # new column
+cities = go.Scattergeo(
+    lon = df['lon'], lat = df['lat'], text = df['text'],
+    marker = dict(
+        size = df['pop']/5000,
+        color = df['logsize'],
+        colorscale = 'Viridis',
+        showscale = True,   # show the colourbar
+        line = dict(width=0.5, color='rgb(40,40,40)'),
+        sizemode = 'area'))
+layout = go.Layout(title = 'City populations',
+                       showlegend = False,   # do not show legend for first plot
+                       geo = dict(
+                           scope = 'north america',
+                           resolution = 50,   # base layer resolution of km/mm
+                           lonaxis = dict(range=[-130,-55]), lataxis = dict(range=[44,70]), # plot range
+                           showland = True, landcolor = 'rgb(217,217,217)',
+                           showrivers = True, rivercolor = 'rgb(153,204,255)',
+                           showlakes = True, lakecolor = 'rgb(153,204,255)',
+                           subunitwidth = 1, subunitcolor = "rgb(255,255,255)",   # province border
+						   countrywidth = 2, countrycolor = "rgb(255,255,255)"))  # country border
+fig = go.Figure(data=[cities], layout=layout)
+py.iplot(fig)
+~~~
+
+**Exercise:** Modify the code to display only 10 largest cities.
+
+## 3D topographic elevation
+
+Let's plot some tabulated topographic elevation data:
+
+~~~ {.python}
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+import pandas as pd
+table = pd.read_csv('data-python/mt_bruno_elevation.csv')
+data = go.Surface(z=table.values)  # use 2D numpy array format
+layout = go.Layout(title='Mt Bruno Elevation',
+                   width=800, height=800,    # image size
+                   margin=dict(l=65, r=10, b=65, t=90))   # margins around the plot
+fig = go.Figure(data=[data], layout=layout)
+py.iplot(fig)
+~~~
+
+## 3D parametric plot
+
+In plotly documentation you can find quite a lot of [different 3D plot types](https://plot.ly/python/3d-charts). Here is
+something visually very different, but it still uses `go.Surface(x,y,z)`:
+
+~~~ {.python}
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+from numpy import pi, sin, cos, mgrid
+dphi, dtheta = pi/250, pi/250    # 0.72 degrees
+[phi, theta] = mgrid[0:pi+dphi*1.5:dphi, 0:2*pi+dtheta*1.5:dtheta]
+        # define two 2D grids: both phi and theta are (252,502) numpy arrays
+r = sin(4*phi)**3 + cos(2*phi)**3 + sin(6*theta)**2 + cos(6*theta)**4
+x = r*sin(phi)*cos(theta)   # x is also (252,502)
+y = r*cos(phi)              # y is also (252,502)
+z = r*sin(phi)*sin(theta)   # z is also (252,502)
+surface = go.Surface(x=x, y=y, z=z, colorscale='Viridis')
+layout = go.Layout(title='parametric plot')
+fig = go.Figure(data=[surface], layout=layout)
+py.iplot(fig)
+~~~
+
+## 3D scatter plot
+
+Let's take a look at a 3D scatter plot using the `country index` data from http://www.prosperity.com for 142 countries:
+
+~~~ {.python}
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+import pandas as pd
+df = pd.read_csv('data-python/legatum2015.csv')
+spheres = go.Scatter3d(x=df.economy,
+                       y=df.entrepreneurshipOpportunity,
+                       z=df.governance,
+                       text=df.country,
+                       mode='markers',
+                       marker=dict(
+                           sizemode = 'diameter',
+                           sizeref = 0.3,   # max(safetySecurity+5.5) / 32
+                           size = df.safetySecurity+5.5,
+                           color = df.education,
+                           colorscale = 'Viridis',
+                           colorbar = dict(title = 'Education'),
+                           line = dict(color='rgb(140, 140, 170)')))   # sphere edge
+layout = go.Layout(height=900, width=900,
+                   title='Each sphere is a country sized by safetySecurity',
+                   scene = dict(xaxis=dict(title='economy'),
+                                yaxis=dict(title='entrepreneurshipOpportunity'),
+                                zaxis=dict(title='governance')))
+fig = go.Figure(data=[spheres], layout=layout)
+py.iplot(fig)
+~~~
+
+### 3D graph
+
+We can plot 3D graphs. Consider a Dorogovtsev-Goltsev-Mendes graph: *in each subsequent generation, every edge from the
+previous generation yields a new node, and the new graph can be made by connecting together three previous-generation
+graphs*.
+
+~~~ {.python}
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+import networkx as nx
+from forceatlas import forceatlas2_layout
+import sys
+generation = 5
+H = nx.dorogovtsev_goltsev_mendes_graph(generation)
+print(H.number_of_nodes(), 'nodes and', H.number_of_edges(), 'edges')
+# Force Atlas 2 graph layout from https://github.com/tpoisot/nxfa2.git
+pos = forceatlas2_layout(H, iterations=100, kr=0.001, dim=3)
+Xn = [pos[i][0] for i in pos]   # x-coordinates of all nodes
+Yn = [pos[i][1] for i in pos]   # y-coordinates of all nodes
+Zn = [pos[i][2] for i in pos]   # z-coordinates of all nodes
+Xe, Ye, Ze = [], [], []
+for edge in H.edges():
+    Xe += [pos[edge[0]][0], pos[edge[1]][0], None]   # x-coordinates of all edge ends
+    Ye += [pos[edge[0]][1], pos[edge[1]][1], None]   # y-coordinates of all edge ends
+    Ze += [pos[edge[0]][2], pos[edge[1]][2], None]   # z-coordinates of all edge ends
+
+degree = [deg[1] for deg in H.degree()]   # list of degrees of all nodes
+labels = [str(i) for i in range(H.number_of_nodes())]
+edges = go.Scatter3d(x=Xe, y=Ye, z=Ze,
+                     mode='lines',
+                     marker=dict(size=12,line=dict(color='rgba(217, 217, 217, 0.14)',width=0.5)),
+                     hoverinfo='none')
+nodes = go.Scatter3d(x=Xn, y=Yn, z=Zn,
+                     mode='markers',
+                     marker=dict(sizemode = 'area',
+                                 sizeref = 0.01, size=degree,
+                                 color=degree, colorscale='Viridis',
+                                 line=dict(color='rgb(50,50,50)', width=0.5)),
+                     text=labels, hoverinfo='text')
+
+axis = dict(showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
+layout = go.Layout(
+    title = str(generation) + "-generation Dorogovtsev-Goltsev-Mendes graph",
+    width=1000, height=1000,
+    showlegend=False,
+    scene=dict(xaxis=go.layout.scene.XAxis(axis),
+               yaxis=go.layout.scene.YAxis(axis),
+               zaxis=go.layout.scene.ZAxis(axis)),
+    margin=go.layout.Margin(t=100))
+fig = go.Figure(data=[edges,nodes], layout=layout)
+py.iplot(fig)
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Programming Style and Wrap-Up
 
@@ -1493,7 +1858,6 @@ metro = [2463431, 1392609, 5928040, 4098927, 403131]
 outside = [m-p for p,m in zip(proper,metro)]   # subtract the two
 ~~~
 
-<!-- abc -->
 <!-- https://www.w3resource.com/python-exercises/list -->
 <!-- https://www.google.ca/amp/s/zwischenzugs.com/2018/01/06/ten-things-i-wish-id-known-about-bash/amp/#ampshare=https://zwischenzugs.com/2018/01/06/ten-things-i-wish-id-known-about-bash -->
 <!-- https://github.com/ComputeCanada/DC-shell_automation -->
