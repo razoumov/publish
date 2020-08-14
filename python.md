@@ -27,7 +27,7 @@
   - [More numpy functionality](#more-numpy-functionality)
   - [External packages built on top of numpy](#external-packages-built-on-top-of-numpy)
 - [Pandas dataframes](#pandas-dataframes)
-  - [Reading tabular data into data frames](#reading-tabular-data-into-data-frames)
+  - [Reading tabular data into dataframes](#reading-tabular-data-into-dataframes)
   - [Subsetting](#subsetting)
   - [Looping over data sets](#looping-over-data-sets)
 - [Advanced topic: running Python scripts from the command line](#advanced-topic-running-python-scripts-from-the-command-line)
@@ -77,17 +77,18 @@ Python programs are plain text files, stored with the .py extension.
 
 Many ways to run Python commands:
 
-1. from the inside a Unix shell can start a Python shell and type commands
-1. running Python scripts saved in *.py files
-1. from Jupyter (formerly iPython) notebooks - stored as JSON files, displayed as HTML
+* from the inside a Unix shell can start a Python shell and type commands
+* running Python scripts saved in *.py files
+* from Jupyter (formerly iPython) notebooks - stored as JSON files, displayed as HTML
 
 Today we will use a Jupyter notebook. You have several options:
 
-* if you have a university computer ID, go to https://syzygy.ca and under Launch select your institution, then fill in your credentials
-* if you have a Google account, go to https://syzygy.ca and under Launch select either Cybera or PIMS, then log in
-* if you have a GitHub account, go to https://westgrid.syzygy.ca
-* if you have Python+Jupyter installed locally on your machine, then you can start it locally from your shell by
-  typing `jupyter notebook`
+1. if you have a university computer ID, go to https://syzygy.ca and under Launch select your institution, then fill in your credentials
+1. if you have a Google account, go to https://syzygy.ca and under Launch select either Cybera or PIMS, then log in
+1. if you have a GitHub account, go to https://westgrid.syzygy.ca
+1. if you have Python+Jupyter installed locally on your machine, then you can start it locally from your shell by typing
+  `jupyter notebook`; you will need the following Python packages installed on your computer: numpy, networkx, pandas,
+  plotly, skimage
 
 This will open a browser page pointing to the Jupyter server (remote except for the last option). Click on New ->
 Python 3. Explain: tab completion, annotating code, displaying figures inside the notebook.
@@ -775,41 +776,17 @@ a
 
 Python lists are very general and flexible, which is great for high-level programming, but it comes at a cost. The
 Python interpreter can't make any assumptions about what will come next in a list, so it treats everything as a generic
-object with its own type. As lists get longer, eventually performance becomes too slow; e.g., to access the element
-\#1000 in a list, the interpreter needs to know how much space the first 999 elements are taking in memory, and that
-depends on their type.
+object with its own type. As lists get longer, eventually performance takes a hit.
 
 Python does not have any mechanism for a uniform/homogeneous list, where -- to jump to element #1000 -- you just take
 the memory address of the very first element and then increment it by (element size in bytes)*999. **Numpy** library
 fills this gap by adding the concept of homogenous collections to python -- `numpy.ndarray`s -- which are multidimensional,
 homogeneous arrays of fixed-size items (most commonly numbers).
 
-<!-- This brings large performance benefits! Let's time a simple Python code that sums the squares of integers from 0 to -->
-<!-- 999,999: -->
-
-<!-- ~~~ -->
-<!-- %%timeit        # this is a Jupyter Magic command to time code execution inside the cell, -->
-<!--                 # runs the cell ~7*10 times (picked automatically for best results) and computes the average -->
-<!-- sum = 0 -->
-<!-- for i in range(int(1e6)): -->
-<!--     sum += i*i -->
-<!-- ~~~ -->
-
-<!-- I get 180 ms for the cell, i.e. for the entire calculation. Now let's repeat with numpy. Here we are applying square element-wise -->
-
-<!-- ~~~ -->
-<!-- import numpy as np -->
-<!-- %timeit np.arange(int(1e6))**2                  # it ran ~7*100 times, computed the average -->
-<!-- ~~~ -->
-
-<!-- import numpy as np -->
-<!-- data = np.ones(shape=(1000, 1000), dtype=np.float) -->
-<!-- for i in range(5): -->
-<!--     data *= 1.0000001 -->
-
-<!-- Now the same calculation took 7.5 ms, which is a 24X speedup! -->
-
-1.  This brings large performance benefits!
+1. This brings large performance benefits!
+  - no reading of extra bits (type, size, reference count)
+  - no type checking
+  - contiguous allocation in memory
 1. numpy lets you work with mathematical arrays.
 
 Lists ans numpy arrays behave very differently:
@@ -825,6 +802,7 @@ import numpy as np
 na = np.array([1, 2, 3, 4])
 nb = np.array([5, 6, 7, 8])
 na + nb            # this will sum two vectors element-wise: array([6,8,10,12])
+na * nb            # element-wise product
 ~~~
 
 ## Working with mathematical arrays in numpy
@@ -867,6 +845,7 @@ You can create random arrays:
 ~~~
 np.random.randint(0, 10, size=(4,5))    # 4x5 array of random integers in the half-open interval [0,10)
 np.random.random(size=(4,3))            # 4x3 array of random floats in the half-open interval [0.,1.)
+np.random.randn(3, 3)       # 3x3 array drawn from a normal (Gaussian with c=0, sigma=1) distribution
 ~~~
 
 ## Indexing, slicing, and reshaping
@@ -1009,7 +988,7 @@ and then rerun the previous (plotly) cell.
 Another example of a package built on top of numpy is **pandas**.
 
 # Pandas dataframes
-## Reading tabular data into data frames
+## Reading tabular data into dataframes
 
 First, let's download the data. Open a terminal inside your Jupyter dashboard. Inside the terminal, type:
 
@@ -1024,7 +1003,7 @@ You can now close the terminal panel. Let's switch back to our Python notebook a
 %pwd              # simply run a bash command with a prefix, make sure you see data-python/
 ~~~
 
-Pandas is a widely-used Python library for working with tabular data, borrows heavily from R's data frames, built on top
+Pandas is a widely-used Python library for working with tabular data, borrows heavily from R's dataframes, built on top
 of numpy. We will be reading the data we downloaded a minute ago into a pandas dataframe:
 
 ~~~ {.python}
@@ -1050,9 +1029,9 @@ Currently the rows are indexed by number. Let's index by country:
 data = pd.read_csv('data-python/gapminder_gdp_oceania.csv', index_col='country')
 data
 data.shape     # now 12 columns
-data.info()    # it's a data frame! show row/column names, precision, memory usage
+data.info()    # it's a dataframe! show row/column names, precision, memory usage
 print(data.columns)   # will list all the columns
-print(data.T)   # this will transpose the data frame; curously this is a variable
+print(data.T)   # this will transpose the dataframe; curously this is a variable
 data.describe()   # will print some statistics of numerical columns (very useful for 1000s of rows!)
 ~~~
 
@@ -1081,7 +1060,7 @@ americas.T.tail(3).T
 microbes = pd.read_csv('../fieldData/microbes.csv')
 ~~~
 
-***Quiz 15:*** write data frame to disk
+***Quiz 15:*** write a dataframe to disk
 
 ***Answer:***
 ~~~ {.python}
@@ -1193,12 +1172,12 @@ continent column, and save the result to a file result.csv.
 ***Answer:*** we read the data for all European countries and for each column (=year) print out the name of the poorest
 and richest country.
 
-How do you create a data frame from scratch? Many ways; the easiest by defining columns:
+How do you create a dataframe from scratch? Many ways; the easiest by defining columns:
 
 ~~~ {.python}
 col1 = [1,2,3]
 col2 = [4,5,6]
-pd.DataFrame({'a': col1, 'b': col2})       # data frame from a dictionary
+pd.DataFrame({'a': col1, 'b': col2})       # dataframe from a dictionary
 ~~~
 
 Let's index the rows by hand:
@@ -1739,7 +1718,6 @@ import plotly.offline as py
 py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 import networkx as nx
-from forceatlas import forceatlas2_layout
 import sys
 generation = 5
 H = nx.dorogovtsev_goltsev_mendes_graph(generation)
