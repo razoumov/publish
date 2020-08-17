@@ -1000,7 +1000,8 @@ unzip pfiles.zip && rm pfiles.zip        # this should unpack into the directory
 You can now close the terminal panel. Let's switch back to our Python notebook and check our location:
 
 ~~~ {.python}
-%pwd              # simply run a bash command with a prefix, make sure you see data-python/
+%pwd       # simply run a bash command with a prefix
+%ls        # make sure you see data-python/
 ~~~
 
 Pandas is a widely-used Python library for working with tabular data, borrows heavily from R's dataframes, built on top
