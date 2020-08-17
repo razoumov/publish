@@ -328,7 +328,7 @@ b.pop(2)             # you can use its index
 b.remove('Earth')       # or you can use its value
 ~~~
 
-**[Exercise](./solution01.md):** write a script to find the second largest number in the list [77,9,23,67,73,21].
+**[Exercise](./solaa.md):** write a script to find the second largest number in the list [77,9,23,67,73,21].
 
 # For Loops
 
@@ -377,60 +377,11 @@ for number in range(10):
 print(total)
 ~~~
 
-**Quiz 3:** revert a string
+**[Quiz 3](./solab.md):** revert a string
 
-<!-- **Solution 1:** -->
-<!-- ~~~ {.python} -->
-<!-- n = '' -->
-<!-- for i in 'computer': -->
-<!--     n = i + n -->
-<!-- print(n) -->
-<!-- ~~~ -->
+**[Exercise](./solac.md):** Print a difference between two lists, e.g., [1, 2, 3, 4] and [1, 2, 5].
 
-<!-- **Solution 2:** -->
-<!-- ~~~ {.python} -->
-<!-- a = list('computer') -->
-<!-- a.reverse() -->
-<!-- ''.join(a)      # convert the list to a string -->
-<!-- help(''.join)   # concatenate all strings in the iterable with the separator from the original string -->
-<!-- ~~~ -->
-
-<!-- **Solution 3:** -->
-<!-- ~~~ {.python} -->
-<!-- 'computer'[::-1] -->
-<!-- ~~~ -->
-
-**Exercise:** Print a difference between two lists, e.g., [1, 2, 3, 4] and [1, 2, 5].
-
-<!-- **Solution 1:** -->
-<!-- ~~~ {.python} -->
-<!-- a1 = [1, 2, 3, 4] -->
-<!-- a2 = [1, 2, 5] -->
-<!-- for i in a1: -->
-<!--     if i not in a2: -->
-<!--         print(i) -->
-<!-- for i in a2: -->
-<!--     if i not in a1: -->
-<!--         print(i) -->
-<!-- ~~~ -->
-
-**Exercise:** write a script to get the frequency of the elements in a list. You are allowed to google this problem :)
-
-<!-- **Solution 1:** -->
-<!-- ~~~ {.python} -->
-<!-- a = [77, 9, 23, 67, 73, 21, 23, 9] -->
-<!-- a.count(77)        # prints 1 -->
-<!-- a.count(9)         # prints 2 -->
-<!-- for i in a: -->
-<!--     a.count(i)    # counts the frequency of 'i' in list 'a' -->
-<!-- ~~~ -->
-
-<!-- **Solution 2:** -->
-<!-- ~~~ {.python} -->
-<!-- a = [77, 9, 23, 67, 73, 21, 23, 9] -->
-<!-- import collections -->
-<!-- print(collections.Counter(a)) -->
-<!-- ~~~ -->
+**[Exercise](./solad.md):** write a script to get the frequency of the elements in a list. You are allowed to google this problem :)
 
 # While loops
 
@@ -494,19 +445,10 @@ The syntax is:
 [something(i) for i in list1 if i [not] in list2 if i [not] in list3 ...]
 ~~~
 
-**Quiz 4:** sum up squares of numbers
+**[Quiz 4](./solae.md):** sum up squares of numbers
 
-<!-- **Solution**: one possible answer is sum([x**2 for x in range(1,101)]) -->
-
-**Exercise:** Write a script to build a list of words that are shorter than *n* from a given list of words
+**[Exercise](./solaf.md):** Write a script to build a list of words that are shorter than *n* from a given list of words
 ['red', 'green', 'white', 'black', 'pink', 'yellow'].
-
-<!-- **Solution**: one possible answer is -->
-<!-- ~~~ {.python} -->
-<!-- input = ['red', 'green', 'white', 'black', 'pink', 'yellow'] -->
-<!-- n = 5 -->
-<!-- [x for x in input if len(x) < n] -->
-<!-- ~~~ -->
 
 # Advanced topic: dictionaries
 
@@ -584,12 +526,7 @@ for k in sorted(favs):
     print(k, favs[k])          # full dictionary sorted by the key
 ~~~
 	
-**Exercise:** Write a script to print the full dictionary sorted by the value.
-
-<!-- **Solution**: many very advanced solutions, but one possible simple solution is -->
-<!-- ~~~ {.python} -->
-<!-- sorted((v,k) for (k,v) in favs.items())      # works as sorted() acts on the first item in each tuple in the list -->
-<!-- ~~~ -->
+**[Exercise](./solag.md):** Write a script to print the full dictionary sorted by the value.
 
 # Writing functions
 
@@ -638,16 +575,7 @@ print('average of actual values:', a)
 
 **Quiz 6:** convert from Celsius to Fahrenheit
 
-**Quiz 7:** convert temperature lists
-
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- def celsius(fs): -->
-<!--     c = [] -->
-<!--     for f in fs: -->
-<!--         c.append((f-32.)*5./9.) -->
-<!--     return c -->
-<!-- ~~~ -->
+**[Quiz 7](./solah.md):** convert temperature lists
 	
 Function arguments in Python can take default values becoming optional:
 
@@ -692,16 +620,13 @@ adjust(10)   # what will be the outcome?
 
 # If we have time
 
-(1) How would you explain the following:
+(1) How would you [explain](./solau.md) the following:
 
 ~~~ {.python}
 1.01-0.5 == 0.51   # returns True (makes sense!)
 1.001-0.5 == 0.501   # returns False -- be aware of this when you use conditionals
 print(0.1+0.2)   # returns 0.30000000000000004
 ~~~
-
-<!-- Explanation: 0.1 in binary will be 0.0001(1001) which we then truncate with round-off, then perform arithmetic, then -->
-<!-- convert back to decimal with round-off. -->
 
 (2) More challening: write a code to solve x^3+4x^2-10=0 with a bisection method in the interval
     [1.3, 1.4] with tolerance 1e-8.
@@ -884,19 +809,11 @@ np.log10(a+1)     # apply this operation to each element
 (a**2+a)/(a+1)    # the result should effectively be a floating-version copy of a
 ~~~
 
-> **Exercise**: Let's verify the equation
+> **[Exercise](./solai.md)**: Let's verify the equation
 > <img src="https://raw.githubusercontent.com/razoumov/publish/master/eq001.png" height="80" />
 > using summation of elements of an `ndarray`.
 >
 > **Hint**: Start with the first ten terms `k = np.arange(1,11)`. Then try the first 50 terms.
-
-<!-- > **Solution**: -->
-<!-- > ~~~ -->
-<!-- > k = np.arange(1,11)   # let's try the first 10 terms: -->
-<!-- > sum(k**2/2**k)        # getting 5.857421875 -->
-<!-- > k = np.arange(1,51)   # the first 50 terms -->
-<!-- > sum(k**2/2**k)        # getting 5.999999999997597 -->
-<!-- > ~~~ -->
 
 ## Aggregate functions
 
@@ -1031,38 +948,13 @@ data.describe()   # will print some statistics of numerical columns (very useful
 
 Quick question: how to list all country names? (try data.T.columns)
 
-**Quiz 12:** explore Americas
+**[Quiz 12](./solaj.md):** explore Americas
 
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- americas = pd.read_csv('data-python/gapminder_gdp_americas.csv', index_col='country') -->
-<!-- americas.info() -->
-<!-- ~~~ -->
+**[Quiz 13](./solak.md):** first 3 rows and last 3 columns
 
-**Quiz 13:** first 3 rows and last 3 columns
+**[Quiz 14](./solal.md):** navigating the filesystem from inside Jupyter Notebook
 
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- americas.head(3) -->
-<!-- americas.T.tail(3).T -->
-<!-- ~~~ -->
-
-**Quiz 14:** navigating the filesystem from inside Jupyter Notebook
-
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- microbes = pd.read_csv('../fieldData/microbes.csv') -->
-<!-- ~~~ -->
-
-**Quiz 15:** write a dataframe to disk
-
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- help(pd.read_csv)    # this works, displays the help page -->
-<!-- help(pd.to_csv)   # produces an error, there is no to_csv ... -->
-<!-- help(data.to_csv)      # Ok, this works :) -->
-<!-- data.to_csv('data-python/processed.csv') -->
-<!-- ~~~ -->
+**[Quiz 15](./solam.md):** write a dataframe to disk
 
 ## Subsetting
 
@@ -1147,24 +1039,11 @@ subset[mask].describe()
 subset[mask].max()
 ~~~
 
-**Quiz 16:** GDP of Serbia
+**[Quiz 16](./solan.md):** GDP of Serbia
 
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- (1) data.loc['Serbia','2007'] -->
-<!-- (2) data['2007']['Serbia'] -->
-<!-- (3) data.2007['Serbia']     # works only with non-numerical column names ... so not here -->
-<!-- ~~~ -->
+**[Quiz 17](./solao.md):** study the script
 
-**Quiz 17:** study the script
-
-<!-- **Solution:** we read data for all countries, select only those in the Americas, remove the Puerto Rico row, remove the -->
-<!-- continent column, and save the result to a file result.csv. -->
-
-**Quiz 18:** study the script
-
-<!-- **Solution:** we read the data for all European countries and for each column (=year) print out the name of the poorest -->
-<!-- and richest country. -->
+**[Quiz 18](./solap.md):** study the script
 
 How do you create a dataframe from scratch? Many ways; the easiest by defining columns:
 
@@ -1209,15 +1088,7 @@ for filename in glob('data-python/*.csv'):
 
 <!-- The right answer is A. -->
 
-**Quiz 20:** find the file with fewest records
-
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- fewest = 1e6 -->
-<!-- for filename in glob('data-python/*.csv'): -->
-<!--     fewest = min(fewest, pd.read_csv(filename).shape[0]) -->
-<!-- print('smallest file has', fewest, 'records') -->
-<!-- ~~~ -->
+**[Quiz 20](./solaq.md):** find the file with fewest records
 
 # Advanced topic: running Python scripts from the command line
 
@@ -1451,49 +1322,11 @@ fig = go.Figure(data=[trace1], layout=layout)
 py.iplot(fig)
 ~~~
 
-**Exercise:** add a curve for New Zealand.
+**[Exercise](./solar.md):** add a curve for New Zealand.
 
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- ... -->
-<!-- trace1 = go.Scatter(x=data.columns, y=data.loc['Australia'], name='Australia') -->
-<!-- trace2 = go.Scatter(x=data.columns, y=data.loc['New Zealand'], name='New Zealand') -->
-<!-- ... -->
-<!-- fig = go.Figure(data=[trace1,trace2], layout=layout) -->
-<!-- ... -->
-<!-- ~~~ -->
+**[Exercise](./solas.md):** do a scatter plot of Australia vs. New Zealand.
 
-**Exercise:** do a scatter plot of Australia vs. New Zealand.
-
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- data = pd.read_csv('data-python/gapminder_gdp_oceania.csv', index_col='country') -->
-<!-- trace = go.Scatter(x=data.loc['Australia'], y=data.loc['New Zealand'], mode='markers') -->
-<!-- layout = go.Layout(xaxis=dict(title='Australia'), yaxis=dict(title='New Zealand')) -->
-<!-- fig = go.Figure(data=[trace], layout=layout) -->
-<!-- py.iplot(fig) -->
-<!-- ~~~ -->
-
-**Quiz 21 :** (more difficult) plot the average GDP vs. time in each region (each file)
-
-<!-- **Solution:** (omitting the first four lines loading modules) -->
-<!-- ~~~ {.python} -->
-<!-- curves = [] -->
-<!-- for filename in glob('data-python/gapminder_gdp_*.csv'): -->
-<!--     data = pd.read_csv(filename) -->
-<!--     cols = data.columns -->
-<!--     c2 = cols[cols!='continent']       # get rid of continents element if present -->
-<!--     c3 = c2[c2!='country']             # get rid of country element if present -->
-<!-- 	years = [col[-4:] for col in c3]   # extract last 4 digits from column's names -->
-<!--     average = data.loc[:,'gdpPercap_1952':'gdpPercap_2007'].mean() -->
-<!--     name = filename[26:-4] -->
-<!--     trace = go.Scatter(x=years, y=average, name=name) -->
-<!--     curves.append(trace) -->
-
-<!-- layout = go.Layout(yaxis=dict(title='GDP')) -->
-<!-- fig = go.Figure(data=curves, layout=layout) -->
-<!-- py.iplot(fig) -->
-<!-- ~~~ -->
+**[Quiz 21](./solat.md):** (more difficult) plot the average GDP vs. time in each region (each file)
 
 Finally, let's create a plot showing the correlation between GDP and life expectancy in 2007, normalizing marker area by
 population, and adding the country name to the mouse-over popup:
