@@ -328,14 +328,7 @@ b.pop(2)             # you can use its index
 b.remove('Earth')       # or you can use its value
 ~~~
 
-**Exercise:** write a script to find the second largest number in the list [77,9,23,67,73,21].
-
-<!-- **Solution:** -->
-<!-- ~~~ {.python} -->
-<!-- a = [77, 9, 23, 67, 73, 21] -->
-<!-- a.sort(reverse=True) -->
-<!-- a[1]         # should print 73 -->
-<!-- ~~~ -->
+**[Exercise](./solution01.md):** write a script to find the second largest number in the list [77,9,23,67,73,21].
 
 # For Loops
 
