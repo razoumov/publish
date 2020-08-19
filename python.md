@@ -46,10 +46,10 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-**Course Description**: This six-hour introduction will walk you through the basics of programming in Python. We will
-cover the main language features -- variables and data types, conditionals, lists, for/while loops, list comprehensions,
-dictionaries, writing functions -- as well as working with external libraries such as pandas (dataframes), numpy
-(mathematical arrays), and plotly (basic plotting).
+<!-- **Course Description**: This six-hour introduction will walk you through the basics of programming in Python. We will -->
+<!-- cover the main language features -- variables and data types, conditionals, lists, for/while loops, list comprehensions, -->
+<!-- dictionaries, writing functions -- as well as working with external libraries such as pandas (dataframes), numpy -->
+<!-- (mathematical arrays), and plotly (basic plotting). -->
 
 # Setup
 
@@ -803,7 +803,7 @@ result is another `ndarray`. In many calculations you can use replace the usual 
 numpy elements.
 
 ~~~
-a = np.reshape(np.arange(100))
+a = np.arange(100)
 a**2          # each element is a square of the corresponding element of a
 np.log10(a+1)     # apply this operation to each element
 (a**2+a)/(a+1)    # the result should effectively be a floating-version copy of a
