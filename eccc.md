@@ -56,7 +56,7 @@
 # Setup
 
 These notes started from the official SWC lesson http://swcarpentry.github.io/python-novice-gapminder, but then evolved
-quite a bit to include several other topics. You can find these notes at http://bit.ly/pythonmd.
+quite a bit to include several other topics. You can find these notes at http://bit.ly/wgeccc.
 
 instructor                                    | students
 --------------------------------------------- | ----------------------------------------
@@ -986,13 +986,15 @@ import matplotlib.pyplot as plt
 plt.figure(figsize=(10,8))
 from numpy import linspace, sin
 x = linspace(0.01,1,300)
-y = sin(1/x1)
+y = sin(1/x)
 plt.plot(x, y, 'bo-')
 plt.xlabel('x', fontsize=18)
 plt.ylabel('f(x)', fontsize=18)
 # plt.show()       # not needed inside the Jupyter notebook
 # plt.savefig('tmp.png')
 ~~~
+
+<img src="https://raw.githubusercontent.com/razoumov/publish/master/styles.png" height="300" />
 
 Let's add the second line, the labels, and the legend. Note that matplotlib automatically adjusts the axis ranges to fit
 both plots:
@@ -1003,9 +1005,9 @@ import matplotlib.pyplot as plt
 plt.figure(figsize=(10,8))
 from numpy import linspace, sin
 x = linspace(0.01,1,300)
-y = sin(1/x1)
-a1 = plt.plot(x, y, 'bo-', label='one')
-a2 = plt.plot(x+0.3, 2*sin(10*x), 'r-', label='two')
+y = sin(1/x)
+plt.plot(x, y, 'bo-', label='one')
+plt.plot(x+0.3, 2*sin(10*x), 'r-', label='two')
 plt.legend(loc='lower right')
 plt.xlabel('x', fontsize=18)
 plt.ylabel('f(x)', fontsize=18)
@@ -1019,7 +1021,7 @@ import matplotlib.pyplot as plt
 fig = plt.figure(figsize=(12,4))
 from numpy import linspace, sin
 x = linspace(0.01,1,300)
-y = sin(1/x1)
+y = sin(1/x)
 
 ax = fig.add_subplot(121)   # on 1x2 layout create plot #1
 a1 = plt.plot(x, y, 'bo-', label='one')
@@ -1033,13 +1035,13 @@ plt.xlabel('x')
 plt.ylabel('f2')
 ~~~
 
-Instead of indices, we could specify the absolute coordinates of each plot:
+Instead of indices, we could specify the absolute coordinates of each plot with `fig.add_axes()`:
 
 1. adjust the size `fig = plt.figure(figsize=(12,4))`
 1. replace the first `fig.add_subplot` with `ax = fig.add_axes([0.1, 0.7, 0.8, 0.3])   # left, bottom, width, height`
 1. replace the second `fig.add_subplot` with `ax = fig.add_axes([0.1, 0.2, 0.8, 0.4])   # left, bottom, width, height`
 
-These two lines are equivalent - both create a new figure with one subplot:
+The 3rd option is `plt.axes()`. These two lines are equivalent - both create a new figure with one subplot:
 
 ~~~
 fig = plt.figure(figsize=(8,8)); ax = fig.add_subplot(111)
@@ -1100,11 +1102,24 @@ for i in range(len(months)):
                        ha="center", va="center", color="w", fontsize=14, weight='bold')
 ~~~
 
-**Exercise:** Modify the code to display only 4 seasons.
+**Exercise:** Modify the code to display only 4 seasons instead of the individual months.
 
 ## 3D topographic elevation
 
-Let's plot some tabulated topographic elevation data:
+For this we need a data file -- let's download it. Open a terminal inside your Jupyter dashboard. Inside the terminal, type:
+
+~~~
+wget http://bit.ly/pythfiles -O pfiles.zip
+unzip pfiles.zip && rm pfiles.zip        # this should unpack into the directory data-python/
+~~~
+
+You can now close the terminal panel. Let's switch back to our Python notebook and check our location:
+
+~~~ {.python}
+%pwd       # simply run a bash command with a prefix
+%ls        # make sure you see data-python/
+
+Let's plot tabulated topographic elevation data:
 
 ~~~ {.python}
 from mpl_toolkits.mplot3d import Axes3D
@@ -1199,7 +1214,7 @@ import pandas as pd
 data = xr.DataArray(
     np.random.random(size=(4,3)),
     dims=("y","x"),  # dimension names (row,col); we want `y` to represent rows and `x` columns
-    coords={"x": [10,11,12], "y": [10,20,30,40]}  # coordinate labels
+    coords={"x": [10,11,12], "y": [10,20,30,40]}  # coordinate labels/values
 )
 data
 ```
@@ -1440,7 +1455,11 @@ data = xr.open_dataset('/Users/razoumov/tmp/xarray/atmosphere/tas_Amon_CanESM5_h
 data.sel(time=slice('2001', '2020')).to_netcdf("tasReduced.nc")   # last 168 steps
 ~~~
 
-Let's download this file in the terminal. abc
+Let's download this file in the terminal:
+
+~~~
+wget http://bit.ly/atmosdata -O tasReduced.nc
+~~~
 
 First, quickly check this dataset in ParaView (use Dimensions = (lat,lon)).
 
@@ -1679,12 +1698,16 @@ data = xr.open_dataset('/Users/razoumov/tmp/xarray/ocean/thetao_Omon_CanESM5_his
 data.sel(time=slice('2014-10-16', '2014-12-16')).to_netcdf("thetaoReduced.nc")     # last 3 steps
 ~~~
 
-Let's download the file. abc
+Let's download the file:
 
-Estimating the file size 360x291x45 x 8 bytes x 5 steps / 1024^2 should result in 108MB, however, it is only 25MB due to
+~~~
+wget http://bit.ly/oceanfile -O thetaoReduced.nc
+~~~
+
+Estimating the file size 360x291x45 x 8 bytes x 3 steps / 1024^2 should result in 108MB, however, it is only 25MB due to
 NetCDF compression.
 
-First, load it into ParaView
+First, load it into ParaView:
 - use Vertical Scale = -1 and Vertical Bias = 5e4
 - pass through Threshold max = 100
 - Rescale to All Timesteps
@@ -1741,7 +1764,7 @@ tnew.plot(ax=ax, cmap="viridis", vmin=-10, vmax=35, transform=ccrs.PlateCarree()
 
 
 
-abc
+<!-- abc -->
 
 
 
@@ -1999,15 +2022,15 @@ venus.radius, venus.mass, venus.hostObject
 ~~~
 
 Instances are guaranteed to have the attributes that we expect.
-**[Question](sol01.md):** How can we define an instance without passing the values? E.g., I would like to say
-`earth=Planet()` and then pass the attribute values separately.
 
-~~~
-earth = Planet()
-earth.radius = 6371         # these are dynamic variables that I can redefine
-earth.mass = 5.972e24
-Planet().radius      # prints 'nan'
-~~~
+> **[Question](sol01.md):** How can we define an instance without passing the values? E.g., I would like to say
+> `earth=Planet()` and then pass the attribute values separately like this:
+> ~~~
+> earth = Planet()
+> earth.radius = 6371         # these are dynamic variables that we can redefine
+> earth.mass = 5.972e24
+> Planet().radius      # prints 'nan'
+> ~~~
 
 Let's add *inside our class* an instance method (with proper indentation):
 
@@ -2023,7 +2046,7 @@ earth = Planet()
 earth.radius = 6371*1e5      # here we need to convert manually
 earth.mass = 5.972e24*1e3
 import math
-earth.density()    # 5.513258738589093
+earth.density()    # 5.51 g/cm^3
 ~~~
 
 Let's add another method (remember the indentation!):
@@ -2061,7 +2084,7 @@ print(jupyter)           # says it is an object at this memory location (not ver
 Let's add our last method (remember the indentation!):
 
 ~~~
-    def __str__(self):    # special method to redefine the output of print{self}
+    def __str__(self):    # special method to redefine the output of print(self)
         return f"My radius is {self.radius/1e5}km and my mass is {self.mass/1e3}kg"
 ~~~
 
@@ -2165,7 +2188,7 @@ for j in [5,6,7]:
     print(j)
 ~~~
 
-Behind the scenes Python creates an iterator out of a collection. This iterator has a __next__() method, i.e. it does
+Behind the scenes Python creates an iterator out of a collection. This iterator has a `__next__()` method, i.e. it does
 something like:
 
 ~~~
