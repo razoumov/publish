@@ -10,10 +10,10 @@
 - [Conditionals](#conditionals)
 - [Lists](#lists)
 - [For Loops](#for-loops)
-- [While loops](#while-loops)
-- [More on lists](#more-on-lists)
-- [Advanced topic: list comprehensions](#advanced-topic-list-comprehensions)
-- [Advanced topic: dictionaries](#advanced-topic-dictionaries)
+  - [While loops](#while-loops)
+  - [More on lists in loops](#more-on-lists-in-loops)
+  - [List comprehensions](#list-comprehensions)
+- [Dictionaries](#dictionaries)
 - [Writing functions](#writing-functions)
 - [Variable scope](#variable-scope)
 - [If we have time](#if-we-have-time)
@@ -70,7 +70,7 @@ instructor                                    | students
 
 Python pros                                 | Python cons
 --------------------------------------------|------------------------
-elegant scripting language                  | slow (interpreted language)
+elegant scripting language                  | slow (interpreted, dynamically typed)
 powerful, compact constructs for many tasks |
 very popular across all fields              |
 huge number of external libraries           |
@@ -90,7 +90,7 @@ Today we will use a Jupyter notebook. You have several options:
 1. if you have a GitHub account, go to https://westgrid.syzygy.ca
 1. if you have Python+Jupyter installed locally on your machine, then you can start it locally from your shell by typing
   `jupyter notebook`; you will need the following Python packages installed on your computer: numpy, networkx, pandas,
-  skimage, maatplotlib, xarray, nc-time-axis, cartopy
+  scikit-image, matplotlib, xarray, nc-time-axis, cartopy
 
 This will open a browser page pointing to the Jupyter server (remote except for the last option). Click on New ->
 Python 3. Explain: tab completion, annotating code, displaying figures inside the notebook.
@@ -385,9 +385,9 @@ print(total)
 
 **[Exercise](./solad.md):** write a script to get the frequency of the elements in a list. You are allowed to google this problem :)
 
-# While loops
+## While loops
 
-Since we talk about loops, we can also briefly mention *while* loops, e.g.
+Since we talk about loops, we should also briefly mention *while* loops, e.g.
 
 ~~~ {.python}
 x = 2
@@ -396,7 +396,7 @@ while x > 1.:
     print(x)
 ~~~
 
-# More on lists
+## More on lists in loops
 
 You can also form a *zip* object of tuples from two lists of the same length:
 
@@ -416,7 +416,7 @@ for i, j in enumerate(b):    # creates a list of tuples with an iterator as the 
 <!-- input = [(2, 5), (1, 2), (4, 4), (2, 3), (2, 1)] should result in -->
 <!-- [(2, 1), (1, 2), (2, 3), (4, 4), (2, 5)]. -->
 
-# Advanced topic: list comprehensions
+## List comprehensions
 
 It's a compact way to create new lists based on existing lists/collections. Let's list squares of numbers
 from 1 to 10:
@@ -452,7 +452,7 @@ The syntax is:
 **[Exercise](./solaf.md):** Write a script to build a list of words that are shorter than *n* from a given list of words
 ['red', 'green', 'white', 'black', 'pink', 'yellow'].
 
-# Advanced topic: dictionaries
+# Dictionaries
 
 **Lists** in Python are ordered sets of objects that you access via their position/index. **Dictionaries** are unordered
 sets in which the objects are accessed via their keys. In other words, dictionaries are unordered key-value pairs.
@@ -969,6 +969,19 @@ and then rerun the previous (matplotlib) cell.
 Another example of a package built on top of numpy is **pandas**, for working with 2D tables. Going further, **xarray**
 was built on top of both numpy and pandas.
 
+> Note on numpy speed: Last week I was working with a spherical dataset describing Earth's mantle convection. It is on a
+> spherical grid with 13e6 grid points. For each grid point, I was converting from the spherical (lateral - radial -
+> longitudinal) velocity components to the Cartesian velocity components. For each point this is a matrix-vector
+> multiplication. Doing this by hand (Python `for` loops) would take many hours for 13e6 points. I used numpy to
+> vectorize in one dimension, and that cut the time to ~5 mins. I was pretty sure more complex vectorization would not
+> work, as numpy would have to figure out which dimension goes where. I tried nevertheless, and it worked, with the
+> correct solution - while the compute time went down to a few seconds!
+
+
+
+
+
+
 
 
 
@@ -1041,12 +1054,46 @@ Instead of indices, we could specify the absolute coordinates of each plot with 
 1. replace the first `fig.add_subplot` with `ax = fig.add_axes([0.1, 0.7, 0.8, 0.3])   # left, bottom, width, height`
 1. replace the second `fig.add_subplot` with `ax = fig.add_axes([0.1, 0.2, 0.8, 0.4])   # left, bottom, width, height`
 
-The 3rd option is `plt.axes()`. These two lines are equivalent - both create a new figure with one subplot:
+The 3rd option is `plt.axes()` -- it creates an `axes` object (a region of the figure with some data space). These two
+lines are equivalent - both create a new figure with one subplot:
 
 ~~~
 fig = plt.figure(figsize=(8,8)); ax = fig.add_subplot(111)
 fig = plt.figure(figsize=(8,8)); ax = plt.axes()
 ~~~
+
+Let's plot a simple line in the x-y plane:
+
+~~~
+import matplotlib.pyplot as plt
+import numpy as np
+fig = plt.figure(figsize=(12,12))
+ax = fig.add_subplot(111)
+x = np.linspace(0,1,100)
+plt.plot(2*np.pi*x, x, 'b-')
+plt.xlabel('x')
+plt.ylabel('f1')
+~~~
+
+Replace `ax = fig.add_subplot(111)` with `ax = fig.add_subplot(111, projection='polar')`. Now we have a plot in the
+phi-r plane, i.e. in polar coordinates. `Phi` goes [0,2\pi], whereas `r` goes [0,1].
+
+~~~
+?fig.add_subplot    # look into `projection` parameter
+~~~
+
+~~~
+import matplotlib.pyplot as plt
+import numpy as np
+fig = plt.figure(figsize=(12,12))
+ax = fig.add_subplot(111, projection='mollweide')
+x = np.radians([30,40, 50])
+y = np.radians([15, 16, 17])
+plt.plot(x, y, 'bo-')
+~~~
+
+Later, we'll learn how to use this `projection` parameter with cartopy to map your 2D data from one projection to
+another.
 
 Let's try a scatter plot:
 
@@ -1636,7 +1683,38 @@ from cartopy.feature.nightshade import Nightshade
 ax.add_feature(Nightshade(utc, alpha=0.2))
 ~~~
 
-Finally, let's plot out atmospheric data with Cartopy. Read the data again:
+Let's plot 1D data (a line connecting two points on top of our map):
+
+~~~
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+
+fig = plt.figure(figsize=(12,12))
+ax = plt.axes(projection=ccrs.Robinson(-150))
+ax.stock_img()
+
+vancouver = (-123.12, 49.28)
+perth = (115.86, -31.95)
+
+lon = [vancouver[0], perth[0]]
+lat = [vancouver[1], perth[1]]
+
+plt.plot(lon, lat, color='blue', linewidth=2, marker='o')   # does not work!
+~~~
+
+We need to tell matplotlib that our line is a straight line in spherical geometry:
+
+~~~
+plt.plot(lon, lat, color='blue', linewidth=2, marker='o', transform=ccrs.Geodetic())
+~~~
+
+If you want to add a straight line in planar geometry:
+
+~~~
+plt.plot(lon, lat, color='gray', linestyle='--', transform=ccrs.PlateCarree())
+~~~
+
+Next, let's plot our 2D atmospheric data with Cartopy projections. Read the data again:
 
 ~~~
 import xarray as xr
