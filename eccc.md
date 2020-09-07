@@ -61,7 +61,7 @@ quite a bit to include several other topics. You can find these notes at http://
 instructor                                    | students
 --------------------------------------------- | ----------------------------------------
 (1) log in to socrative.com as a teacher      | (1) log in to socrative.com as a student
-(2) start a quiz, select 'python quiz 1 or 2' | (2) enter provided room name
+(2) start a quiz, select 'python quiz'        | (2) enter provided room name
 (3) select 'teacher paced'                    |
 (4) disable student names                     |
 (5) start                                     |
@@ -90,7 +90,7 @@ Today we will use a Jupyter notebook. You have several options:
 1. if you have a GitHub account, go to https://westgrid.syzygy.ca
 1. if you have Python+Jupyter installed locally on your machine, then you can start it locally from your shell by typing
   `jupyter notebook`; you will need the following Python packages installed on your computer: numpy, networkx, pandas,
-  scikit-image, matplotlib, xarray, nc-time-axis, cartopy
+  scikit-image, matplotlib, xarray, nc-time-axis, cartopy, netcdf (for reading/writing NetCDF files)
 
 This will open a browser page pointing to the Jupyter server (remote except for the last option). Click on New ->
 Python 3. Explain: tab completion, annotating code, displaying figures inside the notebook.
@@ -135,6 +135,21 @@ print('age in three years:', age)
 ~~~
 
 **Quiz 1:** predicting values
+
+With simple variables in Python, assigning a value to a new name will create a new object. Here we have two distinct
+objects in memory: `initial` and `position`.
+
+> Note: With more complex objects, its name could be a pointer. E.g. when we study lists, we'll see that `initial` and
+> `new` below really point to the same list in memory:
+> ~~~
+> initial = [1,2,3]
+> new = initial        # create a pointer to the same object
+> initial.append(4)    # change the original list to [1, 2, 3, 4]
+> print(new)           # [1, 2, 3, 4]
+> new = initial[:]     # one way to create a new object in memory
+> import copy
+> new = copy.deepcopy(initial)   # another way to create a new object in memory
+> ~~~
 
 Use square brackets to get a substring:
 ~~~ {.python}
@@ -529,6 +544,14 @@ for k in sorted(favs):
 ~~~
 	
 **[Exercise](./solag.md):** Write a script to print the full dictionary sorted by the value.
+
+Similar to list comprehensions, we can form a dictionary comprehension:
+
+~~~
+{k:'.'*k for k in range(10)}
+{k:v*2 for (k,v) in zip(range(10),range(10))}
+{j:c for j,c in enumerate('computer')}
+~~~
 
 # Writing functions
 
@@ -975,7 +998,7 @@ was built on top of both numpy and pandas.
 > multiplication. Doing this by hand (Python `for` loops) would take many hours for 13e6 points. I used numpy to
 > vectorize in one dimension, and that cut the time to ~5 mins. I was pretty sure more complex vectorization would not
 > work, as numpy would have to figure out which dimension goes where. I tried nevertheless, and it worked, with the
-> correct solution - while the compute time went down to a few seconds!
+> correct solution - while the total compute time went down to a few seconds!
 
 
 
@@ -1189,6 +1212,9 @@ fig, ax = plt.subplots(subplot_kw=dict(projection='3d'), figsize=(10,10))    # f
 ax.view_init(20, 30)      # (theta, phi) viewpoint
 surf = ax.plot_surface(x, y, z, facecolors=rgb, linewidth=0, antialiased=False, shade=False)
 ~~~
+
+> **Exercise:** replace `fig, ax = plt.subplots()` with `fig = plt.figure()` followed by `ax = fig.add_subplot()`. Don't
+> forget about the `3d` projection.
 
 Let's replace the last two lines with (running this takes ~10s on my laptop):
 
@@ -1406,6 +1432,7 @@ ds.temperature.sel(x=0.25, y=0.5)     # one element of `temperature`
 We can save this dataset to a file:
 
 ```python
+%pip install netcdf4
 ds.to_netcdf("test.nc")
 new = xr.open_dataset("test.nc")   # try reading it
 ```
