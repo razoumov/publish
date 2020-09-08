@@ -1538,7 +1538,7 @@ wget http://bit.ly/atmosdata -O tasReduced.nc
 First, quickly check this dataset in ParaView (use Dimensions = (lat,lon)).
 
 ~~~
-data = xr.open_dataset('/Users/razoumov/tmp/xarray/tasReduced.nc')
+data = xr.open_dataset('tasReduced.nc')
 data   # this is a time-dependent 2D dataset: print out the metadata, coordinates, data variables
 data.time   # time goes monthly from 2001-01-16 to 2014-12-16
 data.tas    # metadata for the data variable (time: 168, lat: 64, lon: 128)
@@ -1745,7 +1745,7 @@ Next, let's plot our 2D atmospheric data with Cartopy projections. Read the data
 
 ~~~
 import xarray as xr
-data = xr.open_dataset('/Users/razoumov/tmp/xarray/tasReduced.nc')
+data = xr.open_dataset('tasReduced.nc')
 temp = data.tas.sel(time="2014-12-16") - 273.15   # extract last timestep, convert to Celsius
 temp.shape      # (1, 64, 128)
 temp.coords    # the coordinates are 1D, so plotting is easy
@@ -1821,7 +1821,7 @@ Now, let's load this data and plot it in Matplotlib:
 
 ~~~
 import xarray as xr
-data = xr.open_dataset('/Users/razoumov/tmp/xarray/thetaoReduced.nc')
+data = xr.open_dataset('thetaoReduced.nc')
 data
 data.thetao.min(), data.thetao.max()   # the data is in Celsius
 data.thetao.shape
