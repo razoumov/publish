@@ -22,7 +22,7 @@
 - [Numpy](#numpy)
   - [Working with mathematical arrays in numpy](#working-with-mathematical-arrays-in-numpy)
   - [Indexing, slicing, and reshaping](#indexing-slicing-and-reshaping)
-  - [Vectorized functions on array elements](#vectorized-functions-on-array-elements)
+  - [Vectorized functions on array elements (aka universal functions = ufunc)](#vectorized-functions-on-array-elements-aka-universal-functions--ufunc)
   - [Aggregate functions](#aggregate-functions)
   - [Boolean indexing](#boolean-indexing)
   - [More numpy functionality](#more-numpy-functionality)
@@ -55,8 +55,8 @@
 
 # Setup
 
-These notes started from the official SWC lesson http://swcarpentry.github.io/python-novice-gapminder, but then evolved
-quite a bit to include several other topics. You can find these notes at http://bit.ly/wgeccc.
+These notes started few years ago from the official SWC lesson http://swcarpentry.github.io/python-novice-gapminder, but
+then evolved quite a bit to include other topics. You can find these notes at http://bit.ly/wgeccc.
 
 instructor                                    | students
 --------------------------------------------- | ----------------------------------------
@@ -136,8 +136,8 @@ print('age in three years:', age)
 
 **Quiz 1:** predicting values
 
-With simple variables in Python, assigning a value to a new name will create a new object. Here we have two distinct
-objects in memory: `initial` and `position`.
+With simple variables in Python, assigning `var2 = var1` will create a new object in memory `var2`. Here we have two
+distinct objects in memory: `initial` and `position`.
 
 > Note: With more complex objects, its name could be a pointer. E.g. when we study lists, we'll see that `initial` and
 > `new` below really point to the same list in memory:
@@ -670,14 +670,14 @@ np.isclose(0.1+0.2, 0.3, atol=1e-8)
 
 # Libraries
 
-Most of the power of a programming language is in its libraries. This is especially true for Python which is a
+Most of the power of a programming language is in its libraries. This is especially true for Python which is an
 interpreted language and is therefore very slow (compared to compiled languages). However, the libraries are often
 compiled (can be written in compiled languages such as C/C++) and therefore offer much faster performance than native
 Python code.
 
 A library is a collection of functions that can be used by other programs. Python's *standard library* includes many
 functions we worked with before (print, int, round, ...) and is included with Python. There are many other additional
-libraries such as math, numpy, scipy, etc.
+modules in the standard library such as math:
 
 ~~~ {.python}
 print('pi is', pi)
@@ -789,12 +789,12 @@ a
 
 Python lists are very general and flexible, which is great for high-level programming, but it comes at a cost. The
 Python interpreter can't make any assumptions about what will come next in a list, so it treats everything as a generic
-object with its own type. As lists get longer, eventually performance takes a hit.
+object with its own type and size. As lists get longer, eventually performance takes a hit.
 
 Python does not have any mechanism for a uniform/homogeneous list, where -- to jump to element #1000 -- you just take
-the memory address of the very first element and then increment it by (element size in bytes)*999. **Numpy** library
-fills this gap by adding the concept of homogenous collections to python -- `numpy.ndarray`s -- which are multidimensional,
-homogeneous arrays of fixed-size items (most commonly numbers).
+the memory address of the very first element and then increment it by (element size in bytes) x 999. **Numpy** library
+fills this gap by adding the concept of homogenous collections to python -- `numpy.ndarray`s -- which are
+multidimensional, homogeneous arrays of fixed-size items (most commonly numbers).
 
 1. This brings large performance benefits!
   - no reading of extra bits (type, size, reference count)
@@ -802,7 +802,7 @@ homogeneous arrays of fixed-size items (most commonly numbers).
   - contiguous allocation in memory
 1. numpy lets you work with mathematical arrays.
 
-Lists ans numpy arrays behave very differently:
+Lists and numpy arrays behave very differently:
 
 ~~~
 a = [1, 2, 3, 4]
@@ -892,7 +892,7 @@ np.hstack((a,b))   # stack them horizontally into a 1x8 array
 np.column_stack((a,b))    # use a,b as columns
 ~~~
 
-## Vectorized functions on array elements
+## Vectorized functions on array elements (aka universal functions = ufunc)
 
 One of the big reasons for using numpy is so you can do fast numerical operations on a large number of elements. The
 result is another `ndarray`. In many calculations you can use replace the usual `for`/`while` loops with functions on
@@ -903,13 +903,80 @@ a = np.arange(100)
 a**2          # each element is a square of the corresponding element of a
 np.log10(a+1)     # apply this operation to each element
 (a**2+a)/(a+1)    # the result should effectively be a floating-version copy of a
+np.arange(10) / np.arange(1,11)  # this is np.array([ 0/1, 1/2, 2/3, 3/4, ..., 9/10 ])
 ~~~
 
 > **[Exercise](./solai.md)**: Let's verify the equation
 > <img src="https://raw.githubusercontent.com/razoumov/publish/master/eq001.png" height="80" />
 > using summation of elements of an `ndarray`.
 >
-> **Hint**: Start with the first ten terms `k = np.arange(1,11)`. Then try the first 50 terms.
+> **Hint**: Start with the first 10 terms `k = np.arange(1,11)`. Then try the first 30 terms.
+
+
+
+
+
+
+
+An extremely useful feature of ufuncs is the ability to operate between arrays of different sizes and shapes, a set of
+operations known as *broadcasting*.
+
+~~~
+a = np.array([0, 1, 2])    # 1D array
+b = np.ones((3,3))         # 2D array
+a + b          # `a` is stretched/broadcast across the 2nd dimension before addition;
+               # effectively we add `a` to each row of `b`
+~~~
+
+In the following example both arrays are broadcast from 1D to 2D to match the shape of the other:
+
+~~~
+a = np.arange(3)                     # 1D row;                a.shape is (3,)
+b = np.arange(3).reshape((3,1))      # effectively 1D column; b.shape is (3, 1)
+a + b                                # the result is a 2D array!
+~~~
+
+Numpy's broadcast rules are:
+
+1. the shape of an array with fewer dimensions is padded with 1's on the left
+1. any array with shape equal to 1 in that dimension is stretched to match the other array's shape
+1. if in any dimension the sizes disagree and neither is equal to 1, an error is raised
+
+~~~
+Example 1:
+==========
+a: (2,3)  ->  (2,3)  ->  (2,3)
+b: (3,)   ->  (1,3)  ->  (2,3)
+                                ->  (2,3)
+
+Example 2:
+==========
+a: (3,1)  ->  (3,1)  ->  (3,3)
+b: (3,)   ->  (1,3)  ->  (3,3)
+                                ->  (3,3)
+
+Example 3:
+==========
+a: (3,2)  ->  (3,2)  ->  (3,2)
+b: (3,)   ->  (1,3)  ->  (3,3)
+                                ->  error
+"ValueError: operands could not be broadcast together with shapes (3,2) (3,)"
+~~~
+
+> Note on numpy speed: As chance would have it, last week I was working with a spherical dataset describing Earth's
+> mantle convection. It is on a spherical grid with 13e6 grid points. For each grid point, I was converting from the
+> spherical (lateral - radial - longitudinal) velocity components to the Cartesian velocity components. For each point
+> this is a matrix-vector multiplication. Doing this by hand with Python's `for` loops would take many hours for 13e6
+> points. I used numpy to vectorize in one dimension, and that cut the time to ~5 mins. At first glance, a more complex
+> vectorization would not work, as numpy would have to figure out which dimension goes where. Writing it carefully and
+> following the broadcast rules it worked, with the correct solution -- while the total compute time went down to a few
+> seconds!
+
+
+
+
+
+
 
 ## Aggregate functions
 
@@ -992,13 +1059,6 @@ and then rerun the previous (matplotlib) cell.
 Another example of a package built on top of numpy is **pandas**, for working with 2D tables. Going further, **xarray**
 was built on top of both numpy and pandas.
 
-> Note on numpy speed: Last week I was working with a spherical dataset describing Earth's mantle convection. It is on a
-> spherical grid with 13e6 grid points. For each grid point, I was converting from the spherical (lateral - radial -
-> longitudinal) velocity components to the Cartesian velocity components. For each point this is a matrix-vector
-> multiplication. Doing this by hand (Python `for` loops) would take many hours for 13e6 points. I used numpy to
-> vectorize in one dimension, and that cut the time to ~5 mins. I was pretty sure more complex vectorization would not
-> work, as numpy would have to figure out which dimension goes where. I tried nevertheless, and it worked, with the
-> correct solution - while the total compute time went down to a few seconds!
 
 
 
@@ -1059,7 +1119,7 @@ from numpy import linspace, sin
 x = linspace(0.01,1,300)
 y = sin(1/x)
 
-ax = fig.add_subplot(121)   # on 1x2 layout create plot #1
+ax = fig.add_subplot(121)   # on 1x2 layout create plot #1 (`axes` object with some data space)
 a1 = plt.plot(x, y, 'bo-', label='one')
 ax.set_ylim(-1.5, 1.5)
 plt.xlabel('x')
@@ -1171,6 +1231,9 @@ for i in range(len(months)):
         text = plt.text(i, j, Z[j,i],
                        ha="center", va="center", color="w", fontsize=14, weight='bold')
 ~~~
+
+**Exercise:** Change the text colour to black in the brightest (green) rows and columns. You can do this either by
+specifying rows/columns explicitly, or (better) by setting a threshold background colour.
 
 **Exercise:** Modify the code to display only 4 seasons instead of the individual months.
 
@@ -1295,12 +1358,12 @@ data
 We can access various attributes of this array:
 
 ```python
-data.values                 # the 3D numpy array
+data.values                 # the 2D numpy array
 data.values[0,0] = 0.53     # can modify in-place
 data.dims                   # ('y', 'x')
 data.coords               # all coordinates, cannot modify!
 data.coords['x'][1]       # a number
-data.x[1]                 # same
+data.x[1]                 # the same
 ```
 
 Let's add some arbitrary metadata:
@@ -1652,6 +1715,7 @@ import cartopy.feature as cfeature
 fig = plt.figure(figsize=(12,12))
 ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
 ax.coastlines()
+ax.coastlines(resolution='50m', color='gray', linewidth=2)   # valid scales are "110m", "50m", "10m"
 ax.add_feature(cfeature.OCEAN)
 ax.add_feature(cfeature.LAND)
 ax.add_feature(cfeature.BORDERS, linestyle=':')
@@ -1741,7 +1805,9 @@ If you want to add a straight line in planar geometry:
 plt.plot(lon, lat, color='gray', linestyle='--', transform=ccrs.PlateCarree())
 ~~~
 
-Next, let's plot our 2D atmospheric data with Cartopy projections. Read the data again:
+Most matplotlib plotting functions will work with cartopy projections: lines (`plot`), heatmaps and images (`plot` or
+`imshow`), scatter plots (`scatter`), vector plots (`quiver`). Let's plot our 2D atmospheric data with Cartopy
+projections. Read the data again:
 
 ~~~
 import xarray as xr
@@ -1764,7 +1830,7 @@ temp.plot(ax=ax, cbar_kwargs={'shrink': 0.4})   # since we are using PlateCarree
                                                 # that the data is also in PlateCarree() coordinates, which is true
 ~~~
 
-Now let's switch the projection. Then we have tell Cartopy our data's coordinate system explicitly with `transform`:
+Now let's switch the projection. Then we have to tell Cartopy our data's coordinate system explicitly with `transform`:
 
 ~~~
 fig = plt.figure(figsize=(14,12))
@@ -2023,8 +2089,25 @@ for f in filenames:
 
 ## Very advanced topic: adding standard input support to our scripts
 
-Finally, let's add support for Unix standard input. Delete 'print('\n', f[26:-4].capitalize())' and change the last two
-lines to:
+Python scripts can process standard input. Consider the following script:
+
+~~~
+#!/usr/bin/env python
+import sys
+for line in sys.stdin:
+    print(line, end='')
+~~~
+
+In the terminal make it executable (`chmod u+x scriptName.py`), and then run it:
+
+~~~
+./scriptName.py                          # repeat each line you type until Ctrl-C
+echo one two three | ./scriptName.py     # print back the line
+cat file.extension | ./scriptName.py     # process this file (filename=sys.stdin) from standard input
+tail -1 scriptName.py | ./scriptName.py      # print its own last line
+~~~
+
+Let's add support for Unix standard input. Delete 'print('\n', f[26:-4].capitalize())' and change the last two lines to:
 
 ~~~ {.python}
 if len(filenames) == 0:
@@ -2200,7 +2283,7 @@ jupyter = Planet(radius=69911, mass=1.898e27)
 print(jupyter)        # prints the full sentence
 ~~~
 
-**Important**: As with any complex object in Python, assigning an instance to a new variable will simple create a
+**Important**: As with any complex object in Python, assigning an instance to a new variable will simply create a
 pointer, i.e. if you modify one in place, you'll see the change through the other one too:
 
 ~~~
