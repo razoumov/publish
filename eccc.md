@@ -40,6 +40,7 @@
   - [Split your data into multiple independent groups](#split-your-data-into-multiple-independent-groups)
   - [Dataset: simple example from scratch](#dataset-simple-example-from-scratch)
   - [Time series data](#time-series-data)
+  - [Adhering to climate and forecast (CF) NetCDF convention in spherical geometry](#adhering-to-climate-and-forecast-cf-netcdf-convention-in-spherical-geometry)
   - [Working with atmospheric data](#working-with-atmospheric-data)
   - [Plotting with cartopy](#plotting-with-cartopy)
   - [Working with ocean data](#working-with-ocean-data)
@@ -969,8 +970,24 @@ b: (3,)   ->  (1,3)  ->  (3,3)
 > this is a matrix-vector multiplication. Doing this by hand with Python's `for` loops would take many hours for 13e6
 > points. I used numpy to vectorize in one dimension, and that cut the time to ~5 mins. At first glance, a more complex
 > vectorization would not work, as numpy would have to figure out which dimension goes where. Writing it carefully and
-> following the broadcast rules it worked, with the correct solution -- while the total compute time went down to a few
-> seconds!
+> following the broadcast rules I made it work, with the correct solution at the end -- while the total compute time
+> went down to a few seconds!
+
+Let's use broadcasting to plot a 2D function with matplotlib:
+
+~~~
+%matplotlib inline
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12,12))
+x = np.linspace(0, 5, 50)
+y = np.linspace(0, 5, 50).reshape(50,1)
+z = np.sin(x)**8 + np.cos(5+x*y)*np.cos(x)    # broadcast in action!
+plt.imshow(z)
+plt.colorbar(shrink=0.8)
+~~~
+
+**[Exercise](sol03.md):** Use numpy broadcasting to build a 3D array from three 1D ones.
+
 
 
 
@@ -1006,8 +1023,8 @@ b.sum(axis=1)   # add columns
 ~~~
 a = np.linspace(1, 2, 100)
 a < 1.5
-a[a<1.5]    # will only return those elements that meet the condition
-a[a<1.5].shape
+a[a < 1.5]    # will only return those elements that meet the condition
+a[a < 1.5].shape
 a.shape
 ~~~
 
@@ -1144,6 +1161,9 @@ lines are equivalent - both create a new figure with one subplot:
 fig = plt.figure(figsize=(8,8)); ax = fig.add_subplot(111)
 fig = plt.figure(figsize=(8,8)); ax = plt.axes()
 ~~~
+
+**[Exercise](sol02.md):** break the plot into two subplots, the fist taking 1/3 of the space on the left, the second one
+2/3 of the space on the right.
 
 Let's plot a simple line in the x-y plane:
 
@@ -1439,7 +1459,7 @@ You can perform element-wise operations on xarray.DataArray like with numpy.ndar
 ```python
 data + 100      # element-wise like numpy arrays
 (data - data.mean()) / data.std()    # normalize the data
-data - data[0,:]      # even smarter: subtract first row from all rows
+data - data[0,:]      # use numpy broadcasting => subtract first row from all rows
 ```
 
 ## Split your data into multiple independent groups
@@ -1481,7 +1501,7 @@ As you can see, `ds` includes two 2D arrays on the same grid, one 1D array on `x
 ```python
 ds.temperature   # 2D array
 ds.bar           # 1D array
-ds.xi            # one element
+ds.pi            # one element
 ```
 
 Subsetting works the usual way:
@@ -1501,6 +1521,25 @@ new = xr.open_dataset("test.nc")   # try reading it
 ```
 
 We can even try opening this 2D dataset in ParaView - select (x,y) and deselect Spherical.
+
+> **[Exercise](sol04.md):** Recall the 2D function we plotted when we were talking about numpy's array
+> broadcasting. Let's scale it to a unit square x,y∈[0,1]:
+> ~~~
+> x = np.linspace(0, 1, 50)
+> y = np.linspace(0, 1, 50).reshape(50,1)
+> z = np.sin(5*x)**8 + np.cos(5+25*x*y)*np.cos(5*x)
+> ~~~
+> This is will our image at z=0. Then rotate this image 90 degrees (e.g. flip x and y), and this will be our function at
+> z=1. Now interpolate linearly between z=0 and z=1 to build a 3D function in the unit cube x,y,z∈[0,1]. Check what the
+> function looks like at intermediate z. Write out a NetCDF file with the 3D function.
+
+
+
+
+
+
+
+
 
 ## Time series data
 
@@ -1578,8 +1617,39 @@ ds.sel(time="2020-03-15").temperature.plot(size=8)   # temperature distribution 
 ds.to_netcdf("evolution.nc")
 ~~~
 
-The file `evolution.nc` should be 100^2 x 2 variables x 8 Bytes x 91 steps / 1024^2 = 14MB. We can load it into ParaView
-and play back the pressure and temperature!
+The file `evolution.nc` should be 100^2 x 2 variables x 8 bytes x 91 steps = 14MB. We can load it into ParaView and play
+back the pressure and temperature!
+
+
+
+
+
+
+## Adhering to climate and forecast (CF) NetCDF convention in spherical geometry
+
+So far we've been working with datasets in Cartesian coordinates. How about spherical geometry -- how do we initialize
+and store a dataset in spherical coordinates (longitude - latitude - elevation)? Very easy: define these coordinates and
+your data arrays on top, put everything into an xarray dataset, and then specify the following units:
+
+~~~
+ds.lat.attrs["units"] = "degrees_north"   # this line is important to adhere to CF convention
+ds.lon.attrs["units"] = "degrees_east"    # this line is important to adhere to CF convention
+~~~
+
+**[Exercise](sol05.md):** Let's do it! Create a small (one-degree horizontal + some vertical resolution), stationary (no
+time dependency) dataset in spherical geometry with one 3D variable and write it to `spherical.nc`. Load it into
+ParaView to make sure the geometry is spherical.
+
+
+
+
+
+
+
+
+
+
+
 
 ## Working with atmospheric data
 
