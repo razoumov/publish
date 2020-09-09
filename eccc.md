@@ -44,8 +44,8 @@
   - [Working with atmospheric data](#working-with-atmospheric-data)
   - [Plotting with cartopy](#plotting-with-cartopy)
   - [Working with ocean data](#working-with-ocean-data)
-- [Advanced topic: running Python scripts from the command line](#advanced-topic-running-python-scripts-from-the-command-line)
-  - [Very advanced topic: adding standard input support to our scripts](#very-advanced-topic-adding-standard-input-support-to-our-scripts)
+- [Running Python scripts from the command line](#running-python-scripts-from-the-command-line)
+  - [Adding standard input support to Python scripts](#adding-standard-input-support-to-python-scripts)
 - [Basics of object-oriented programming in Python](#basics-of-object-oriented-programming-in-python)
   - [Inherit from parent classes](#inherit-from-parent-classes)
   - [Generators](#generators)
@@ -2023,7 +2023,7 @@ tnew.plot(ax=ax, cmap="viridis", vmin=-10, vmax=35, transform=ccrs.PlateCarree()
 
 
 
-# Advanced topic: running Python scripts from the command line
+# Running Python scripts from the command line
 
 In this lesson we'll work with bash command line, instead of the Jupyter notebook. We want to write a python script
 'read.py' that takes a set of gapminder_gdp_*.csv files (one/few/many) as an argument and prints out various statistic
@@ -2157,7 +2157,7 @@ for f in filenames:
     process(f, action)
 ~~~
 
-## Very advanced topic: adding standard input support to our scripts
+## Adding standard input support to Python scripts
 
 Python scripts can process standard input. Consider the following script:
 
