@@ -1050,7 +1050,7 @@ visualization](https://raw.githubusercontent.com/razoumov/publish/master/grids.p
 Many image-processing libraries use numpy data structures underneath, e.g.
 
 ~~~
-import skimage.io        # collection of algorithms for image processing
+import skimage.io        # scikit-image is a collection of algorithms for image processing
 image = skimage.io.imread(fname="https://raw.githubusercontent.com/razoumov/publish/master/grids.png")
 image.shape       # it's a 1024^2 image, with (R,G,B,\alpha) channels
 ~~~
@@ -1961,7 +1961,7 @@ data = xr.open_dataset('thetaoReduced.nc')
 data
 data.thetao.min(), data.thetao.max()   # the data is in Celsius
 data.thetao.shape
-temp = ds.thetao.isel(time=-1, lev=0)   # extract last timestep, elevation level 0
+temp = data.thetao.isel(time=-1, lev=0)   # extract last timestep, elevation level 0
 latIndexNearEquator = int(temp.shape[0]/2)
 temp[latIndexNearEquator].values      # see how land is encoded with `nan`s
 # temp[latIndexNearEquator] = 35
@@ -1971,10 +1971,8 @@ temp.coords    # now coordinates are two-dimensional
 ~~~
 
 In this plot we are using the 2D cell indices in x and y. If we want to plot in a non-Cartesian projection, we need to
-use `data.coords`. However, this dataset's coordinate system is unusual: it does not fall into any category I know, so I
-can't easily tell Cartopy this information.
-
-Ideally, something like these lines should work -- but it does not:
+use `data.coords`. However, this dataset's coordinate system is unusual: it is a tripolar grid. Ideally, something like
+these lines should work -- but it does not:
 
 ~~~
 # temp.plot(x="longitude", y = "latitude", size=8, cmap="viridis", vmin=-10, vmax=35)
@@ -1983,7 +1981,12 @@ Ideally, something like these lines should work -- but it does not:
 
 So, this is an open question: how do you plot this dataset in an arbitrary projection using Cartopy?
 
-My clumsy, very-approximate solution:
+<!-- abc -->
+
+<!-- Neither updating the libraries, nor reading the original dataset solves the problem! -->
+<!-- tripolar grid https://scitools.org.uk/iris/docs/v1.7/examples/graphics/orca_projection.html -->
+
+My clumsy, very approximate solution:
 
 ~~~
 temp.shape     # 291x360
@@ -2005,7 +2008,7 @@ tnew.plot(ax=ax, cmap="viridis", vmin=-10, vmax=35, transform=ccrs.PlateCarree()
 
 
 
-<!-- abc -->
+
 
 
 
