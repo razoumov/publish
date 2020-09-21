@@ -32,6 +32,8 @@
 
 # Running Jupyter notebooks
 
+You can find these notes at http://bit.ly/wgarrays.
+
 Python pros                                 | Python cons
 --------------------------------------------|------------------------
 elegant scripting language                  | slow (interpreted, dynamically typed)
@@ -721,7 +723,7 @@ data.sel(time=slice('2001', '2020')).to_netcdf("tasReduced.nc")   # last 168 ste
 Let's download this file in the terminal:
 
 ~~~
-wget http://bit.ly/atmosdata -O tasReduced.nc
+wget http://bit.ly/atmosdata -O tasReduced.nc    # 4.3MB
 ~~~
 
 First, quickly check this dataset in ParaView (use Dimensions = (lat,lon)).
@@ -983,7 +985,7 @@ ffmpeg -r 30 -i frame%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/
 This is Python, so we can start with any array in any form. Let's load some NetCDF data.
 
 ~~~
-wget https://github.com/razoumov/publish/raw/master/sineEnvelope.nc
+wget https://github.com/razoumov/publish/raw/master/sineEnvelope.nc   # 3.8MB
 ~~~
 
 ~~~
