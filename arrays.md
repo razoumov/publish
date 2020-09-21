@@ -3,9 +3,9 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Running Jupyter notebooks](#running-jupyter-notebooks)
-- [Copying variables](#copying-variables)
 - [Numpy](#numpy)
   - [Working with mathematical arrays in numpy](#working-with-mathematical-arrays-in-numpy)
+  - [Copying variables and objects](#copying-variables-and-objects)
   - [Indexing, slicing, and reshaping](#indexing-slicing-and-reshaping)
   - [Vectorized functions on array elements (aka universal functions = ufunc)](#vectorized-functions-on-array-elements-aka-universal-functions--ufunc)
   - [Aggregate functions](#aggregate-functions)
@@ -74,21 +74,10 @@ Python 3. Explain: tab completion, annotating code, displaying figures inside th
 print(1/2)   # to run all commands in the cell, either use the Run button, or press shift+return
 ~~~
 
-# Copying variables
 
-With simple/primitive variables in Python, assigning `var2 = var1` will create a new object in memory `var2`.
 
-> Note: With more complex objects such as lists or numpy arrays, its name would be a pointer. E.g. with lists,
-> `initial` and `new` below really point to the same list in memory:
-> ~~~
-> initial = [1,2,3]
-> new = initial        # create a pointer to the same object
-> initial.append(4)    # change the original list to [1, 2, 3, 4]
-> print(new)           # [1, 2, 3, 4]
-> new = initial[:]     # one way to create a new object in memory
-> import copy
-> new = copy.deepcopy(initial)   # another way to create a new object in memory
-> ~~~
+
+
 
 
 
@@ -191,6 +180,25 @@ np.random.rand(3, 3)       # 3x3 array drawn from a uniform [0,1) distribution
 np.random.randn(3, 3)      # 3x3 array drawn from a normal (Gaussian with x0=0, sigma=1) distribution
 ~~~
 
+## Copying variables and objects
+
+With simple/primitive variables in Python, assigning `var2 = var1` will create a new object in memory `var2`.
+
+Note: With more complex objects such as lists or numpy arrays, its name would be a pointer. E.g. with lists, `initial`
+and `new` below really point to the same list in memory:
+
+~~~
+initial = [1,2,3]
+new = initial        # create a pointer to the same object
+initial.append(4)    # change the original list to [1, 2, 3, 4]
+print(new)           # [1, 2, 3, 4]
+import copy
+new = copy.deepcopy(initial)   # create a new object in memory
+a = np.arange(25)
+b = copy.deepcopy(a)
+c = a.copy()            # another way to create a new array in memory
+~~~
+
 ## Indexing, slicing, and reshaping
 
 For 1D arrays:
@@ -240,12 +248,6 @@ np.arange(10) / np.arange(1,11)  # this is np.array([ 0/1, 1/2, 2/3, 3/4, ..., 9
 > using summation of elements of an `ndarray`.
 >
 > **Hint**: Start with the first 10 terms `k = np.arange(1,11)`. Then try the first 30 terms.
-
-
-
-
-
-
 
 An extremely useful feature of ufuncs is the ability to operate between arrays of different sizes and shapes, a set of
 operations known as *broadcasting*.
@@ -315,13 +317,6 @@ plt.colorbar(shrink=0.8)
 ~~~
 
 **[Exercise](sol03.md):** Use numpy broadcasting to build a 3D array from three 1D ones.
-
-
-
-
-
-
-
 
 ## Aggregate functions
 
@@ -401,6 +396,10 @@ and then rerun the previous (matplotlib) cell.
 Another example of a package built on top of numpy is **pandas**, for working with 2D tables. Going further, **xarray**
 package for working with labelled multi-dimensional arrays was built on top of both numpy and pandas. And **yt** package
 for analysis and visualization of 3D multi-resolution volumetric data is also based on numpy.
+
+
+
+
 
 
 
@@ -918,6 +917,10 @@ ax.set_extent([-129, -122, 46, 53])
 ~~~
 
 We can see that our data is really low resolution.
+
+
+
+
 
 
 
