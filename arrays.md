@@ -964,7 +964,23 @@ tar xvfz EnzoKelvinHelmholtz.tar.gz && rm EnzoKelvinHelmholtz.tar.gz
 import yt
 ds = yt.load('EnzoKelvinHelmholtz/DD0010/DD0010')
 ds.print_stats()
+ds.domain_width
+ds.domain_width.in_units("cm")   # also try "km", "mm", "au", "pc"
+ds.domain_center
+ds.domain_left_edge, ds.domain_right_edge
+ds.domain_dimensions           # base grid size; really a 2D domain
+ds.parameters                  # list all simulation parameters; outputs a Python dictionary
+ds.parameters['InitialTime']
+ds.index.num_grids, ds.index.max_level
 ds.field_list
+ds.index.grids[0]['Density']           # field on a specific grid
+ds.index.grids[0]['Density'].shape
+rho = ds.all_data()['Density']         # field on all grids
+rho.shape         # this is a 1D/flattened array
+rho.units
+rho.in_cgs()
+rho.in_mks()
+ds.find_max('density')                 # return max value and location
 slc = yt.SlicePlot(ds, normal='z', fields='Density').annotate_grids()
 slc.show()
 ~~~
