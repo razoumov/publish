@@ -956,7 +956,7 @@ on in Python in the Jupyter notebook:
 Get some sample data:
 
 ~~~
-wget http://yt-project.org/data/EnzoKelvinHelmholtz.tar.gz   # 4.3MB, 2D Kelvin-Helmholtz test, 11 timesteps
+wget http://yt-project.org/data/EnzoKelvinHelmholtz.tar.gz   # 4.3MB, 2D Kelvin-Helmholtz test, 11 steps
 tar xvfz EnzoKelvinHelmholtz.tar.gz && rm EnzoKelvinHelmholtz.tar.gz
 ~~~
 
@@ -981,6 +981,7 @@ rho.units
 rho.in_cgs()
 rho.in_mks()
 ds.find_max('density')                 # return max value and location
+slc = yt.SlicePlot(ds, normal='z', fields='Density')
 slc = yt.SlicePlot(ds, normal='z', fields='Density').annotate_grids()
 slc.show()
 ~~~
