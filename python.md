@@ -10,56 +10,62 @@
 - [Conditionals](#conditionals)
 - [Lists](#lists)
 - [For Loops](#for-loops)
-- [While loops](#while-loops)
-- [More on lists](#more-on-lists)
-- [Advanced topic: list comprehensions](#advanced-topic-list-comprehensions)
-- [Advanced topic: dictionaries](#advanced-topic-dictionaries)
+  - [While loops](#while-loops)
+  - [More on lists in loops](#more-on-lists-in-loops)
+  - [List comprehensions](#list-comprehensions)
+- [Dictionaries](#dictionaries)
 - [Writing functions](#writing-functions)
 - [Variable scope](#variable-scope)
 - [If we have time](#if-we-have-time)
 - [Libraries](#libraries)
+- [Virtual environments and packaging](#virtual-environments-and-packaging)
 - [Numpy](#numpy)
   - [Working with mathematical arrays in numpy](#working-with-mathematical-arrays-in-numpy)
   - [Indexing, slicing, and reshaping](#indexing-slicing-and-reshaping)
-  - [Vectorized functions on array elements](#vectorized-functions-on-array-elements)
+  - [Vectorized functions on array elements (aka universal functions = ufunc)](#vectorized-functions-on-array-elements-aka-universal-functions--ufunc)
   - [Aggregate functions](#aggregate-functions)
   - [Boolean indexing](#boolean-indexing)
   - [More numpy functionality](#more-numpy-functionality)
   - [External packages built on top of numpy](#external-packages-built-on-top-of-numpy)
+- [Plotting with matplotlib](#plotting-with-matplotlib)
+  - [Simple line/scatter plots](#simple-linescatter-plots)
+  - [Heatmaps](#heatmaps)
+  - [3D topographic elevation](#3d-topographic-elevation)
+  - [3D parametric plot](#3d-parametric-plot)
 - [Pandas dataframes](#pandas-dataframes)
   - [Reading tabular data into dataframes](#reading-tabular-data-into-dataframes)
   - [Subsetting](#subsetting)
   - [Looping over data sets](#looping-over-data-sets)
-- [Advanced topic: running Python scripts from the command line](#advanced-topic-running-python-scripts-from-the-command-line)
-  - [Very advanced topic: adding standard input support to our scripts](#very-advanced-topic-adding-standard-input-support-to-our-scripts)
-- [Plotting](#plotting)
-  - [Simple line/scatter plots of gapminder data](#simple-linescatter-plots-of-gapminder-data)
-  - [Bar plots](#bar-plots)
-  - [Heatmaps](#heatmaps)
-  - [Geographical scatterplot](#geographical-scatterplot)
-  - [3D topographic elevation](#3d-topographic-elevation)
-  - [3D parametric plot](#3d-parametric-plot)
-  - [3D scatter plot](#3d-scatter-plot)
-  - [3D graph](#3d-graph)
+- [Multidimensional labeled arrays and datasets with xarray](#multidimensional-labeled-arrays-and-datasets-with-xarray)
+  - [Data array: simple example from scratch](#data-array-simple-example-from-scratch)
+  - [Subsetting arrays](#subsetting-arrays)
+  - [Plotting](#plotting)
+  - [Vectorized operations](#vectorized-operations)
+  - [Split your data into multiple independent groups](#split-your-data-into-multiple-independent-groups)
+  - [Dataset: simple example from scratch](#dataset-simple-example-from-scratch)
+  - [Time series data](#time-series-data)
+  - [Adhering to climate and forecast (CF) NetCDF convention in spherical geometry](#adhering-to-climate-and-forecast-cf-netcdf-convention-in-spherical-geometry)
+  - [Working with atmospheric data](#working-with-atmospheric-data)
+  - [Plotting with cartopy](#plotting-with-cartopy)
+- [Running Python scripts from the command line](#running-python-scripts-from-the-command-line)
+  - [Adding standard input support to Python scripts](#adding-standard-input-support-to-python-scripts)
+- [Basics of object-oriented programming in Python](#basics-of-object-oriented-programming-in-python)
+  - [Inherit from parent classes](#inherit-from-parent-classes)
+  - [Generators](#generators)
 - [Programming Style and Wrap-Up](#programming-style-and-wrap-up)
 - [Other advanced Python topics](#other-advanced-python-topics)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-<!-- **Course Description**: This six-hour introduction will walk you through the basics of programming in Python. We will -->
-<!-- cover the main language features -- variables and data types, conditionals, lists, for/while loops, list comprehensions, -->
-<!-- dictionaries, writing functions -- as well as working with external libraries such as pandas (dataframes), numpy -->
-<!-- (mathematical arrays), and plotly (basic plotting). -->
-
 # Setup
 
-These notes started from the official SWC lesson http://swcarpentry.github.io/python-novice-gapminder, but then evolved
-quite a bit to include several other topics. You can find these notes at http://bit.ly/pythonmd.
+These notes started few years ago from the official SWC lesson http://swcarpentry.github.io/python-novice-gapminder, but
+then evolved quite a bit to include other topics. You can find these notes at http://bit.ly/pythonmd.
 
 instructor                                    | students
 --------------------------------------------- | ----------------------------------------
 (1) log in to socrative.com as a teacher      | (1) log in to socrative.com as a student
-(2) start a quiz, select 'python quiz 1 or 2' | (2) enter provided room name
+(2) start a quiz, select 'python quiz'        | (2) enter provided room name
 (3) select 'teacher paced'                    |
 (4) disable student names                     |
 (5) start                                     |
@@ -68,7 +74,7 @@ instructor                                    | students
 
 Python pros                                 | Python cons
 --------------------------------------------|------------------------
-elegant scripting language                  | slow (interpreted language)
+elegant scripting language                  | slow (interpreted, dynamically typed)
 powerful, compact constructs for many tasks |
 very popular across all fields              |
 huge number of external libraries           |
@@ -88,7 +94,7 @@ Today we will use a Jupyter notebook. You have several options:
 1. if you have a GitHub account, go to https://westgrid.syzygy.ca
 1. if you have Python+Jupyter installed locally on your machine, then you can start it locally from your shell by typing
   `jupyter notebook`; you will need the following Python packages installed on your computer: numpy, networkx, pandas,
-  plotly, skimage
+  scikit-image, matplotlib, xarray, nc-time-axis, cartopy, netcdf (for reading/writing NetCDF files)
 
 This will open a browser page pointing to the Jupyter server (remote except for the last option). Click on New ->
 Python 3. Explain: tab completion, annotating code, displaying figures inside the notebook.
@@ -133,6 +139,21 @@ print('age in three years:', age)
 ~~~
 
 **Quiz 1:** predicting values
+
+With simple variables in Python, assigning `var2 = var1` will create a new object in memory `var2`. Here we have two
+distinct objects in memory: `initial` and `position`.
+
+> Note: With more complex objects, its name could be a pointer. E.g. when we study lists, we'll see that `initial` and
+> `new` below really point to the same list in memory:
+> ~~~
+> initial = [1,2,3]
+> new = initial        # create a pointer to the same object
+> initial.append(4)    # change the original list to [1, 2, 3, 4]
+> print(new)           # [1, 2, 3, 4]
+> new = initial[:]     # one way to create a new object in memory
+> import copy
+> new = copy.deepcopy(initial)   # another way to create a new object in memory
+> ~~~
 
 Use square brackets to get a substring:
 ~~~ {.python}
@@ -383,9 +404,9 @@ print(total)
 
 **[Exercise](./solad.md):** write a script to get the frequency of the elements in a list. You are allowed to google this problem :)
 
-# While loops
+## While loops
 
-Since we talk about loops, we can also briefly mention *while* loops, e.g.
+Since we talk about loops, we should also briefly mention *while* loops, e.g.
 
 ~~~ {.python}
 x = 2
@@ -394,7 +415,7 @@ while x > 1.:
     print(x)
 ~~~
 
-# More on lists
+## More on lists in loops
 
 You can also form a *zip* object of tuples from two lists of the same length:
 
@@ -414,7 +435,7 @@ for i, j in enumerate(b):    # creates a list of tuples with an iterator as the 
 <!-- input = [(2, 5), (1, 2), (4, 4), (2, 3), (2, 1)] should result in -->
 <!-- [(2, 1), (1, 2), (2, 3), (4, 4), (2, 5)]. -->
 
-# Advanced topic: list comprehensions
+## List comprehensions
 
 It's a compact way to create new lists based on existing lists/collections. Let's list squares of numbers
 from 1 to 10:
@@ -450,7 +471,7 @@ The syntax is:
 **[Exercise](./solaf.md):** Write a script to build a list of words that are shorter than *n* from a given list of words
 ['red', 'green', 'white', 'black', 'pink', 'yellow'].
 
-# Advanced topic: dictionaries
+# Dictionaries
 
 **Lists** in Python are ordered sets of objects that you access via their position/index. **Dictionaries** are unordered
 sets in which the objects are accessed via their keys. In other words, dictionaries are unordered key-value pairs.
@@ -527,6 +548,14 @@ for k in sorted(favs):
 ~~~
 	
 **[Exercise](./solag.md):** Write a script to print the full dictionary sorted by the value.
+
+Similar to list comprehensions, we can form a dictionary comprehension:
+
+~~~
+{k:'.'*k for k in range(10)}
+{k:v*2 for (k,v) in zip(range(10),range(10))}
+{j:c for j,c in enumerate('computer')}
+~~~
 
 # Writing functions
 
@@ -618,14 +647,26 @@ adjust(10)   # what will be the outcome?
 * "a" is the global variable => visible everywhere
 * "b" and "sum" are local variables => visible only inside the function
 
+Inside a function we can access methods of global variables:
+
+~~~
+a = []
+def add():
+    a.append(5)   # modify global `a`
+add()
+a       # [5]
+~~~
+
 # If we have time
 
 (1) How would you [explain](./solau.md) the following:
 
 ~~~ {.python}
-1.01-0.5 == 0.51   # returns True (makes sense!)
-1.001-0.5 == 0.501   # returns False -- be aware of this when you use conditionals
-print(0.1+0.2)   # returns 0.30000000000000004
+1 + 2 == 3           # returns True (makes sense!)
+0.1 + 0.2 == 0.3     # returns False -- be aware of this when you use conditionals
+abs(0.1+0.2 - 0.3) < 1.e-8     # compare floats for almost equality
+import numpy as np
+np.isclose(0.1+0.2, 0.3, atol=1e-8)
 ~~~
 
 (2) More challening: write a code to solve x^3+4x^2-10=0 with a bisection method in the interval
@@ -633,14 +674,14 @@ print(0.1+0.2)   # returns 0.30000000000000004
 
 # Libraries
 
-Most of the power of a programming language is in its libraries. This is especially true for Python which is a
+Most of the power of a programming language is in its libraries. This is especially true for Python which is an
 interpreted language and is therefore very slow (compared to compiled languages). However, the libraries are often
 compiled (can be written in compiled languages such as C/C++) and therefore offer much faster performance than native
 Python code.
 
 A library is a collection of functions that can be used by other programs. Python's *standard library* includes many
 functions we worked with before (print, int, round, ...) and is included with Python. There are many other additional
-libraries such as math, numpy, scipy, etc.
+modules in the standard library such as math:
 
 ~~~ {.python}
 print('pi is', pi)
@@ -674,6 +715,64 @@ print m.pi
 
 **Quiz 11:** degree conversion with math
 
+
+
+
+
+
+
+
+# Virtual environments and packaging
+
+<!-- Something that comes up often when trying to get people to use python is virtual environments and packaging - it would -->
+<!-- be nice if there could be a discussion on this as well. -->
+
+To install a package into the current Python environment from inside a Jupyter notebook, simply do:
+
+~~~
+%pip install packageName
+~~~
+
+In Python you can create an isolated environment for each project, into which all of its dependencies will be
+installed. This could be useful if your several projects have very different sets of dependencies. On the computer
+running your Jupyter notebooks, open the terminal and type:
+
+~~~
+pip install virtualenv
+virtualenv climate   # create a new virtual environment in your current directory
+source climate/bin/activate
+which python && which pip
+pip install numpy ...
+pip install ipykernel   # install ipykernel (IPython kernel for Jupyter) into this environment
+python -m ipykernel install --user --name=climate   # add your environment to Jupyter
+...
+deactivate
+~~~
+
+Quit all your currently running Jupyter notebooks and the Jupyter dashboard. If running on syzygy.ca, logout from your
+session and then log back in.
+
+Whether running locally or on syzygy.ca, open the notebook dashboard, and one of the options in `New` below `Python 3`
+should be `climate`.
+
+To delete the environment, in the terminal type:
+
+~~~
+jupyter kernelspec list                  # `climate` should be one of them
+jupyter kernelspec uninstall climate     # remove your environment from Jupyter
+/bin/rm -rf climate
+~~~
+
+
+
+
+
+
+
+
+
+
+
 # Numpy
 
 As you saw before, Python is not statically typed, i.e. variables can change their type on the fly:
@@ -694,12 +793,12 @@ a
 
 Python lists are very general and flexible, which is great for high-level programming, but it comes at a cost. The
 Python interpreter can't make any assumptions about what will come next in a list, so it treats everything as a generic
-object with its own type. As lists get longer, eventually performance takes a hit.
+object with its own type and size. As lists get longer, eventually performance takes a hit.
 
 Python does not have any mechanism for a uniform/homogeneous list, where -- to jump to element #1000 -- you just take
-the memory address of the very first element and then increment it by (element size in bytes)*999. **Numpy** library
-fills this gap by adding the concept of homogenous collections to python -- `numpy.ndarray`s -- which are multidimensional,
-homogeneous arrays of fixed-size items (most commonly numbers).
+the memory address of the very first element and then increment it by (element size in bytes) x 999. **Numpy** library
+fills this gap by adding the concept of homogenous collections to python -- `numpy.ndarray`s -- which are
+multidimensional, homogeneous arrays of fixed-size items (most commonly numbers).
 
 1. This brings large performance benefits!
   - no reading of extra bits (type, size, reference count)
@@ -707,7 +806,7 @@ homogeneous arrays of fixed-size items (most commonly numbers).
   - contiguous allocation in memory
 1. numpy lets you work with mathematical arrays.
 
-Lists ans numpy arrays behave very differently:
+Lists and numpy arrays behave very differently:
 
 ~~~
 a = [1, 2, 3, 4]
@@ -763,7 +862,8 @@ You can create random arrays:
 ~~~
 np.random.randint(0, 10, size=(4,5))    # 4x5 array of random integers in the half-open interval [0,10)
 np.random.random(size=(4,3))            # 4x3 array of random floats in the half-open interval [0.,1.)
-np.random.randn(3, 3)       # 3x3 array drawn from a normal (Gaussian with c=0, sigma=1) distribution
+np.random.rand(3, 3)       # 3x3 array drawn from a uniform [0,1) distribution
+np.random.randn(3, 3)      # 3x3 array drawn from a normal (Gaussian with x0=0, sigma=1) distribution
 ~~~
 
 ## Indexing, slicing, and reshaping
@@ -796,7 +896,7 @@ np.hstack((a,b))   # stack them horizontally into a 1x8 array
 np.column_stack((a,b))    # use a,b as columns
 ~~~
 
-## Vectorized functions on array elements
+## Vectorized functions on array elements (aka universal functions = ufunc)
 
 One of the big reasons for using numpy is so you can do fast numerical operations on a large number of elements. The
 result is another `ndarray`. In many calculations you can use replace the usual `for`/`while` loops with functions on
@@ -807,13 +907,96 @@ a = np.arange(100)
 a**2          # each element is a square of the corresponding element of a
 np.log10(a+1)     # apply this operation to each element
 (a**2+a)/(a+1)    # the result should effectively be a floating-version copy of a
+np.arange(10) / np.arange(1,11)  # this is np.array([ 0/1, 1/2, 2/3, 3/4, ..., 9/10 ])
 ~~~
 
 > **[Exercise](./solai.md)**: Let's verify the equation
 > <img src="https://raw.githubusercontent.com/razoumov/publish/master/eq001.png" height="80" />
 > using summation of elements of an `ndarray`.
 >
-> **Hint**: Start with the first ten terms `k = np.arange(1,11)`. Then try the first 50 terms.
+> **Hint**: Start with the first 10 terms `k = np.arange(1,11)`. Then try the first 30 terms.
+
+
+
+
+
+
+
+An extremely useful feature of ufuncs is the ability to operate between arrays of different sizes and shapes, a set of
+operations known as *broadcasting*.
+
+~~~
+a = np.array([0, 1, 2])    # 1D array
+b = np.ones((3,3))         # 2D array
+a + b          # `a` is stretched/broadcast across the 2nd dimension before addition;
+               # effectively we add `a` to each row of `b`
+~~~
+
+In the following example both arrays are broadcast from 1D to 2D to match the shape of the other:
+
+~~~
+a = np.arange(3)                     # 1D row;                a.shape is (3,)
+b = np.arange(3).reshape((3,1))      # effectively 1D column; b.shape is (3, 1)
+a + b                                # the result is a 2D array!
+~~~
+
+Numpy's broadcast rules are:
+
+1. the shape of an array with fewer dimensions is padded with 1's on the left
+1. any array with shape equal to 1 in that dimension is stretched to match the other array's shape
+1. if in any dimension the sizes disagree and neither is equal to 1, an error is raised
+
+~~~
+Example 1:
+==========
+a: (2,3)  ->  (2,3)  ->  (2,3)
+b: (3,)   ->  (1,3)  ->  (2,3)
+                                ->  (2,3)
+
+Example 2:
+==========
+a: (3,1)  ->  (3,1)  ->  (3,3)
+b: (3,)   ->  (1,3)  ->  (3,3)
+                                ->  (3,3)
+
+Example 3:
+==========
+a: (3,2)  ->  (3,2)  ->  (3,2)
+b: (3,)   ->  (1,3)  ->  (3,3)
+                                ->  error
+"ValueError: operands could not be broadcast together with shapes (3,2) (3,)"
+~~~
+
+> Note on numpy speed: As chance would have it, last week I was working with a spherical dataset describing Earth's
+> mantle convection. It is on a spherical grid with 13e6 grid points. For each grid point, I was converting from the
+> spherical (lateral - radial - longitudinal) velocity components to the Cartesian velocity components. For each point
+> this is a matrix-vector multiplication. Doing this by hand with Python's `for` loops would take many hours for 13e6
+> points. I used numpy to vectorize in one dimension, and that cut the time to ~5 mins. At first glance, a more complex
+> vectorization would not work, as numpy would have to figure out which dimension goes where. Writing it carefully and
+> following the broadcast rules I made it work, with the correct solution at the end -- while the total compute time
+> went down to a few seconds!
+
+Let's use broadcasting to plot a 2D function with matplotlib:
+
+~~~
+%matplotlib inline
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12,12))
+x = np.linspace(0, 5, 50)
+y = np.linspace(0, 5, 50).reshape(50,1)
+z = np.sin(x)**8 + np.cos(5+x*y)*np.cos(x)    # broadcast in action!
+plt.imshow(z)
+plt.colorbar(shrink=0.8)
+~~~
+
+**[Exercise](sol03.md):** Use numpy broadcasting to build a 3D array from three 1D ones.
+
+
+
+
+
+
+
 
 ## Aggregate functions
 
@@ -843,8 +1026,8 @@ b.sum(axis=1)   # add columns
 ~~~
 a = np.linspace(1, 2, 100)
 a < 1.5
-a[a<1.5]    # will only return those elements that meet the condition
-a[a<1.5].shape
+a[a < 1.5]    # will only return those elements that meet the condition
+a[a < 1.5].shape
 a.shape
 ~~~
 
@@ -870,21 +1053,19 @@ visualization](https://raw.githubusercontent.com/razoumov/publish/master/grids.p
 Many image-processing libraries use numpy data structures underneath, e.g.
 
 ~~~
-import skimage.io        # collection of algorithms for image processing
+import skimage.io        # scikit-image is a collection of algorithms for image processing
 image = skimage.io.imread(fname="https://raw.githubusercontent.com/razoumov/publish/master/grids.png")
 image.shape       # it's a 1024^2 image, with (R,G,B,\alpha) channels
 ~~~
 
-Let's plot this image using plotly:
+Let's plot this image using matplotlib:
 
 ~~~
-import plotly.offline as py
-py.init_notebook_mode(connected=True)   # use the online plotly.js library inside the notebook (smaller file sizes)
-import plotly.graph_objs as go
-trace = go.Heatmap(z=image[:,:,2])   # plot the blue channel
-layout = go.Layout(height=800, width=800)
-fig = go.Figure(data=[trace], layout=layout)
-py.iplot(fig)
+%matplotlib inline
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10,10))
+plt.imshow(image[:,:,2], interpolation='nearest')
+plt.colorbar(orientation='vertical', shrink=0.75, aspect=50)
 ~~~
 
 Using numpy, you can easily manipulate pixels:
@@ -893,9 +1074,283 @@ Using numpy, you can easily manipulate pixels:
 image[:,:,2] = 255 - image[:,:,2]
 ~~~
 
-and then rerun the previous (plotly) cell.
+and then rerun the previous (matplotlib) cell.
 
-Another example of a package built on top of numpy is **pandas**.
+Another example of a package built on top of numpy is **pandas**, for working with 2D tables. Going further, **xarray**
+was built on top of both numpy and pandas. We will study **pandas** and **xarray** later in this workshop.
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Plotting with matplotlib
+## Simple line/scatter plots
+
+One of the most widely used Python plotting libraries is matplotlib. Matplotlib is open source and produces static images.
+
+~~~
+%matplotlib inline
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10,8))
+from numpy import linspace, sin
+x = linspace(0.01,1,300)
+y = sin(1/x)
+plt.plot(x, y, 'bo-')
+plt.xlabel('x', fontsize=18)
+plt.ylabel('f(x)', fontsize=18)
+# plt.show()       # not needed inside the Jupyter notebook
+# plt.savefig('tmp.png')
+~~~
+
+<img src="https://raw.githubusercontent.com/razoumov/publish/master/styles.png" height="300" />
+
+Let's add the second line, the labels, and the legend. Note that matplotlib automatically adjusts the axis ranges to fit
+both plots:
+
+~~~
+%matplotlib inline
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10,8))
+from numpy import linspace, sin
+x = linspace(0.01,1,300)
+y = sin(1/x)
+plt.plot(x, y, 'bo-', label='one')
+plt.plot(x+0.3, 2*sin(10*x), 'r-', label='two')
+plt.legend(loc='lower right')
+plt.xlabel('x', fontsize=18)
+plt.ylabel('f(x)', fontsize=18)
+~~~
+
+Let's plot these two functions side-by-side:
+
+~~~
+%matplotlib inline
+import matplotlib.pyplot as plt
+fig = plt.figure(figsize=(12,4))
+from numpy import linspace, sin
+x = linspace(0.01,1,300)
+y = sin(1/x)
+
+ax = fig.add_subplot(121)   # on 1x2 layout create plot #1 (`axes` object with some data space)
+a1 = plt.plot(x, y, 'bo-', label='one')
+ax.set_ylim(-1.5, 1.5)
+/Users/razoumov/Library/Group Containers/3L68KQB4HG.group.com.readdle.smartemail/databases/messagesData/2/92721/nbody.jl/Users/razoumov/Library/Group Containers/3L68KQB4HG.group.com.readdle.smartemail/databases/messagesData/2/92721/nbody.jlplt.xlabel('x')
+plt.ylabel('f1')
+
+ax = fig.add_subplot(122)   # on 1x2 layout create plot #2
+a2 = plt.plot(x+0.2, 2*sin(10*x), 'r-', label='two')
+plt.xlabel('x')
+plt.ylabel('f2')
+~~~
+
+Instead of indices, we could specify the absolute coordinates of each plot with `fig.add_axes()`:
+
+1. adjust the size `fig = plt.figure(figsize=(12,4))`
+1. replace the first `fig.add_subplot` with `ax = fig.add_axes([0.1, 0.7, 0.8, 0.3])   # left, bottom, width, height`
+1. replace the second `fig.add_subplot` with `ax = fig.add_axes([0.1, 0.2, 0.8, 0.4])   # left, bottom, width, height`
+
+The 3rd option is `plt.axes()` -- it creates an `axes` object (a region of the figure with some data space). These two
+lines are equivalent - both create a new figure with one subplot:
+
+~~~
+fig = plt.figure(figsize=(8,8)); ax = fig.add_subplot(111)
+fig = plt.figure(figsize=(8,8)); ax = plt.axes()
+~~~
+
+**[Exercise](sol02.md):** break the plot into two subplots, the fist taking 1/3 of the space on the left, the second one
+2/3 of the space on the right.
+
+Let's plot a simple line in the x-y plane:
+
+~~~
+import matplotlib.pyplot as plt
+import numpy as np
+fig = plt.figure(figsize=(12,12))
+ax = fig.add_subplot(111)
+x = np.linspace(0,1,100)
+plt.plot(2*np.pi*x, x, 'b-')
+plt.xlabel('x')
+plt.ylabel('f1')
+~~~
+
+Replace `ax = fig.add_subplot(111)` with `ax = fig.add_subplot(111, projection='polar')`. Now we have a plot in the
+phi-r plane, i.e. in polar coordinates. `Phi` goes [0,2\pi], whereas `r` goes [0,1].
+
+~~~
+?fig.add_subplot    # look into `projection` parameter
+~~~
+
+~~~
+import matplotlib.pyplot as plt
+import numpy as np
+fig = plt.figure(figsize=(12,12))
+ax = fig.add_subplot(111, projection='mollweide')
+x = np.radians([30,40, 50])
+y = np.radians([15, 16, 17])
+plt.plot(x, y, 'bo-')
+~~~
+
+Later, we'll learn how to use this `projection` parameter with cartopy to map your 2D data from one projection to
+another.
+
+Let's try a scatter plot:
+
+~~~
+%matplotlib inline
+import matplotlib.pyplot as plt
+import numpy as np
+plt.figure(figsize=(10,8))
+x = np.random.random(size=1000)   # 1D array of 1000 random numbers in [0.,1.]
+y = np.random.random(size=1000)
+size = 1 + 50*np.random.random(size=1000)
+plt.scatter(x, y, s=size, color='lightblue')
+~~~
+
+For other plot types click on any example in the [Matplotlib gallery](https://matplotlib.org/gallery).
+
+For colours, see [Choosing Colormaps in Matplotlib](https://matplotlib.org/3.3.1/tutorials/colors/colormaps.html).
+
+## Heatmaps
+
+Let's plot a heatmap of monthly temperatures at the South Pole:
+
+~~~ {.python}
+%matplotlib inline
+import matplotlib.pyplot as plt
+from matplotlib import cm
+import numpy as np
+plt.figure(figsize=(15,10))
+
+months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Year']
+recordHigh = [-14.4,-20.6,-26.7,-27.8,-25.1,-28.8,-33.9,-32.8,-29.3,-25.1,-18.9,-12.3,-12.3]
+averageHigh = [-26.0,-37.9,-49.6,-53.0,-53.6,-54.5,-55.2,-54.9,-54.4,-48.4,-36.2,-26.3,-45.8]
+dailyMean = [-28.4,-40.9,-53.7,-57.8,-58.0,-58.9,-59.8,-59.7,-59.1,-51.6,-38.2,-28.0,-49.5]
+averageLow = [-29.6,-43.1,-56.8,-60.9,-61.5,-62.8,-63.4,-63.2,-61.7,-54.3,-40.1,-29.1,-52.2]
+recordLow = [-41.1,-58.9,-71.1,-75.0,-78.3,-82.8,-80.6,-79.3,-79.4,-72.0,-55.0,-41.1,-82.8]
+
+vlabels = ['record high', 'average high', 'daily mean', 'average low', 'record low']
+
+Z = np.stack((recordHigh,averageHigh,dailyMean,averageLow,recordLow))
+plt.imshow(Z, cmap=cm.winter)
+plt.colorbar(orientation='vertical', shrink=0.45, aspect=20)
+plt.xticks(range(13), months, fontsize=15)
+plt.yticks(range(5), vlabels, fontsize=12)
+plt.ylim(-0.5, 4.5)
+
+for i in range(len(months)):
+    for j in range(len(vlabels)):
+        text = plt.text(i, j, Z[j,i],
+                       ha="center", va="center", color="w", fontsize=14, weight='bold')
+~~~
+
+**Exercise:** Change the text colour to black in the brightest (green) rows and columns. You can do this either by
+specifying rows/columns explicitly, or (better) by setting a threshold background colour.
+
+**Exercise:** Modify the code to display only 4 seasons instead of the individual months.
+
+## 3D topographic elevation
+
+For this we need a data file -- let's download it. Open a terminal inside your Jupyter dashboard. Inside the terminal, type:
+
+~~~
+wget http://bit.ly/pythfiles -O pfiles.zip
+unzip pfiles.zip && rm pfiles.zip        # this should unpack into the directory data-python/
+~~~
+
+You can now close the terminal panel. Let's switch back to our Python notebook and check our location:
+
+~~~ {.python}
+%pwd       # simply run a bash command with a prefix
+%ls        # make sure you see data-python/
+
+Let's plot tabulated topographic elevation data:
+
+~~~ {.python}
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from matplotlib.colors import LightSource
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+table = pd.read_csv('data-python/mt_bruno_elevation.csv')
+z = np.array(table)
+nrows, ncols = z.shape
+x = np.linspace(0,1,ncols)
+y = np.linspace(0,1,nrows)
+x, y = np.meshgrid(x, y)
+ls = LightSource(270, 45)
+rgb = ls.shade(z, cmap=cm.gist_earth, vert_exag=0.1, blend_mode='soft')
+
+fig, ax = plt.subplots(subplot_kw=dict(projection='3d'), figsize=(10,10))    # figure with one subplot
+ax.view_init(20, 30)      # (theta, phi) viewpoint
+surf = ax.plot_surface(x, y, z, facecolors=rgb, linewidth=0, antialiased=False, shade=False)
+~~~
+
+> **Exercise:** replace `fig, ax = plt.subplots()` with `fig = plt.figure()` followed by `ax = fig.add_subplot()`. Don't
+> forget about the `3d` projection.
+
+Let's replace the last two lines with (running this takes ~10s on my laptop):
+
+~~~
+ax.view_init(20, 30)
+surf = ax.plot_surface(x, y, z, facecolors=rgb, linewidth=0, antialiased=False, shade=False)
+for angle in range(90):
+    print(angle)
+    ax.view_init(20, 30+angle)
+    plt.savefig('frame%04d'%(angle)+'.png')
+~~~
+
+And then we can create a movie in bash:
+
+~~~
+ffmpeg -r 30 -i frame%04d.png -c:v libx264 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" spin.mp4
+~~~
+
+## 3D parametric plot
+
+Here is something visually very different, still using `ax.plot_surface()`:
+
+~~~ {.python}
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from matplotlib.colors import LightSource
+import matplotlib.pyplot as plt
+from numpy import pi, sin, cos, mgrid
+
+dphi, dtheta = pi/250, pi/250    # 0.72 degrees
+[phi, theta] = mgrid[0:pi+dphi*1.5:dphi, 0:2*pi+dtheta*1.5:dtheta]
+        # define two 2D grids: both phi and theta are (252,502) numpy arrays
+r = sin(4*phi)**3 + cos(2*phi)**3 + sin(6*theta)**2 + cos(6*theta)**4
+x = r*sin(phi)*cos(theta)   # x is also (252,502)
+y = r*cos(phi)              # y is also (252,502)
+z = r*sin(phi)*sin(theta)   # z is also (252,502)
+
+ls = LightSource(270, 45)
+rgb = ls.shade(z, cmap=cm.gist_earth, vert_exag=0.1, blend_mode='soft')
+
+fig, ax = plt.subplots(subplot_kw=dict(projection='3d'), figsize=(10,10))
+ax.view_init(20, 30)
+surf = ax.plot_surface(x, y, z, facecolors=rgb, linewidth=0, antialiased=False, shade=False)
+~~~
+
+
+
+
+
+
+
+
+
+
 
 # Pandas dataframes
 ## Reading tabular data into dataframes
@@ -1090,7 +1545,608 @@ for filename in glob('data-python/*.csv'):
 
 **[Quiz 20](./solaq.md):** find the file with fewest records
 
-# Advanced topic: running Python scripts from the command line
+<!-- **[Exercise](./solar.md):** add a curve for New Zealand. -->
+<!-- **[Exercise](./solas.md):** do a scatter plot of Australia vs. New Zealand. -->
+<!-- **[Quiz 21](./solat.md):** (more difficult) plot the average GDP vs. time in each region (each file) -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Multidimensional labeled arrays and datasets with xarray
+
+Xarray library is built on top of numpy and pandas, and it brings the power of pandas to multidimensional arrays. There
+are two main data structures in xarray:
+
+- xarray.DataArray is a fancy, labelled version of numpy.ndarray
+- xarray.Dataset is a collection of multiple xarray.DataArray's that share dimensions
+
+## Data array: simple example from scratch
+
+```python
+import xarray as xr
+import numpy as np
+data = xr.DataArray(
+    np.random.random(size=(4,3)),
+    dims=("y","x"),  # dimension names (row,col); we want `y` to represent rows and `x` columns
+    coords={"x": [10,11,12], "y": [10,20,30,40]}  # coordinate labels/values
+)
+data
+```
+
+We can access various attributes of this array:
+
+```python
+data.values                 # the 2D numpy array
+data.values[0,0] = 0.53     # can modify in-place
+data.dims                   # ('y', 'x')
+data.coords               # all coordinates, cannot modify!
+data.coords['x'][1]       # a number
+data.x[1]                 # the same
+```
+
+Let's add some arbitrary metadata:
+
+```python
+data.attrs = {"author": "AR", "date": "2020-08-26"}
+data.attrs["name"] = "density"
+data.attrs["units"] = "g/cm^3"
+data.x.attrs["units"] = "cm"
+data.y.attrs["units"] = "cm"
+data.attrs    # all attributes
+data          # all attributes show here as well
+data.x        # only `x` attributes
+```
+
+## Subsetting arrays
+
+We can subset using the usual Python square brackets:
+
+```python
+data[0,:]     # first row
+data[:,-1]    # last column
+```
+
+In addition, xarray provides these functions:
+
+- isel() selects by index, could be replaced by [index1] or [index1,...]
+- sel() selects by value
+- interp() interpolates by value
+
+```python
+data.isel()      # same as `data`
+data.isel(y=1)   # second row
+data.isel(y=0, x=[-2,-1])    # first row, last two columns
+```
+
+```python
+data.x.dtype     # it is integer
+data.sel(x=10)   # certain value of `x`
+data.y   # array([10, 20, 30, 40])
+data.sel(y=slice(15,30))   # only values with 15<=y<=30 (two rows)
+```
+
+There are aggregate functions, e.g.
+
+```python
+meanOfEachColumn = data.mean(dim='y')    # apply mean over y
+spatialMean = data.mean()
+spatialMean = data.mean(dim=['x','y'])   # same
+```
+
+Finally, we can interpolate:
+
+```python
+data.interp(x=10.5, y=10)    # first row, between 1st and 2nd columns
+data.interp(x=10.5, y=15)    # between 1st and 2nd rows, between 1st and 2nd columns
+?data.interp                 # can use different interpolation methods
+```
+
+## Plotting
+
+Matplotlib is integrated directly into xarray:
+
+```python
+data.plot(size=8)                         # 2D heatmap
+data.isel(x=0).plot(marker="o", size=8)   # 1D line plot
+```
+
+## Vectorized operations
+
+You can perform element-wise operations on xarray.DataArray like with numpy.ndarray:
+
+```python
+data + 100      # element-wise like numpy arrays
+(data - data.mean()) / data.std()    # normalize the data
+data - data[0,:]      # use numpy broadcasting => subtract first row from all rows
+```
+
+## Split your data into multiple independent groups
+
+```python
+data.groupby("x")   # 3 groups with labels 10, 11, 12
+data.groupby("x").map(lambda v: v-v.min())   # apply separately to each group
+            # from each column (fixed x) subtract the smallest value in that column
+```
+
+## Dataset: simple example from scratch
+
+Let's initialize two 2D arrays with the identical dimensions:
+
+```python
+coords = {"x": np.linspace(0,1,5), "y": np.linspace(0,1,5)}
+temp = xr.DataArray(      # first 2D array
+    20 + np.random.randn(5,5),
+    dims=("y","x"),
+    coords=coords
+)
+pres = xr.DataArray(       # second 2D array
+    100 + 10*np.random.randn(5,5),
+    dims=("y","x"),
+    coords=coords
+)
+```
+
+From these we can form a dataset:
+
+```python
+ds = xr.Dataset({"temperature": temp, "pressure": pres,
+                 "bar": ("x", 200+np.arange(5)), "pi": np.pi})
+ds
+```
+
+As you can see, `ds` includes two 2D arrays on the same grid, one 1D array on `x`, and one number:
+
+```python
+ds.temperature   # 2D array
+ds.bar           # 1D array
+ds.pi            # one element
+```
+
+Subsetting works the usual way:
+
+```python
+ds.sel(x=0)     # each 2D array becomes 1D array, the 1D array becomes a number, plus a number
+ds.temperature.sel(x=0)     # 'temperature' is now a 1D array
+ds.temperature.sel(x=0.25, y=0.5)     # one element of `temperature`
+```
+
+We can save this dataset to a file:
+
+```python
+%pip install netcdf4
+ds.to_netcdf("test.nc")
+new = xr.open_dataset("test.nc")   # try reading it
+```
+
+We can even try opening this 2D dataset in ParaView - select (x,y) and deselect Spherical.
+
+> **[Exercise](sol04.md):** Recall the 2D function we plotted when we were talking about numpy's array
+> broadcasting. Let's scale it to a unit square x,y∈[0,1]:
+> ~~~
+> x = np.linspace(0, 1, 50)
+> y = np.linspace(0, 1, 50).reshape(50,1)
+> z = np.sin(5*x)**8 + np.cos(5+25*x*y)*np.cos(5*x)
+> ~~~
+> This is will our image at z=0. Then rotate this image 90 degrees (e.g. flip x and y), and this will be our function at
+> z=1. Now interpolate linearly between z=0 and z=1 to build a 3D function in the unit cube x,y,z∈[0,1]. Check what the
+> function looks like at intermediate z. Write out a NetCDF file with the 3D function.
+
+
+
+
+
+
+
+
+
+## Time series data
+
+In xarray you can work with time-dependent data. Xarray accepts pandas time formatting,
+e.g. `pd.to_datetime("2020-09-10")` would produce a timestamp. To produce a time range, we can use:
+
+~~~
+import pandas as pd
+time = pd.date_range("2000-01-01", freq="D", periods=365*3+1)    # 2000-Jan to 2002-Dec (3 full years)
+time
+time.month    # same length (1096), but each element is replaced by the month number
+time.day      # same length (1096), but each element is replaced by the day-of-the-month
+?pd.date_range
+~~~
+
+Using this `time` construct, let's initialize a time-dependent dataset that contains a scalar temperature variable (no
+space) mimicking seasonal change. We can do this directly without initializing an xarray.DataArray first -- we just need
+to specify what this temperature variable depends on:
+
+~~~
+import xarray as xr
+import numpy as np
+ntime = len(time)
+temp = 10 + 5*np.sin((250+np.arange(ntime))/365.25*2*np.pi) + 2*np.random.randn(ntime)
+ds = xr.Dataset({ "temperature": ("time", temp),        # it's 1D function of time
+                  "time": time })
+ds.temperature.plot(size=8)
+~~~
+
+We can do the usual subsetting:
+
+~~~
+ds.isel(time=100)   # 101st timestep
+ds.sel(time="2002-12-22")
+~~~
+
+Time dependency in xarray allows resampling with a different timestep:
+
+~~~
+ds.resample(time='7D')    # 1096 times -> 157 time groups
+weekly = ds.resample(time='7D').mean()     # compute mean for each group
+weekly.temperature.plot(size=8)
+~~~
+
+Now, let's combine spatial and time dependency and construct a dataset containing two 2D variables (temperature and
+pressure) varying in time. The time dependency is baked into the coordinates of these xarray.DataArray's and should come
+before the spatial coordinates:
+
+~~~
+time = pd.date_range("2020-01-01", freq="D", periods=91) # January - March 2020
+ntime = len(time)
+n = 100      # spatial resolution in each dimension
+axis = np.linspace(0,1,n)
+X, Y = np.meshgrid(axis,axis)   # 2D Cartesian meshes of x,y coordinates
+initialState = (1-Y)*np.sin(np.pi*X) + Y*(np.sin(2*np.pi*X))**2
+finalState =   (1-X)*np.sin(np.pi*Y) + X*(np.sin(2*np.pi*Y))**2
+f = np.zeros((ntime,n,n))
+for t in range(ntime):
+    z = (t+0.5) / ntime   # dimensionless time from 0 to 1
+    f[t,:,:] = (1-z)*initialState + z*finalState
+
+coords = {"time": time, "x": axis, "y": axis}
+temp = xr.DataArray(
+    20 + f,       # this 2D array varies in time from initialState to finalState
+    dims=("time","y","x"),
+    coords=coords
+)
+pres = xr.DataArray(   # random 2D array
+    100 + 10*np.random.randn(ntime,n,n),
+    dims=("time","y","x"),
+    coords=coords
+)
+ds = xr.Dataset({"temperature": temp, "pressure": pres})
+ds.sel(time="2020-03-15").temperature.plot(size=8)   # temperature distribution on a specific date
+ds.to_netcdf("evolution.nc")
+~~~
+
+The file `evolution.nc` should be 100^2 x 2 variables x 8 bytes x 91 steps = 14MB. We can load it into ParaView and play
+back the pressure and temperature!
+
+
+
+
+
+
+## Adhering to climate and forecast (CF) NetCDF convention in spherical geometry
+
+So far we've been working with datasets in Cartesian coordinates. How about spherical geometry -- how do we initialize
+and store a dataset in spherical coordinates (longitude - latitude - elevation)? Very easy: define these coordinates and
+your data arrays on top, put everything into an xarray dataset, and then specify the following units:
+
+~~~
+ds.lat.attrs["units"] = "degrees_north"   # this line is important to adhere to CF convention
+ds.lon.attrs["units"] = "degrees_east"    # this line is important to adhere to CF convention
+~~~
+
+**[Exercise](sol05.md):** Let's do it! Create a small (one-degree horizontal + some vertical resolution), stationary (no
+time dependency) dataset in spherical geometry with one 3D variable and write it to `spherical.nc`. Load it into
+ParaView to make sure the geometry is spherical.
+
+
+
+
+
+
+
+
+
+
+
+
+## Working with atmospheric data
+
+I took one of the ECCC historical model datasets (contains only the near-surface air temperature) published on the CMIP6
+Data-Archive and reduced its size picking only a subset of timesteps:
+
+~~~
+import xarray as xr
+data = xr.open_dataset('/Users/razoumov/tmp/xarray/atmosphere/tas_Amon_CanESM5_historical_r1i1p2f1_gn_185001-201412.nc')
+data.sel(time=slice('2001', '2020')).to_netcdf("tasReduced.nc")   # last 168 steps
+~~~
+
+Let's download this file in the terminal:
+
+~~~
+wget http://bit.ly/atmosdata -O tasReduced.nc
+~~~
+
+First, quickly check this dataset in ParaView (use Dimensions = (lat,lon)).
+
+~~~
+data = xr.open_dataset('tasReduced.nc')
+data   # this is a time-dependent 2D dataset: print out the metadata, coordinates, data variables
+data.time   # time goes monthly from 2001-01-16 to 2014-12-16
+data.tas    # metadata for the data variable (time: 168, lat: 64, lon: 128)
+data.tas.shape      # (168, 64, 128) = (time, lat, lon)
+data.height         # at the fixed height=2m
+~~~
+
+These five lines all produce the same result:
+
+~~~
+data.tas[0] - 273.15   # take all values in the second and third dims, convert to Celsius
+data.tas[0,:] - 273.15
+data.tas[0,:,:] - 273.15
+data.tas.isel(time=0) - 273.15
+air = data.tas.sel(time='2001-01-16') - 273.15
+~~~
+
+These two lines produce the same result (1D vector of temperatures as a function of longitude):
+
+~~~
+data.tas[0,5]
+data.tas.isel(time=0, lat=5)
+~~~
+
+Check temperature variation in the last step:
+
+~~~
+air = data.tas.isel(time=-1) - 273.15   # last timestep, to celsius
+air.shape    # (64, 128)
+air.min(), air.max()   # -43.550903, 36.82956
+~~~
+
+Selecting data is slightly more difficult with approximate floating coordinates:
+
+~~~
+data.tas.lat
+data.tas.lat.dtype
+data.tas.isel(lat=0)    # the first value lat=-87.86
+data.lat[0]   # print the first latitude and try to use it below
+data.tas.sel(lat=-87.86379884)    # does not work due to floating precision
+data.tas.sel(lat=data.lat[0])     # this works
+latSlice = data.tas.sel(lat=slice(-90,-80))    # only select data in a slice lat=[-90,-80]
+latSlice.shape    # (168, 3, 128) - 3 latitudes in this slice
+~~~
+
+Multiple ways to select time:
+
+~~~
+data.time[-10:]   # last ten times
+air = data.tas.sel(time='2014-12-16') - 273.15    # last date
+air = data.tas.sel(time='2014') - 273.15    # select everything in 2014
+air.shape     # 12 steps
+air.time
+air = data.tas.sel(time='2014-01') - 273.15    # select everything in January 2014
+~~~
+
+Aggregate functions:
+
+~~~
+meanOverTime = data.tas.mean(dim='time') - 273.15
+meanOverSpace = data.tas.mean(dim=['lat','lon']) - 273.15     # mean over space for each timestep
+meanOverSpace.shape     # time series (168,)
+meanOverSpace.plot(marker="o", size=8)     # calls matplotlib.pyplot.plot
+~~~
+
+Interpolate to a specific location:
+
+~~~
+victoria = data.tas.interp(lat=48.43, lon=360-123.37)
+victoria.shape   # (168,) only time
+victoria.plot(marker="o", size=8)      # simple 1D plot
+victoria.sel(time=slice('2001','2020')).plot(marker="o", size=8)   # zoom in on the 21st-century points, see seasonal variations
+~~~
+
+Let's plot in 2D:
+
+~~~
+air = data.tas.isel(time=-1) - 273.15   # last timestep
+air.time
+air.plot(size=8)     # 2D plot, very poor resolution (lat: 64, lon: 128)
+air.plot(size=8, y="lon", x="lat")     # can specify which axis is which
+~~~
+
+What if we have time-dependency in the plot?
+
+~~~
+a = data.tas[-6:] - 273.15      # last 6 timesteps => 3D dataset => which coords to use for what?
+a.plot(x="lon", y="lat", col="time", col_wrap=3)
+~~~
+
+Breaking into groups and applying a function to each group:
+
+~~~
+len(data.time)     # 168 steps
+data.tas.groupby("time")   # 168 groups
+def standardize(x):
+    return (x - x.mean()) / x.std()
+standard = data.tas.groupby("time").map(standardize)   # apply this function to each group
+standard.shape    # (1980, 64, 128) same shape as the original but now normalized over each group
+~~~
+
+## Plotting with cartopy
+
+Cartopy lets you process your geospatial data in order to produce maps, e.g. using various map projections. All plotting
+is still being done by Matplotlib.
+
+~~~
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+import cartopy.feature as cfeature
+fig = plt.figure(figsize=(12,12))
+ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
+ax.coastlines()
+ax.coastlines(resolution='50m', color='gray', linewidth=2)   # valid scales are "110m", "50m", "10m"
+ax.add_feature(cfeature.OCEAN)
+ax.add_feature(cfeature.LAND)
+ax.add_feature(cfeature.BORDERS, linestyle=':')
+~~~
+
+Try the following projections (and bring online help on these):
+
+- PlateCarree(0) is the equi-rectangular/Cartesian projection (meridians are vertical straight lines)
+- Orthographic(-100,55)
+- Mollweide(0)
+- Robinson(0)
+- InterruptedGoodeHomolosine(0)
+
+[More information](https://scitools.org.uk/cartopy/docs/latest/crs/projections.html#cartopy-projections) on cartopy projections.
+
+Let's only plot North America:
+
+~~~
+fig = plt.figure(figsize=(12,12))
+ax = fig.add_subplot(111, projection=ccrs.Mollweide(-100))
+ax.coastlines()
+ax.add_feature(cfeature.OCEAN)
+ax.add_feature(cfeature.LAND)
+ax.add_feature(cfeature.BORDERS, linestyle=':')
+ax.set_extent([-160, -51, 5, 85])
+~~~
+
+You can zoom in much further, and the high-resolution data will be downloaded from online sources. E.g. let's focus on
+Vancouver Island:
+
+~~~
+fig = plt.figure(figsize=(12,12))
+ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
+ax.coastlines()
+ax.add_feature(cfeature.OCEAN)
+ax.add_feature(cfeature.LAND)
+ax.add_feature(cfeature.BORDERS, linestyle=':')
+ax.set_extent([-129, -122, 46, 53])
+~~~
+
+Let's overlay the Natural Earth shaded relief on top of our map and display the night shade:
+
+~~~
+fig = plt.figure(figsize=(14,12))
+ax = fig.add_subplot(111, projection=ccrs.Mollweide())
+ax.stock_img()   # add the Natural Earth shaded relief image
+ax.add_feature(cfeature.BORDERS, linestyle=':')
+
+import datetime
+import pytz
+date = datetime.datetime.now()   # local time now
+utc = datetime.datetime.utcnow()   # UTC time now
+date, utc
+
+from cartopy.feature.nightshade import Nightshade
+ax.add_feature(Nightshade(utc, alpha=0.2))
+~~~
+
+Let's plot 1D data (a line connecting two points on top of our map):
+
+~~~
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+
+fig = plt.figure(figsize=(12,12))
+ax = plt.axes(projection=ccrs.Robinson(-150))
+ax.stock_img()
+
+vancouver = (-123.12, 49.28)
+perth = (115.86, -31.95)
+
+lon = [vancouver[0], perth[0]]
+lat = [vancouver[1], perth[1]]
+
+plt.plot(lon, lat, color='blue', linewidth=2, marker='o')   # does not work!
+~~~
+
+We need to tell matplotlib that our line is a straight line in spherical geometry:
+
+~~~
+plt.plot(lon, lat, color='blue', linewidth=2, marker='o', transform=ccrs.Geodetic())
+~~~
+
+If you want to add a straight line in planar geometry:
+
+~~~
+plt.plot(lon, lat, color='gray', linestyle='--', transform=ccrs.PlateCarree())
+~~~
+
+Most matplotlib plotting functions will work with cartopy projections: lines (`plot`), heatmaps and images (`plot` or
+`imshow`), scatter plots (`scatter`), vector plots (`quiver`). Let's plot our 2D atmospheric data with Cartopy
+projections. Read the data again:
+
+~~~
+import xarray as xr
+data = xr.open_dataset('tasReduced.nc')
+temp = data.tas.sel(time="2014-12-16") - 273.15   # extract last timestep, convert to Celsius
+temp.shape      # (1, 64, 128)
+temp.coords    # the coordinates are 1D, so plotting is easy
+~~~
+
+The data is defined on a 2D Cartesian projection. First, let's plot data in the same projection:
+
+~~~
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+fig = plt.figure(figsize=(14,12))
+ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
+ax.coastlines()
+ax.gridlines()
+temp.plot(ax=ax, cbar_kwargs={'shrink': 0.4})   # since we are using PlateCarree(), Cartopy assumes
+                                                # that the data is also in PlateCarree() coordinates, which is true
+~~~
+
+Now let's switch the projection. Then we have to tell Cartopy our data's coordinate system explicitly with `transform`:
+
+~~~
+fig = plt.figure(figsize=(14,12))
+ax = fig.add_subplot(111, projection=ccrs.InterruptedGoodeHomolosine())   # use this projection
+ax.coastlines()
+ax.gridlines()
+temp.plot(ax=ax, transform=ccrs.PlateCarree(), cbar_kwargs={'shrink': 0.4})
+            # `transform` tells Cartopy the coordinate system of our data
+~~~
+
+Let's switch the projection and zoom in on Vancouver Island:
+
+~~~
+ax = fig.add_subplot(111, projection=ccrs.Mollweide(-125))
+ax.coastlines()
+ax.gridlines()
+temp.plot(ax=ax, transform=ccrs.PlateCarree(), cbar_kwargs={'shrink': 0.4})
+ax.set_extent([-129, -122, 46, 53])
+~~~
+
+We can see that our data is really low resolution.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Running Python scripts from the command line
 
 In this lesson we'll work with bash command line, instead of the Jupyter notebook. We want to write a python script
 'read.py' that takes a set of gapminder_gdp_*.csv files (one/few/many) as an argument and prints out various statistic
@@ -1224,10 +2280,27 @@ for f in filenames:
     process(f, action)
 ~~~
 
-## Very advanced topic: adding standard input support to our scripts
+## Adding standard input support to Python scripts
 
-Finally, let's add support for Unix standard input. Delete 'print('\n', f[26:-4].capitalize())' and change the last two
-lines to:
+Python scripts can process standard input. Consider the following script:
+
+~~~
+#!/usr/bin/env python
+import sys
+for line in sys.stdin:
+    print(line, end='')
+~~~
+
+In the terminal make it executable (`chmod u+x scriptName.py`), and then run it:
+
+~~~
+./scriptName.py                          # repeat each line you type until Ctrl-C
+echo one two three | ./scriptName.py     # print back the line
+cat file.extension | ./scriptName.py     # process this file (filename=sys.stdin) from standard input
+tail -1 scriptName.py | ./scriptName.py      # print its own last line
+~~~
+
+Let's add support for Unix standard input. Delete 'print('\n', f[26:-4].capitalize())' and change the last two lines to:
 
 ~~~ {.python}
 if len(filenames) == 0:
@@ -1282,309 +2355,259 @@ else:
 
 
 
-# Plotting
-## Simple line/scatter plots of gapminder data
 
-One of the most widely used Python plotting libraries is matplotlib. Matplotlib produces static images. In this workshop
-we'll use plotly which is another open-source library that produces interactive HTML5 + JavaScript images.
+
+
+
+
+
+
+
+
+
+
+
+# Basics of object-oriented programming in Python
+
+<!-- Most notably, climate scientists have a very good handle on structured/procedural programming concepts, but generally -->
+<!-- have little to no knowledge of the object-oriented programming concepts that underpin Python. For example, classes, -->
+<!-- class methods, inheritance, etc. will likely be foreign to most people at CCCma. -->
+
+Object-oriented programming is a way of programming in which you bundle related variables and functions into objects,
+and then manipulate and use these objects as a whole. We already saw many examples of objects on Python, e.g. lists,
+dictionaries, numpy arrays, that have both variables and methods inside them. In this section we will learn how to
+create our own objects.
+
+You can think of:
+
+- **variables** as *properties* / *attributes* of an object
+- **functions** as some *operations* / *methods* you can perform on this object
+
+Let's define out first class:
 
 ~~~
-import plotly.offline as py
-py.init_notebook_mode(connected=True)   # use the online plotly.js library inside the notebook (smaller file sizes)
-import plotly.graph_objs as go
-from numpy import linspace, sin
-x1 = linspace(0.01,1,300)
-y1 = sin(1/x1)
-trace1 = go.Scatter(x=x1, y=y1, mode='lines+markers', name='sin(1/x)')
-data = [trace1]
-py.iplot(data)   # plot inline in a Jupyter notebook
+class Planet:
+    # internally we store all numbers in cgs units
+    hostObject = "Sun"     # class attribute (the same value for every class instance)
+    def __init__(self, radius, mass):   # sets the initial state of a newly created object
+        self.radius = radius*1e5   # instance attribute, convert km -> cm
+        self.mass = mass*1.e3      # instance attribute, convert kg->g
 ~~~
 
-Now let's add the layout, replacing the last line with:
+Let's define some instances of this class:
 
 ~~~
-layout = go.Layout(title='An oscillating function', xaxis=dict(title='x'), yaxis=dict(title='f(x)'))
-fig = go.Figure(data=data,layout=layout)
-py.iplot(fig)
+mercury = Planet(radius=2439.7, mass=3.285e23) # enter km and kg
+venus = Planet(6051.8, 4.867e24)               # enter km and kg
+venus.radius, venus.mass, venus.hostObject
 ~~~
 
-Let's do a quick gapminder plot with pandas:
+Instances are guaranteed to have the attributes that we expect.
+
+> **[Question](sol01.md):** How can we define an instance without passing the values? E.g., I would like to say
+> `earth=Planet()` and then pass the attribute values separately like this:
+> ~~~
+> earth = Planet()
+> earth.radius = 6371         # these are dynamic variables that we can redefine
+> earth.mass = 5.972e24
+> Planet().radius      # prints 'nan'
+> ~~~
+
+Let's add *inside our class* an instance method (with proper indentation):
 
 ~~~
-import pandas as pd
-import plotly.offline as py
-py.init_notebook_mode(connected=True)   # use the online plotly.js library inside the notebook (smaller file sizes)
-import plotly.graph_objs as go
-data = pd.read_csv('data-python/gapminder_gdp_oceania.csv', index_col='country')
-trace1 = go.Scatter(x=data.columns, y=data.loc['Australia'])
-layout = go.Layout(yaxis=dict(title='GDP'))
-fig = go.Figure(data=[trace1], layout=layout)
-py.iplot(fig)
+    def density(self):   # it acts on the class instance
+        return self.mass/(4./3.*math.pi*self.radius**3) # [g/cm^3]
 ~~~
 
-**[Exercise](./solar.md):** add a curve for New Zealand.
+Redefine the class, and now:
 
-**[Exercise](./solas.md):** do a scatter plot of Australia vs. New Zealand.
-
-**[Quiz 21](./solat.md):** (more difficult) plot the average GDP vs. time in each region (each file)
-
-Finally, let's create a plot showing the correlation between GDP and life expectancy in 2007, normalizing marker area by
-population, and adding the country name to the mouse-over popup:
-
-~~~ {.python}
-data = pd.read_csv('data-python/gapminder_all.csv')
-data.columns   # see the columns
-from numpy import log10, sqrt   # these versions of log10/sqrt can operate on lists
-loggdp = log10(data.gdpPercap_2007.tolist())
-trace = go.Scatter(x=loggdp, y=data.lifeExp_2007, mode='markers', text=data.country,
-                   marker=dict(sizemode = 'diameter', size = sqrt(data.pop_2007/1e5)))
-layout = go.Layout(xaxis=dict(title='log10(GDP)'), yaxis=dict(title='life expectancy'))
-fig = go.Figure(data=[trace], layout=layout)
-py.iplot(fig)
+~~~
+earth = Planet()
+earth.radius = 6371*1e5      # here we need to convert manually
+earth.mass = 5.972e24*1e3
+import math
+earth.density()    # 5.51 g/cm^3
 ~~~
 
-## Bar plots
+Let's add another method (remember the indentation!):
 
-Let's try a Bar plot, constructing `data` directly in one line from the dictionary:
-
-~~~ {.python}
-import plotly.offline as py
-py.init_notebook_mode(connected=True)
-import plotly.graph_objs as go
-data = [go.Bar(x=['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax'],
-               y=[2463431, 1392609, 5928040, 4098927, 403131])]
-py.iplot(data)
+~~~
+    def g(self):   # free fall acceleration
+        return 6.67259e-8*self.mass/self.radius**2    # G in [cm^3/g/s^2]
 ~~~
 
-Let's plot inner city population vs. greater metro area for each city:
+and now
 
-~~~ {.python}
-import plotly.offline as py
-py.init_notebook_mode(connected=True)
-import plotly.graph_objs as go
-cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
-proper = [631486, 1239220, 2731571, 1704694, 316701]
-metro = [2463431, 1392609, 5928040, 4098927, 403131]
-bar1 = go.Bar(x=cities, y=proper, name='inner city')
-bar2 = go.Bar(x=cities, y=metro, name='greater area')
-data = [bar1,bar2]
-py.iplot(data)
+~~~
+earth = Planet(6371,5.972e24)
+mars = Planet(3389.5,6.39e23)
+earth.g()              # 981.7 cm/s^2
+mars.g() / earth.g()   # 0.378
 ~~~
 
-Let's now do a stacked plot, with *outer city* population on top of *inner city* population:
+Let's add another method (remember the indentation!):
 
-~~~ {.python}
-import plotly.offline as py
-py.init_notebook_mode(connected=True)
-import plotly.graph_objs as go
-cities = ['Vancouver', 'Calgary', 'Toronto', 'Montreal', 'Halifax']
-proper = [631486, 1239220, 2731571, 1704694, 316701]
-metro = [2463431, 1392609, 5928040, 4098927, 403131]
-outside = [m-p for p,m in zip(proper,metro)]   # need to subtract
-bar1 = go.Bar(x=cities, y=proper, name='inner city')
-bar2 = go.Bar(x=cities, y=outside, name='outer city')
-data = [bar1,bar2]
-layout = go.Layout(barmode='stack')         # new element!
-fig = go.Figure(data=data, layout=layout)   # new element!
-py.iplot(fig)   # we get a stacked bar chart
+~~~
+    def describe(self):
+        print('density =', self.density(), 'g/cm^3')
+        print('free fall =', self.g(), 'cm/s^2')
 ~~~
 
-What else can we modify in the layout?
+Redefine the class, and now:
 
-~~~ {.python}
-import plotly.graph_objs as go
-help(go.Layout)
+~~~
+jupyter = Planet(radius=69911, mass=1.898e27)
+jupyter.describe()       # should print 1.32 g/cm^3 and 2591 cm/s^2
+print(jupyter)           # says it is an object at this memory location (not very descriptive)
 ~~~
 
-## Heatmaps
+Let's add our last method (remember the indentation!):
 
-Let's plot a heatmap of monthly temperatures at the South Pole:
-
-~~~ {.python}
-import plotly.offline as py
-py.init_notebook_mode(connected=True)
-import plotly.graph_objs as go
-months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Year']
-recordHigh = [-14.4,-20.6,-26.7,-27.8,-25.1,-28.8,-33.9,-32.8,-29.3,-25.1,-18.9,-12.3,-12.3]
-averageHigh = [-26.0,-37.9,-49.6,-53.0,-53.6,-54.5,-55.2,-54.9,-54.4,-48.4,-36.2,-26.3,-45.8]
-dailyMean = [-28.4,-40.9,-53.7,-57.8,-58.0,-58.9,-59.8,-59.7,-59.1,-51.6,-38.2,-28.0,-49.5]
-averageLow = [-29.6,-43.1,-56.8,-60.9,-61.5,-62.8,-63.4,-63.2,-61.7,-54.3,-40.1,-29.1,-52.2]
-recordLow = [-41.1,-58.9,-71.1,-75.0,-78.3,-82.8,-80.6,-79.3,-79.4,-72.0,-55.0,-41.1,-82.8]
-trace = go.Heatmap(z=[recordHigh, averageHigh, dailyMean, averageLow, recordLow],
-                   x=months,
-                   y=['record high', 'aver.high', 'daily mean', 'aver.low', 'record low'])
-data = [trace]
-py.iplot(data)
+~~~
+    def __str__(self):    # special method to redefine the output of print(self)
+        return f"My radius is {self.radius/1e5}km and my mass is {self.mass/1e3}kg"
 ~~~
 
-## Geographical scatterplot
+Redefine the class, and now:
 
-Go back to your Python Jupyter Notebook. Now let's do a scatterplot on top of a geographical map:
-
-~~~ {.python}
-import plotly.offline as py
-py.init_notebook_mode(connected=True)
-import plotly.graph_objs as go
-import pandas as pd
-from math import log10
-df = pd.read_csv('data-python/cities.csv')   # lists name,pop,lat,lon for 254 Canadian cities and towns
-df['text'] = df['name'] + '<br>Population ' + \
-             (df['pop']/1e6).astype(str) +' million' # add new column for mouse-over
-largest, smallest = df['pop'].max(), df['pop'].min()
-def normalize(x):
-    return log10(x/smallest)/log10(largest/smallest)   # x scaled into [0,1]
-
-df['logsize'] = round(df['pop'].apply(normalize)*255)   # new column
-cities = go.Scattergeo(
-    lon = df['lon'], lat = df['lat'], text = df['text'],
-    marker = dict(
-        size = df['pop']/5000,
-        color = df['logsize'],
-        colorscale = 'Viridis',
-        showscale = True,   # show the colourbar
-        line = dict(width=0.5, color='rgb(40,40,40)'),
-        sizemode = 'area'))
-layout = go.Layout(title = 'City populations',
-                       showlegend = False,   # do not show legend for first plot
-                       geo = dict(
-                           scope = 'north america',
-                           resolution = 50,   # base layer resolution of km/mm
-                           lonaxis = dict(range=[-130,-55]), lataxis = dict(range=[44,70]), # plot range
-                           showland = True, landcolor = 'rgb(217,217,217)',
-                           showrivers = True, rivercolor = 'rgb(153,204,255)',
-                           showlakes = True, lakecolor = 'rgb(153,204,255)',
-                           subunitwidth = 1, subunitcolor = "rgb(255,255,255)",   # province border
-						   countrywidth = 2, countrycolor = "rgb(255,255,255)"))  # country border
-fig = go.Figure(data=[cities], layout=layout)
-py.iplot(fig)
+~~~
+jupyter = Planet(radius=69911, mass=1.898e27)
+print(jupyter)        # prints the full sentence
 ~~~
 
-**Exercise:** Modify the code to display only 10 largest cities.
+**Important**: As with any complex object in Python, assigning an instance to a new variable will simply create a
+pointer, i.e. if you modify one in place, you'll see the change through the other one too:
 
-## 3D topographic elevation
-
-Let's plot some tabulated topographic elevation data:
-
-~~~ {.python}
-import plotly.offline as py
-py.init_notebook_mode(connected=True)
-import plotly.graph_objs as go
-import pandas as pd
-table = pd.read_csv('data-python/mt_bruno_elevation.csv')
-data = go.Surface(z=table.values)  # use 2D numpy array format
-layout = go.Layout(title='Mt Bruno Elevation',
-                   width=800, height=800,    # image size
-                   margin=dict(l=65, r=10, b=65, t=90))   # margins around the plot
-fig = go.Figure(data=[data], layout=layout)
-py.iplot(fig)
+~~~
+new = jupyter
+jupyter.mass = -1
+new.mass     # also -1
 ~~~
 
-## 3D parametric plot
+If you want a separate copy:
 
-In plotly documentation you can find quite a lot of [different 3D plot types](https://plot.ly/python/3d-charts). Here is
-something visually very different, but it still uses `go.Surface(x,y,z)`:
-
-~~~ {.python}
-import plotly.offline as py
-py.init_notebook_mode(connected=True)
-import plotly.graph_objs as go
-from numpy import pi, sin, cos, mgrid
-dphi, dtheta = pi/250, pi/250    # 0.72 degrees
-[phi, theta] = mgrid[0:pi+dphi*1.5:dphi, 0:2*pi+dtheta*1.5:dtheta]
-        # define two 2D grids: both phi and theta are (252,502) numpy arrays
-r = sin(4*phi)**3 + cos(2*phi)**3 + sin(6*theta)**2 + cos(6*theta)**4
-x = r*sin(phi)*cos(theta)   # x is also (252,502)
-y = r*cos(phi)              # y is also (252,502)
-z = r*sin(phi)*sin(theta)   # z is also (252,502)
-surface = go.Surface(x=x, y=y, z=z, colorscale='Viridis')
-layout = go.Layout(title='parametric plot')
-fig = go.Figure(data=[surface], layout=layout)
-py.iplot(fig)
+~~~
+import copy
+new = copy.deepcopy(jupyter)
+jupyter.mass = -2
+new.mass     # still -1
 ~~~
 
-## 3D scatter plot
+## Inherit from parent classes
 
-Let's take a look at a 3D scatter plot using the `country index` data from http://www.prosperity.com for 142 countries:
+Let's create a child class `Moon` that would inherit the attributes and methods of `Planet` class:
 
-~~~ {.python}
-import plotly.offline as py
-py.init_notebook_mode(connected=True)
-import plotly.graph_objs as go
-import pandas as pd
-df = pd.read_csv('data-python/legatum2015.csv')
-spheres = go.Scatter3d(x=df.economy,
-                       y=df.entrepreneurshipOpportunity,
-                       z=df.governance,
-                       text=df.country,
-                       mode='markers',
-                       marker=dict(
-                           sizemode = 'diameter',
-                           sizeref = 0.3,   # max(safetySecurity+5.5) / 32
-                           size = df.safetySecurity+5.5,
-                           color = df.education,
-                           colorscale = 'Viridis',
-                           colorbar = dict(title = 'Education'),
-                           line = dict(color='rgb(140, 140, 170)')))   # sphere edge
-layout = go.Layout(height=900, width=900,
-                   title='Each sphere is a country sized by safetySecurity',
-                   scene = dict(xaxis=dict(title='economy'),
-                                yaxis=dict(title='entrepreneurshipOpportunity'),
-                                zaxis=dict(title='governance')))
-fig = go.Figure(data=[spheres], layout=layout)
-py.iplot(fig)
+~~~
+class Moon(Planet):    # it inherits all the attributes and methods of the parent process
+    pass
+
+phobos = Moon(radius=22.2, mass=1.08e16)
+deimos = Moon(radius=12.6, mass=2.0e15)
+phobos.g() / earth.g()        # 0.0001489
+isinstance(phobos, Moon)         # True
+isinstance(phobos, Planet)       # True - all objects of a child class are instances of the parent class
+isinstance(jupyter, Planet)      # True
+isinstance(jupyter, Moon)        # False
+issubclass(Moon,Planet)      # True
 ~~~
 
-## 3D graph
+Child classes can have their own attributes and methods that are distinct from (i.e. override) the parent class:
 
-We can plot 3D graphs. Consider a Dorogovtsev-Goltsev-Mendes graph: *in each subsequent generation, every edge from the
-previous generation yields a new node, and the new graph can be made by connecting together three previous-generation
-graphs*.
-
-~~~ {.python}
-import plotly.offline as py
-py.init_notebook_mode(connected=True)
-import plotly.graph_objs as go
-import networkx as nx
-import sys
-generation = 5
-H = nx.dorogovtsev_goltsev_mendes_graph(generation)
-print(H.number_of_nodes(), 'nodes and', H.number_of_edges(), 'edges')
-pos = nx.spectral_layout(H,scale=1,dim=3)
-Xn = [pos[i][0] for i in pos]   # x-coordinates of all nodes
-Yn = [pos[i][1] for i in pos]   # y-coordinates of all nodes
-Zn = [pos[i][2] for i in pos]   # z-coordinates of all nodes
-Xe, Ye, Ze = [], [], []
-for edge in H.edges():
-    Xe += [pos[edge[0]][0], pos[edge[1]][0], None]   # x-coordinates of all edge ends
-    Ye += [pos[edge[0]][1], pos[edge[1]][1], None]   # y-coordinates of all edge ends
-    Ze += [pos[edge[0]][2], pos[edge[1]][2], None]   # z-coordinates of all edge ends
-
-degree = [deg[1] for deg in H.degree()]   # list of degrees of all nodes
-labels = [str(i) for i in range(H.number_of_nodes())]
-edges = go.Scatter3d(x=Xe, y=Ye, z=Ze,
-                     mode='lines',
-                     marker=dict(size=12,line=dict(color='rgba(217, 217, 217, 0.14)',width=0.5)),
-                     hoverinfo='none')
-nodes = go.Scatter3d(x=Xn, y=Yn, z=Zn,
-                     mode='markers',
-                     marker=dict(sizemode = 'area',
-                                 sizeref = 0.01, size=degree,
-                                 color=degree, colorscale='Viridis',
-                                 line=dict(color='rgb(50,50,50)', width=0.5)),
-                     text=labels, hoverinfo='text')
-
-axis = dict(showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
-layout = go.Layout(
-    title = str(generation) + "-generation Dorogovtsev-Goltsev-Mendes graph",
-    width=1000, height=1000,
-    showlegend=False,
-    scene=dict(xaxis=go.layout.scene.XAxis(axis),
-               yaxis=go.layout.scene.YAxis(axis),
-               zaxis=go.layout.scene.ZAxis(axis)),
-    margin=go.layout.Margin(t=100))
-fig = go.Figure(data=[edges,nodes], layout=layout)
-py.iplot(fig)
 ~~~
+class Moon(Planet):
+    hostObject = 'Mars'
+    def g(self):
+        return 'too small to compute accurately'
+    
+phobos = Moon(radius=22.2, mass=1.08e16)
+deimos = Moon(radius=12.6, mass=2.0e15)
+mars = Planet(3389.5,6.39e23)
+phobos.hostObject, mars.hostObject     # ('Mars', 'Sun')
+phobos.g(), mars.g()                   # ('too small to compute accurately', 371.1282569773226)
+~~~
+
+One thing to keep in mind about class inheritance is that changes to the parent class automatically propagate to child
+classes (when you follow the sequence of definitions), unless overridden in the child class:
+
+~~~
+class Parent:
+	...
+    def __str__(self):
+        return "Changed in the parent class"
+	...
+
+class Moon(Planet):
+    hostObject = 'Mars'
+    def g(self):
+        return 'too small to compute accurately'
+
+deimos = Moon(radius=12.6, mass=2.0e15)
+print(deimos)            # prints "Changed in the parent class"
+~~~
+
+You can access the parent class namespace from inside a *method* of a child class by using super():
+
+~~~
+class Moon(Planet):
+    hostObject = 'Mars'
+    def parentHost(self):
+        return super().hostObject       # will return hostObject of the parent class
+
+deimos = Moon(radius=12.6, mass=2.0e15)
+deimos.hostObject, deimos.parentHost()     # ('Mars', 'Sun')
+~~~
+
+## Generators
+
+We already saw that in Python you can loop over a collection using `for`:
+
+~~~
+for i in 'weather':
+    print(i)
+for j in [5,6,7]:
+    print(j)
+~~~
+
+Behind the scenes Python creates an iterator out of a collection. This iterator has a `__next__()` method, i.e. it does
+something like:
+
+~~~
+a = iter('weather')
+a.__next__()    # 'w'
+a.__next__()    # 'e'
+a.__next__()    # 'a'
+~~~
+
+You can build your own iterator as if you were defining a function - this is called a *generator* in Python:
+
+~~~
+def square(x):   # `x` is an input string in this generator
+    for letter in x:
+        yield int(letter)**2        # yields a sequence of numbers that you can cycle through
+
+[i for i in square('12345')]     # [1, 4, 9, 16, 25]
+
+a = square('12345')
+[a.__next__() for i in range(3)]      # [1, 4, 9, 16, 25]
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Programming Style and Wrap-Up
 
@@ -1636,6 +2659,21 @@ if n <= 0.:
 * NumPy is a scientific computing package http://www.numpy.org
 * SciPy is a rich collection of scientific utilities http://www.scipy.org/scipylib
 * Python Data Analysis Library http://pandas.pydata.org
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Other advanced Python topics
 
