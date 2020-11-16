@@ -501,8 +501,7 @@ py.iplot(fig)
 
 ### Scatter plots
 
-Let's take a look at a 3D scatter plot using the `country index` data from http://www.prosperity.com for
-for 142 countries:
+Let's take a look at a 3D scatter plot using the `country index` data from http://www.prosperity.com for 142 countries:
 
 ~~~ {.python}
 import plotly.offline as py
@@ -543,13 +542,12 @@ import plotly.offline as py
 py.init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 import networkx as nx
-from forceatlas import forceatlas2_layout
 import sys
 generation = 5
 H = nx.dorogovtsev_goltsev_mendes_graph(generation)
 print(H.number_of_nodes(), 'nodes and', H.number_of_edges(), 'edges')
 # Force Atlas 2 graph layout from https://github.com/tpoisot/nxfa2.git
-pos = forceatlas2_layout(H, iterations=100, kr=0.001, dim=3)
+pos = nx.spectral_layout(H,scale=1,dim=3)
 Xn = [pos[i][0] for i in pos]   # x-coordinates of all nodes
 Yn = [pos[i][1] for i in pos]   # y-coordinates of all nodes
 Zn = [pos[i][2] for i in pos]   # z-coordinates of all nodes
