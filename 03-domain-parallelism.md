@@ -28,7 +28,7 @@ parallelism is driven by *computations over collections of data elements or thei
 for this in Chapel is a `forall` loop -- it'll create an *appropriate* number of threads to execute a
 loop, dividing the loop's iterations between them.
 
-```
+```chpl
 forall index in iterand   # iterating over all elements of an array or over a range of indices
 {instructions}
 ```
@@ -44,12 +44,12 @@ What is the *appropriate* number of tasks?
 
 Consider a simple code `test.chpl`:
 
-~~~
+```chpl
 const n = 1e6: int;
 var A: [1..n] real;
 forall a in A do
   a += 1;
-~~~
+```
 
 In this code we update all elements of the array `A`. The code will run on a single node, lauching as
 many threads as the number of available cores.
@@ -60,13 +60,13 @@ many threads as the number of available cores.
 Consider a simple code `forall.chpl` that we'll run inside a 3-core interactive job. We have a range of
 indices 1..1000, and they get broken into groups that are processed by different threads:
 
-~~~
+```chpl
 var count = 0;
 forall i in 1..1000 with (+ reduce count) {   // parallel loop
   count += i;
 }
 writeln('count = ', count);
-~~~
+```
 
 If we have not done so, let's write a script `shared.sh` for submitting single-locale, three-processor
 Chapel jobs:
@@ -121,7 +121,7 @@ actual number of threads = 3
 > summation using `forall` parallelism. Implement the number of intervals as `config` variable.
 >
 > Hint: to get you started, here is a serial version of this code:
-> ~~~
+> ```chpl
 > config const n = 1000;
 > var h, total: real;
 > h = 1.0 / n;    // interval width
@@ -130,22 +130,22 @@ actual number of threads = 3
 >   total += 4.0 / ( 1.0 + x**2);
 > }
 > writef('pi is %3.10r\n', total*h);    // C-style formatted write, r stands for real
-> ~~~
+> ```
 >
 >> ## Solution
 >> Change the line
->> ~~~
+>> ```chpl
 >> for i in 1..n {
->> ~~~
+>> ```
 >> to
->> ~~~
+>> ```chpl
 >> forall i in 1..n with (+ reduce total) {
->> ~~~
+>> ```
 
 We finish this section by providing an example of how you can organize a data-parallel, shared-memory
 `forall` loop for the 2D heat transfer solver (without writing the full code):
 
-~~~
+```chpl
 config const rows = 100, cols = 100;
 const rowStride = 34, colStride = 25;    // each block has 34 rows and 25 columns => 3x4 blocks
 forall (r,c) in {1..rows,1..cols} by (rowStride,colStride) do {   // nested c-loop inside r-loop
@@ -156,7 +156,7 @@ forall (r,c) in {1..rows,1..cols} by (rowStride,colStride) do {   // nested c-lo
     }
   }
 }
-~~~
+```
 
 # Multi-locale Chapel setup
 
@@ -267,9 +267,9 @@ Let's write a job submission script `distributed.sh`:
 
 Let us test our multi-locale Chapel environment by launching the following code:
 
-~~~
+```chpl
 writeln(Locales);
-~~~
+```
 ~~~ {.bash}
 $ . /project/shared/startMultiLocale.sh     # on the training VM cluster (Cassiopeia)
 $ chpl test.chpl -o test
@@ -285,11 +285,11 @@ LOCALE0 LOCALE1 LOCALE2 LOCALE3
 
 We want to run some code on each locale (node). For that, we can cycle through locales:
 
-~~~
+```chpl
 for loc in Locales do   // this is still a serial program
   on loc do             // run the next line on locale `loc`
     writeln("this locale is named ", here.name[1..5]);   // `here` is the locale on which the code is running
-~~~
+```
 
 This will produce
 
@@ -309,11 +309,11 @@ locales were listed.
 To run this code in parallel, starting four simultaneous tasks, one per locale, we simply need to replace
 `for` with `forall`:
 
-~~~
+```chpl
 forall loc in Locales do   // now this is a parallel loop
   on loc do
     writeln("this locale is named ", here.name[1..5]);
-~~~
+```
 
 This starts four tasks in parallel, and the order in which the print statement is executed depends on the
 runtime conditions and can change from run to run:
@@ -328,7 +328,7 @@ this locale is named node3
 We can print few other attributes of each locale. Here it is actually useful to revert to the serial loop
 `for` so that the print statements appear in order:
 
-~~~
+```chpl
 use Memory;
 for loc in Locales do
   on loc {
@@ -338,7 +338,7 @@ for loc in Locales do
     writeln("  ...has ", here.physicalMemory(unit=MemUnits.GB, retType=real), " GB of memory");
     writeln("  ...has ", here.maxTaskPar, " maximum parallelism");
   }
-~~~
+```
 ~~~ {.bash}
 $ chpl test.chpl -o test
 $ sbatch distributed.sh
@@ -379,19 +379,19 @@ our job.
 We start this section by recalling the definition of a **range** in Chapel. A range is a 1D set of
 integer indices that can be bounded or infinite:
 
-~~~
+```chpl
 var oneToTen: range = 1..10; // 1, 2, 3, ..., 10
 var a = 1234, b = 5678;
 var aToB: range = a..b; // using variables
 var twoToTenByTwo: range(stridable=true) = 2..10 by 2; // 2, 4, 6, 8, 10
 var oneToInf = 1.. ; // unbounded range
-~~~
+```
 
 On the other hand, **domains** are multi-dimensional (including 1D) sets of integer indices that are
 always bounded. To stress the difference between domain ranges and domains, domain definitions always
 enclose their indices in curly brackets. Ranges can be used to define a specific dimension of a domain:
 
-~~~
+```chpl
 var domain1to10: domain(1) = {1..10};        // 1D domain from 1 to 10 defined using the range 1..10
 var twoDimensions: domain(2) = {-2..2, 0..2}; // 2D domain over a product of two ranges
 var thirdDim: range = 1..16; // a range
@@ -403,7 +403,7 @@ for (x,y) in twoDimensions {   // can also cycle using explicit tuples (x,y)
   write('(', x, ', ', y, ')', ', ');
 }
 writeln();
-~~~
+```
 
 Let us define an n^2 domain called `mesh`. It is defined by the single task in our code and is therefore
 defined in memory on the same node (locale 0) where this task is running. For each of n^2 mesh points,
@@ -416,12 +416,12 @@ let us print out
 **Note**: We already saw some of these variables/functions: numLocales, Locales, here.id, here.name,
 here.numPUs(), here.physicalMemory(), here.maxTaskPar.
 
-~~~
+```chpl
 config const n = 8;
 const mesh: domain(2) = {1..n, 1..n};  // a 2D domain defined in shared memory on a single locale
 forall m in mesh do   // go in parallel through all n^2 mesh points
   writeln(m, ' ', m.locale.id, ' ', here.id, ' ', here.maxTaskPar);
-~~~
+```
 ~~~
 ((7, 1), 0, 0, 3)
 ((1, 1), 0, 0, 3)
@@ -437,13 +437,13 @@ Now we are going to learn two very important properties of Chapel domains. **Fir
 to **define arrays of variables of any type on top of them**. For example, let us define an n^2 array of
 real numbers on top of `mesh`:
 
-~~~
+```chpl
 config const n = 8;
 const mesh: domain(2) = {1..n, 1..n};   // a 2D domain defined in shared memory on a single locale
 var T: [mesh] real;   // a 2D array of reals defined in shared memory on a single locale (mapped onto this domain)
 forall t in T do   // go in parallel through all n^2 elements of T
   writeln(t, ' ', t.locale.id);
-~~~
+```
 ~~~ {.bash}
 $ chpl test.chpl -o test
 $ sbatch distributed.sh
@@ -463,10 +463,10 @@ $ cat solution.out
 By default, all n^2 array elements are set to zero, and all of them are defined on the same locale as the
 underlying mesh. We can also cycle through all indices of T by accessing its domain:
 
-~~~
+```chpl
 forall idx in T.domain 
   writeln(idx, ' ', T(idx));   // idx is a tuple (i,j); also print the corresponding array element
-~~~
+```
 ~~~
 (7, 1) 0.0
 (1, 1) 0.0
@@ -482,7 +482,7 @@ Since we use a paralell `forall` loop, the print statements appear in a random r
 
 We can also define multiple arrays on the same domain:
 
-~~~
+```chpl
 const grid = {1..100}; // 1D domain
 const alpha = 5; // some number
 var A, B, C: [grid] real; // local real-type arrays on this 1D domain
@@ -490,7 +490,7 @@ B = 2; C = 3;
 forall (a,b,c) in zip(A,B,C) do // parallel loop
   a = b + alpha*c;   // simple example of data parallelism on a single locale
 writeln(A);
-~~~
+```
 
 The **second important property** of Chapel domains is that they can **span multiple locales** (nodes).
 
@@ -511,7 +511,7 @@ a = int + string + int
 is a shortcut for  
 a = "%i".format(int) + string + "%i".format(int)  
 
-~~~
+```chpl
 use BlockDist; // use standard block distribution module to partition the domain into blocks
 config const n = 8;
 const mesh: domain(2) = {1..n, 1..n};
@@ -522,16 +522,16 @@ forall a in A { // go in parallel through all n^2 elements in A
   a = a.locale.id:string + '-' + here.name[1..5] + '-' + here.maxTaskPar:string + '  ';
 }
 writeln(A);
-~~~~
+```
 
 The syntax `boundingBox=mesh` tells the compiler that the outer edge of our decomposition coincides
 exactly with the outer edge of our domain. Alternatively, the outer decomposition layer could include an
 additional perimeter of *ghost points* if we specify
 
-~~~
+```chpl
 const mesh: domain(2) = {1..n, 1..n};
 const largerMesh: domain(2) dmapped Block(boundingBox=mesh) = {0..n+1,0..n+1};
-~~~~
+```
 
 but let us not worry about this for now.
 
@@ -558,13 +558,13 @@ output.
 
 Now we can print the range of indices for each sub-domain by adding the following to our code:
 
-~~~
+```chpl
 for loc in Locales {
   on loc {
     writeln(A.localSubdomain());
   }
 }
-~~~
+```
 
 On 4 locales we should get:
 
@@ -577,13 +577,13 @@ On 4 locales we should get:
 
 Let us count the number of threads by adding the following to our code:
 
-~~~
+```chpl
 var count = 0;
 forall a in A with (+ reduce count) { // go in parallel through all n^2 elements
   count = 1;
 }
 writeln("actual number of threads = ", count);
-~~~
+```
 
 If `n=8` in our code is sufficiently large, there are enough array elements per node (8*8/4 = 16 in our
 case) to fully utilize all three available cores on each node, so our output should be
@@ -620,7 +620,7 @@ CyclicDist. For each element of the array we will print out again
 (2) here.name = the name of the locale on which the code is running  
 (3) here.maxTaskPar = the number of cores on the locale on which the code is running  
 
-~~~
+```chpl
 use CyclicDist; // elements are sent to locales in a round-robin pattern
 config const n = 8;
 const mesh: domain(2) = {1..n, 1..n};  // a 2D domain defined in shared memory on a single locale
@@ -630,7 +630,7 @@ forall a in A2 {
   a = a.locale.id + '-' + here.name[1..5] + '-' + here.maxTaskPar + '  ';
 }
 writeln(A2);
-~~~
+```
 ~~~ {.bash}
 $ chpl -o test test.chpl
 $ sbatch distributed.sh
@@ -650,11 +650,11 @@ $ cat solution.out
 As the name `CyclicDist` suggests, the domain was mapped to locales in a cyclic, round-robin pattern. We
 can also print the range of indices for each sub-domain by adding the following to our code:
 
-~~~
+```chpl
 for loc in Locales do
   on loc do
     writeln(A2.localSubdomain());
-~~~
+```
 ~~~
 {1..7 by 2, 1..7 by 2}  
 {1..7 by 2, 2..8 by 2}  
@@ -674,23 +674,23 @@ modifications to the latter:
 
 (1) Add
 
-~~~
+```chpl
 use BlockDist;
 const mesh: domain(2) = {1..rows, 1..cols};   // local 2D domain
-~~~
+```
 
 (2) Add a larger (n+2)^2 block-distributed domain `largerMesh` with a layer of *ghost points* on
 *perimeter locales*, and define a temperature array T on top of it, by adding the following to our code:
 
-~~~
+```chpl
 const largerMesh: domain(2) dmapped Block(boundingBox=mesh) = {0..rows+1, 0..cols+1};
-~~~
+```
 
 (3) Change the definitions of T and Tnew (delete those two lines) to
 
-~~~
+```chpl
 var T, Tnew: [largerMesh] real;   // block-distributed arrays of temperatures
-~~~
+```
 
 <!-- Here we initialized an initial Gaussian temperature peak in the middle of the mesh. As we evolve our -->
 <!-- solution in time, this peak should diffuse slowly over the rest of the domain. -->
@@ -723,13 +723,13 @@ var T, Tnew: [largerMesh] real;   // block-distributed arrays of temperatures
 Let us define an array of strings `message` with the same distribution over locales as T, by adding the
 following to our code:
 
-~~~
+```chpl
 var message: [largerMesh] string;
 forall m in message do
   m = "%i".format(here.id);   // store ID of the locale on which the code is running
 writeln(message);
 assert(1>2);    // will halt if the condition is false
-~~~
+```
 ~~~ {.bash}
 $ chpl -o parallel3 parallel3.chpl
 $ ./parallel3 -nl 4 --rows=8 --cols=8   # run this from inside distributed.sh
@@ -764,20 +764,20 @@ The outer perimeter in the partition below are the *ghost points*, with the inne
 
 (6) Replace the loop for computing *inner* `Tnew`:
 
-~~~
+```chpl
   for i in 1..rows do {  // do smth for row i
     for j in 1..cols do {   // do smth for row i and column j
       Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
     }
   }
-~~~
+```
   
 with a parallel `forall` loop (**contains a mistake on purpose!**):
 
-~~~
+```chpl
   forall (i,j) in mesh do
     Tnew[i,j] = 0.25 * (T[i-1,j] + T[i+1,j] + T[i,j-1] + T[i,j+1]);
-~~~
+```
 
 > ## Exercise 4
 > Can anyone spot a mistake in this loop?
@@ -795,7 +795,7 @@ with a parallel `forall` loop (**contains a mistake on purpose!**):
 
 (7) Replace
 
-~~~
+```chpl
   delta = 0;
   for i in 1..rows do {
     for j in 1..cols do {
@@ -803,25 +803,25 @@ with a parallel `forall` loop (**contains a mistake on purpose!**):
       if tmp > delta then delta = tmp;
     }
   }
-~~~
+```
 
 with
 
-~~~
+```chpl
   delta = max reduce abs(Tnew[1..rows,1..cols]-T[1..rows,1..cols]);
-~~~
+```
 
 (8) Replace
 
-~~~
+```chpl
   T = Tnew;
-~~~
+```
 
 with the **inner-only** update
 
-~~~
+```chpl
   T[1..rows,1..cols] = Tnew[1..rows,1..cols];   // uses parallel `forall` underneath
-~~~
+```
 
 ## Benchmarking
 
@@ -939,7 +939,7 @@ The largest temperature difference was 0.00199975
 
 Here is the final version of the entire code, minus the comments:
 
-~~~
+```chpl
 use Time, BlockDist;
 config const rows = 100, cols = 100;
 config const niter = 500;
@@ -970,7 +970,7 @@ watch.stop();
 writeln('Final temperature at the desired position [', iout,',', jout, '] after ', count, ' iterations is: ', T[iout,jout]);
 writeln('The largest temperature difference was ', delta);
 writeln('The simulation took ', watch.elapsed(), ' seconds');
-~~~
+```
 
 This is the entire multi-locale, data-parallel, hybrid shared-/distributed-memory solver!
 
@@ -981,11 +981,11 @@ This is the entire multi-locale, data-parallel, hybrid shared-/distributed-memor
 >
 >> ## Solution
 >> Just before temperature output (if count%nout == 0), insert the following:
->> ~~~
+>> ```chpl
 >>   var total = 0.0;
 >>   forall (i,j) in largerMesh[1..rows,1..cols] with (+ reduce total) do
 >>     total += T[i,j];
->> ~~~
+>> ```
 >> and add total to the temperature output. It is decreasing as energy is leaving the system:
 >> ~~~ {.bash}
 >> $ chpl --fast parallel3.chpl -o parallel3
@@ -1009,18 +1009,19 @@ This is the entire multi-locale, data-parallel, hybrid shared-/distributed-memor
 >
 >> ## Solution
 >> Here is one possible solution examining the locality of the finite-difference stencil:
->> ~~~
+>> ```chpl
 >> var message: [largerMesh] string = 'empty';
->> ~~~
+>> ```
 >> and in the next line after computing Tnew[i,j] put
->> ~~~
+>> ```chpl
 >>     message[i,j] = "%i".format(here.id) + message[i,j].locale.id + message[i-1,j].locale.id +
 >>       message[i+1,j].locale.id + message[i,j-1].locale.id + message[i,j+1].locale.id + '  ';
->> ~~~
+>> ```
 >> and before the end of the `while` loop
+>> ```chpl
 >>   writeln(message);
 >>   assert(1>2);
->> ~~~
+>> ```
 >> Then run it
 >> ~~~ {.bash}
 >> $ chpl --fast parallel3.chpl -o parallel3
@@ -1051,12 +1052,12 @@ empty empty empty empty empty empty empty empty empty empty
 <!-- Now let us modify the previous parallel solver to include periodic BCs. At the beginning of each time -->
 <!-- step we need to set elements on the *ghost points* to their respective values on the *opposite ends*, by -->
 <!-- adding the following to our code: -->
-<!-- ~~~ -->
+<!-- ```chpl -->
 <!--   T[0,1..n] = T[n,1..n]; // periodic boundaries on all four sides; these will run via parallel forall -->
 <!--   T[n+1,1..n] = T[1,1..n]; -->
 <!--   T[1..n,0] = T[1..n,n]; -->
 <!--   T[1..n,n+1] = T[1..n,1]; -->
-<!-- ~~~ -->
+<!-- ``` -->
 <!-- Now total energy should be conserved, as nothing leaves the domain. -->
 
 # I/O
@@ -1071,12 +1072,12 @@ Let us write the final solution to disk. There are several caveats:
 Let's comment out all lines with `message` and `assert()`, and add the following at the end of our code
 to write ASCII:
 
-~~~
+```chpl
 var myFile = open('output.dat', iomode.cw);   // open the file for writing
 var myWritingChannel = myFile.writer();   // create a writing channel starting at file offset 0
 myWritingChannel.write(T);   // write the array
 myWritingChannel.close();   // close the channel
-~~~
+```
 ~~~ {.bash}
 $ chpl --fast parallel3.chpl -o parallel3
 $ ./parallel3 -nl 4 --rows=8 --cols=8   # run this from inside distributed.sh
