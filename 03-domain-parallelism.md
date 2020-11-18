@@ -71,15 +71,15 @@ writeln('count = ', count);
 If we have not done so, let's write a script `shared.sh` for submitting single-locale, three-processor
 Chapel jobs:
 
-<!-- ~~~ {.bash} -->
+<!-- ```sh -->
 <!-- $ module load gcc chapel-single/1.15.0 -->
 <!-- $ salloc --time=2:00:0 --ntasks=1 --cpus-per-task=2 --mem-per-cpu=1000 \ -->
 <!--          --account=def-razoumov-ws_cpu --reservation=arazoumov-may17 -->
 <!-- $ chpl forall.chpl -o forall -->
 <!-- $ ./forall -->
-<!-- ~~~ -->
+<!-- ``` -->
 
-~~~ {.bash}
+```sh
 #!/bin/bash
 #SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
 #SBATCH --mem-per-cpu=1000   # in MB
@@ -87,17 +87,17 @@ Chapel jobs:
 #SBATCH --cpus-per-task=2
 #SBATCH --output=solution.out
 ./forall
-~~~
+```
 
-~~~ {.bash}
+```sh
 $ . /project/shared/startSingleLocale.sh     # on the training VM cluster (Cassiopeia)
 $ chpl forall.chpl -o forall
 $ sbatch shared.sh
 $ cat solution.out
-~~~
-~~~
+```
+```
 count = 500500
-~~~
+```
 
 We computed the sum of integers from 1 to 1000 in parallel. How many cores did the code run on? Looking
 at the code or its output, **we don't know**. Most likely, on three cores available to us inside the
@@ -106,14 +106,14 @@ job. But we can actually check that!
 (1) replace `count += i;` with `count = 1;`  
 (2) change the last line to `writeln('actual number of threads = ', count);`
 
-~~~ {.bash}
+```sh
 $ chpl forall.chpl -o forall
 $ sbatch shared.sh
 $ cat solution.out
-~~~
-~~~
+```
+```
 actual number of threads = 3
-~~~
+```
 
 > ## Exercise 1
 > Using the first version of `forall.chpl` (where we computed the sum of integers 1..1000) as a template,
@@ -171,10 +171,10 @@ this is referred to as *multi-locale* execution.
 >> simulates a multi-locale cluster, so you would compile and launch multi-locale Chapel codes directly by
 >> specifying the number of locales with `-nl` flag:
 >>
->> ~~~ {.bash}
+>> ```sh
 >> $ chpl --fast mycode.chpl -o mybinary
 >> $ ./mybinary -nl 4
->> ~~~
+>> ```
 >>
 >> Inside the Docker container on multiple locales your code will not run any faster than on a single
 >> locale, since you are emulating a virtual cluster, and all tasks run on the same physical node. To
@@ -194,30 +194,30 @@ For the rest of this class we assume that you have a working multi-locale Chapel
 provided by a Docker container or by multi-locale Chapel on a physical HPC cluster. We will run all
 examples on four nodes with three cores per node.
 
-<!-- ~~~ {.bash} -->
+<!-- ```sh -->
 <!-- $ chpl mycode.chpl -o mybinary -->
 <!-- $ ./mybinary -nl 2 -->
-<!-- ~~~ -->
+<!-- ``` -->
 <!-- The exact parameters of the job such as the maximum runtime and the requested memory can be specified -->
 <!-- with Chapel environment variables. One drawback of this launching method is that Chapel will have access -->
 <!-- to all physical cores on each node participating in the run -- this will present problems if you are -->
 <!-- scheduling jobs by-core and not by-node, since part of a node should be allocated to someone else's job. -->
 <!-- The Compute Canada clusters Cedar and Graham employ two different physical interconnects, and since we -->
 <!-- use exactly the same multi-locale Chapel module on both clusters -->
-<!-- ~~~ {.bash} -->
+<!-- ```sh -->
 <!-- $ module load gcc chapel-slurm-gasnetrun_ibv/1.15.0 -->
 <!-- $ export GASNET_PHYSMEM_MAX=1G      # needed for faster job launch -->
 <!-- $ export GASNET_PHYSMEM_NOPROBE=1   # needed for faster job launch -->
-<!-- ~~~ -->
+<!-- ``` -->
 <!-- we cannot configure the same single launcher for both. Therefore, we launch multi-locale Chapel codes -->
 <!-- using the real executable `mybinary_real`. For example, for an interactive job you would type: -->
-<!-- ~~~ {.bash} -->
+<!-- ```sh -->
 <!-- $ salloc --time=0:30:0 --nodes=4 --cpus-per-task=2 --mem-per-cpu=1000 --account=def-razoumov-ac -->
 <!-- $ echo $SLURM_NODELIST          # print the list of four nodes -->
 <!-- $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3) -->
 <!-- $ chpl mycode.chpl -o mybinary -->
 <!-- $ srun ./mybinary_real -nl 4   # will run on four locales with max 3 cores per locale -->
-<!-- ~~~ -->
+<!-- ``` -->
 <!-- Production jobs would be launched with `sbatch` command and a Slurm launch script as usual. -->
 <!-- Alternatively, instead of loading the system-wide module, you can configure multi-locale Chapel in your -->
 <!-- own directory. Send me an email later, and I'll share the instructions. Here is how you would use it: -->
@@ -226,7 +226,7 @@ examples on four nodes with three cores per node.
 <!-- node unload `chapel-single` and load `chapel-multi-cedar`, and then start a **4-node** interactive job -->
 <!-- with **3 cores per MPI task** (12 cores per job): -->
 
-<!-- ~~~ {.bash} -->
+<!-- ```sh -->
 <!-- $ module unload chapel-single -->
 <!-- $ module load chapel-multi-cedar/1.16.0 -->
 <!-- $ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 \ -->
@@ -235,11 +235,11 @@ examples on four nodes with three cores per node.
 <!-- $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3) -->
 <!-- $ export HFI_NO_CPUAFFINITY=1   # to enable parallelism on each locale with OmniPath drivers -->
 <!-- $ export CHPL_RT_NUM_THREADS_PER_LOCALE=$SLURM_CPUS_PER_TASK   # to limit the number of tasks -->
-<!-- ~~~ -->
+<!-- ``` -->
 
 Let's write a job submission script `distributed.sh`:
 
-~~~ {.bash}
+```sh
 #!/bin/bash
 #SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
 #SBATCH --mem-per-cpu=1000   # in MB
@@ -247,18 +247,18 @@ Let's write a job submission script `distributed.sh`:
 #SBATCH --cpus-per-task=2
 #SBATCH --output=solution.out
 ./test -nl 4   # in this case the 'srun' launcher is already configured for our interconnect
-~~~
+```
 
 <!-- **Note**: On Graham currently there is no good Chapel installed centrally, so you'll have to load it from -->
 <!-- AR's home directory: -->
 
-<!-- ~~~ {.bash} -->
+<!-- ```sh -->
 <!-- $ . /home/razoumov/startMultiLocale.sh -->
 <!-- $ salloc --time=2:00:0 --nodes=4 --cpus-per-task=3 --mem-per-cpu=1000 \ -->
 <!--          --account=def-razoumov-ws_cpu --reservation=arazoumov-may17 -->
 <!-- $ echo $SLURM_NODELIST          # print the list of nodes (should be four) -->
 <!-- $ echo $SLURM_CPUS_PER_TASK     # print the number of cores per node (3) -->
-<!-- ~~~ -->
+<!-- ``` -->
 
 <!-- Check: without `CHPL_RT_NUM_THREADS_PER_LOCALE`, will 32 threads run on separate 32 cores -->
 <!-- or will they run on the 3 cores inside our Slurm job? -->
@@ -270,18 +270,18 @@ Let us test our multi-locale Chapel environment by launching the following code:
 ```chpl
 writeln(Locales);
 ```
-~~~ {.bash}
+```sh
 $ . /project/shared/startMultiLocale.sh     # on the training VM cluster (Cassiopeia)
 $ chpl test.chpl -o test
 $ sbatch distributed.sh
 $ cat solution.out
-~~~
+```
 
 This code will print the built-in global array `Locales`. Running it on four locales will produce
 
-~~~
+```
 LOCALE0 LOCALE1 LOCALE2 LOCALE3
-~~~
+```
 
 We want to run some code on each locale (node). For that, we can cycle through locales:
 
@@ -293,12 +293,12 @@ for loc in Locales do   // this is still a serial program
 
 This will produce
 
-~~~
+```
 this locale is named node1
 this locale is named node3
 this locale is named node2
 this locale is named node4
-~~~
+```
 
 Here the built-in variable class `here` refers to the locale on which the code is running, and
 `here.name` is its hostname. We started a serial `for` loop cycling through all locales, and on each
@@ -318,12 +318,12 @@ forall loc in Locales do   // now this is a parallel loop
 This starts four tasks in parallel, and the order in which the print statement is executed depends on the
 runtime conditions and can change from run to run:
 
-~~~
+```
 this locale is named node1
 this locale is named node4
 this locale is named node2
 this locale is named node3
-~~~
+```
 
 We can print few other attributes of each locale. Here it is actually useful to revert to the serial loop
 `for` so that the print statements appear in order:
@@ -339,12 +339,12 @@ for loc in Locales do
     writeln("  ...has ", here.maxTaskPar, " maximum parallelism");
   }
 ```
-~~~ {.bash}
+```sh
 $ chpl test.chpl -o test
 $ sbatch distributed.sh
 $ cat solution.out
-~~~
-~~~
+```
+```
 locale #0...
   ...is named: node1.cassiopeia.westgrid.ca
   ...has 2 processor cores
@@ -365,7 +365,7 @@ locale #3...
   ...has 2 processor cores
   ...has 2.77974 GB of memory
   ...has 2 maximum parallelism
-~~~
+```
 
 Note that while Chapel correctly determines the number of physical cores on each node and the number of
 cores available inside our job on each node (maximum parallelism), it lists the total physical memory on
@@ -422,7 +422,7 @@ const mesh: domain(2) = {1..n, 1..n};  // a 2D domain defined in shared memory o
 forall m in mesh do   // go in parallel through all n^2 mesh points
   writeln(m, ' ', m.locale.id, ' ', here.id, ' ', here.maxTaskPar);
 ```
-~~~
+```
 ((7, 1), 0, 0, 3)
 ((1, 1), 0, 0, 3)
 ((7, 2), 0, 0, 3)
@@ -431,7 +431,7 @@ forall m in mesh do   // go in parallel through all n^2 mesh points
 ((6, 6), 0, 0, 3)
 ((6, 7), 0, 0, 3)
 ((6, 8), 0, 0, 3)
-~~~
+```
 
 Now we are going to learn two very important properties of Chapel domains. **First**, domains can be used
 to **define arrays of variables of any type on top of them**. For example, let us define an n^2 array of
@@ -444,12 +444,12 @@ var T: [mesh] real;   // a 2D array of reals defined in shared memory on a singl
 forall t in T do   // go in parallel through all n^2 elements of T
   writeln(t, ' ', t.locale.id);
 ```
-~~~ {.bash}
+```sh
 $ chpl test.chpl -o test
 $ sbatch distributed.sh
 $ cat solution.out
-~~~
-~~~
+```
+```
 (0.0, 0)
 (0.0, 0)
 (0.0, 0)
@@ -458,7 +458,7 @@ $ cat solution.out
 (0.0, 0)
 (0.0, 0)
 (0.0, 0)
-~~~
+```
 
 By default, all n^2 array elements are set to zero, and all of them are defined on the same locale as the
 underlying mesh. We can also cycle through all indices of T by accessing its domain:
@@ -467,7 +467,7 @@ underlying mesh. We can also cycle through all indices of T by accessing its dom
 forall idx in T.domain 
   writeln(idx, ' ', T(idx));   // idx is a tuple (i,j); also print the corresponding array element
 ```
-~~~
+```
 (7, 1) 0.0
 (1, 1) 0.0
 (7, 2) 0.0
@@ -476,7 +476,7 @@ forall idx in T.domain
 (6, 6) 0.0
 (6, 7) 0.0
 (6, 8) 0.0
-~~~
+```
 
 Since we use a paralell `forall` loop, the print statements appear in a random runtime order.
 
@@ -537,7 +537,7 @@ but let us not worry about this for now.
 
 Running our code on four locales with three cores per locale produces the following output:
 
-~~~
+```
 0-node1-2   0-node1-2   0-node1-2   0-node1-2   1-node2-2   1-node2-2   1-node2-2   1-node2-2__
 0-node1-2   0-node1-2   0-node1-2   0-node1-2   1-node2-2   1-node2-2   1-node2-2   1-node2-2__
 0-node1-2   0-node1-2   0-node1-2   0-node1-2   1-node2-2   1-node2-2   1-node2-2   1-node2-2__
@@ -546,7 +546,7 @@ Running our code on four locales with three cores per locale produces the follow
 2-node4-2   2-node4-2   2-node4-2   2-node4-2   3-node3-2   3-node3-2   3-node3-2   3-node3-2__
 2-node4-2   2-node4-2   2-node4-2   2-node4-2   3-node3-2   3-node3-2   3-node3-2   3-node3-2__
 2-node4-2   2-node4-2   2-node4-2   2-node4-2   3-node3-2   3-node3-2   3-node3-2   3-node3-2__
-~~~
+```
 
 As we see, the domain `distributedMesh` (along with the string array `A` on top of it) was decomposed
 into 2x2 blocks stored on the four nodes, respectively. Equally important, for each element `a` of the
@@ -568,12 +568,12 @@ for loc in Locales {
 
 On 4 locales we should get:
 
-~~~
+```
 {1..4, 1..4}  
 {1..4, 5..8}  
 {5..8, 1..4}  
 {5..8, 5..8}  
-~~~
+```
 
 Let us count the number of threads by adding the following to our code:
 
@@ -588,24 +588,24 @@ writeln("actual number of threads = ", count);
 If `n=8` in our code is sufficiently large, there are enough array elements per node (8*8/4 = 16 in our
 case) to fully utilize all three available cores on each node, so our output should be
 
-~~~ {.bash}
+```sh
 $ chpl test.chpl -o test
 $ sbatch distributed.sh
 $ cat solution.out
-~~~
-~~~
+```
+```
 actual number of threads = 12
-~~~
+```
 
 > ## Exercise 2
 > Try reducing the array size `n` to see if that changes the output (fewer threads per locale), e.g.,
 > setting n=3. Also try increasing the array size to n=20 and study the output. Does the output make sense?
 >
 >> Answer: run the code with
->> ~~~ {.bash}
+>> ```sh
 >> $ ./test -nl 4 --n=3
 >> $ ./test -nl 4 --n=20
->> ~~~
+>> ```
 >> For n=3 we get fewer threads (7 in my case), for n=20 we still get 12 threads (the maximum available
 >> number of cores inside our job).
 
@@ -631,12 +631,12 @@ forall a in A2 {
 }
 writeln(A2);
 ```
-~~~ {.bash}
+```sh
 $ chpl -o test test.chpl
 $ sbatch distributed.sh
 $ cat solution.out
-~~~
-~~~
+```
+```
 0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2__
 2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2__
 0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2__
@@ -645,7 +645,7 @@ $ cat solution.out
 2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2__
 0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2   0-node1-2   1-node4-2__
 2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2   2-node2-2   3-node3-2__
-~~~
+```
 
 As the name `CyclicDist` suggests, the domain was mapped to locales in a cyclic, round-robin pattern. We
 can also print the range of indices for each sub-domain by adding the following to our code:
@@ -655,12 +655,12 @@ for loc in Locales do
   on loc do
     writeln(A2.localSubdomain());
 ```
-~~~
+```
 {1..7 by 2, 1..7 by 2}  
 {1..7 by 2, 2..8 by 2}  
 {2..8 by 2, 1..7 by 2}  
 {2..8 by 2, 2..8 by 2}  
-~~~
+```
 
 In addition to BlockDist and CyclicDist, Chapel has several other predefined distributions: BlockCycDist,
 ReplicatedDist, DimensionalDist2D, ReplicatedDim, BlockCycDim -- for details please see
@@ -707,7 +707,7 @@ var T, Tnew: [largerMesh] real;   // block-distributed arrays of temperatures
 
 <!-- The code above will print the initial temperature distribution: -->
 
-<!-- ~~~ -->
+<!-- ``` -->
 <!-- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0   -->
 <!-- 0.0 2.36954e-17 2.79367e-13 1.44716e-10 3.29371e-09 3.29371e-09 1.44716e-10 2.79367e-13 2.36954e-17 0.0   -->
 <!-- 0.0 2.79367e-13 3.29371e-09 1.70619e-06 3.88326e-05 3.88326e-05 1.70619e-06 3.29371e-09 2.79367e-13 0.0   -->
@@ -718,7 +718,7 @@ var T, Tnew: [largerMesh] real;   // block-distributed arrays of temperatures
 <!-- 0.0 2.79367e-13 3.29371e-09 1.70619e-06 3.88326e-05 3.88326e-05 1.70619e-06 3.29371e-09 2.79367e-13 0.0   -->
 <!-- 0.0 2.36954e-17 2.79367e-13 1.44716e-10 3.29371e-09 3.29371e-09 1.44716e-10 2.79367e-13 2.36954e-17 0.0   -->
 <!-- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0   -->
-<!-- ~~~ -->
+<!-- ``` -->
 
 Let us define an array of strings `message` with the same distribution over locales as T, by adding the
 following to our code:
@@ -730,14 +730,14 @@ forall m in message do
 writeln(message);
 assert(1>2);    // will halt if the condition is false
 ```
-~~~ {.bash}
+```sh
 $ chpl -o parallel3 parallel3.chpl
 $ ./parallel3 -nl 4 --rows=8 --cols=8   # run this from inside distributed.sh
-~~~
+```
 
 The outer perimeter in the partition below are the *ghost points*, with the inner 8x8 array:
 
-~~~
+```
 0 0 0 0 0 1 1 1 1 1  
 0 0 0 0 0 1 1 1 1 1  
 0 0 0 0 0 1 1 1 1 1  
@@ -748,7 +748,7 @@ The outer perimeter in the partition below are the *ghost points*, with the inne
 2 2 2 2 2 3 3 3 3 3  
 2 2 2 2 2 3 3 3 3 3  
 2 2 2 2 2 3 3 3 3 3  
-~~~
+```
 
 > ## Exercise 3
 > In addition to here.id, also print the ID of the locale holding that value. Is it the same or different
@@ -828,24 +828,24 @@ with the **inner-only** update
 Let's compile both serial and data-parallel versions using the same multi-locale compiler (and we will
 need `-nl` flag when running both):
 
-~~~ {.bash}
+```sh
 $ which chpl
 ~/c3/chapel-1.19.0/bin/linux64-x86_64/chpl
 $ chpl --fast baseSolver.chpl -o baseSolver
 $ chpl --fast parallel3.chpl -o parallel3
-~~~
+```
 
 First, let's try this on a smaller problem. Let's write two job submission scripts:
 
-~~~ {.bash}
+```sh
 #!/bin/bash     # this is baseSolver.sh
 #SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
 #SBATCH --mem-per-cpu=1000   # in MB
 #SBATCH --output=baseSolver.out
 ./baseSolver -nl 1 --rows=30 --cols=30 --niter=2000
-~~~
+```
 
-~~~ {.bash}
+```sh
 #!/bin/bash     # this is parallel3.sh
 #SBATCH --time=00:05:00   # walltime in d-hh:mm or hh:mm:ss format
 #SBATCH --mem-per-cpu=1000   # in MB
@@ -853,18 +853,18 @@ First, let's try this on a smaller problem. Let's write two job submission scrip
 #SBATCH --cpus-per-task=2
 #SBATCH --output=parallel3.out
 ./parallel3 -nl 4 --rows=30 --cols=30 --niter=2000
-~~~
+```
 
 Let's run them both:
 
-~~~ {.bash}
+```sh
 sbatch baseSolver.sh
 sbatch parallel3.sh
-~~~
+```
 
 Wait for the jobs to finish and then check the results:
 
-~~~ {.bash}
+```sh
 $ tail -3 baseSolver.out
 Final temperature at the desired position [1,30] after 1148 iterations is: 2.58084
 The largest temperature difference was 9.9534e-05
@@ -874,7 +874,7 @@ $ tail -3 parallel3.out
 Final temperature at the desired position [1,30] after 1148 iterations is: 2.58084
 The largest temperature difference was 9.9534e-05
 The simulation took 193.279 seconds
-~~~
+```
 
 As you can see, on the training VM cluster the parallel code on 4 nodes (with 2 cores each) ran ~22,675
 times slower than a serial code on a single node ... What is going on here!? Shouldn't the parallel code
@@ -888,7 +888,7 @@ If we increase the problem size, there will be more computation (scaling O(n^2))
 communications (scaling O(n)), and at some point parallel code should catch up to the serial code and
 eventually run faster. Let's try these problem sizes:
 
-~~~
+```
 --rows=650 --cols=650 --niter=9500 --tolerance=0.002
 Final temperature at the desired position [1,650] after 7750 iterations is: 0.125606
 The largest temperature difference was 0.00199985
@@ -904,7 +904,7 @@ The largest temperature difference was 0.00199974
 ./baseSolver -nl 1 --rows=16000 --cols=16000 --niter=9900 --tolerance=0.002
 Final temperature at the desired position [1,16000] after 9806 iterations is: 0.00818861
 The largest temperature difference was 0.00199975
-~~~
+```
 
 
 #### On the training VM:
@@ -987,7 +987,7 @@ This is the entire multi-locale, data-parallel, hybrid shared-/distributed-memor
 >>     total += T[i,j];
 >> ```
 >> and add total to the temperature output. It is decreasing as energy is leaving the system:
->> ~~~ {.bash}
+>> ```sh
 >> $ chpl --fast parallel3.chpl -o parallel3
 >> $ ./parallel3 -nl 1 --rows=30 --cols=30 --niter=2000   # run this from inside distributed.sh
 >> Temperature at iteration 0: 25.0
@@ -1000,7 +1000,7 @@ This is the entire multi-locale, data-parallel, hybrid shared-/distributed-memor
 >> Final temperature at the desired position [1,30] after 1148 iterations is: 2.58084
 >> The largest temperature difference was 9.9534e-05
 >> The simulation took 0.114942 seconds
->> ~~~
+>> ```
 
 > ## Exercise 6
 > Write a code to print how the finite-difference stencil [i,j], [i-1,j], [i+1,j], [i,j-1], [i,j+1] is
@@ -1023,16 +1023,16 @@ This is the entire multi-locale, data-parallel, hybrid shared-/distributed-memor
 >>   assert(1>2);
 >> ```
 >> Then run it
->> ~~~ {.bash}
+>> ```sh
 >> $ chpl --fast parallel3.chpl -o parallel3
 >> $ ./parallel3 -nl 4 --rows=8 --cols=8   # run this from inside distributed.sh
->> ~~~
+>> ```
 
 
 This produced the following output clearly showing the *ghost points* and the stencil distribution for
 each mesh point:
 
-~~~
+```
 empty empty empty empty empty empty empty empty empty empty  
 empty 000000   000000   000000   000001   111101   111111   111111   111111   empty  
 empty 000000   000000   000000   000001   111101   111111   111111   111111   empty  
@@ -1043,7 +1043,7 @@ empty 222222   222222   222222   222223   333323   333333   333333   333333   em
 empty 222222   222222   222222   222223   333323   333333   333333   333333   empty  
 empty 222222   222222   222222   222223   333323   333333   333333   333333   empty  
 empty empty empty empty empty empty empty empty empty empty  
-~~~
+```
 
 * note that Tnew[i,j] is always computed on the same node where that element is stored
 * note remote stencil points at the block boundaries
@@ -1078,12 +1078,12 @@ var myWritingChannel = myFile.writer();   // create a writing channel starting a
 myWritingChannel.write(T);   // write the array
 myWritingChannel.close();   // close the channel
 ```
-~~~ {.bash}
+```sh
 $ chpl --fast parallel3.chpl -o parallel3
 $ ./parallel3 -nl 4 --rows=8 --cols=8   # run this from inside distributed.sh
 $ ls -l *dat
 -rw-rw-r-- 1 razoumov razoumov 659 Mar  9 18:04 output.dat
-~~~
+```
 
 The file *output.dat* should contain the 8x8 temperature array after convergence.
 
